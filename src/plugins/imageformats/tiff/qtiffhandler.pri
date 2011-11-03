@@ -3,6 +3,8 @@ INCLUDEPATH *= $$PWD
 HEADERS += $$PWD/qtiffhandler_p.h
 SOURCES += $$PWD/qtiffhandler.cpp
 contains(QT_CONFIG, system-tiff) {
+        CONFIG += link_pkgconfig
+        PKGCONFIG += libtiff-4
         if(unix|win32-g++*):LIBS += -ltiff
         else:win32:         LIBS += libtiff.lib
 } else {
