@@ -1,0 +1,21 @@
+# Name of the project.
+project = QtImageFormats
+
+
+
+#Do not change the variables after this line unless you know what you are doing.
+
+outputdir = ditaxml
+outputformats = DITAXML
+
+exampledirs += ../examples
+# headerdirs +=
+# sourcedirs +=
+
+HTML.nobreadcrumbs = "true"
+
+examples.fileextensions = "*.cpp *.h *.js *.svg *.xml *.ui *.qml"
+examples.imageextensions = "*.png *.jpeg *.jpg *.gif *.mng"
+headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
+sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
+
