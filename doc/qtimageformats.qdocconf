@@ -24,11 +24,11 @@ qhp.QtImageFormats.file = QtImageFormats.qhp
 # different documentation files in Creator/Assistant. The namespace ends with
 # a version being a number containing a major, minor and revision element.
 # E.g. version 1.0 becomes 100.
-qhp.QtImageFormats.namespace = com.nokia.qtjsondb.100
+qhp.QtImageFormats.namespace = org.qt-project.qtimageformats.100
 
 # Title for the package, will be the main title for the package in
 # Assistant/Creator.
-qhp.QtImageFormats.indexTitle = Qt JsonDb Reference Documentation
+qhp.QtImageFormats.indexTitle = Qt Image Formats Reference Documentation
 
 # Extra files to add to the output which are not linked to from anywhere
 # using a qdoc \l command.
