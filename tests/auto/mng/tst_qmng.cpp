@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: http://www.qt-project.org/
 **
-** This file is part of the QtAddOn.JsonDb module of the Qt Toolkit.
+** This file is part of the MNG plugin of the Qt Image Formats Module.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** GNU Lesser General Public License Usage
