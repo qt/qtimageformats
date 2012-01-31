@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = \
-    mng
+SUBDIRS =
+contains(QT_CONFIG, system-zlib): SUBDIRS += mng tiff
