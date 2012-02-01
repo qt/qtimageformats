@@ -1,10 +1,9 @@
 /****************************************************************************
 **
 ** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
 ** Contact: http://www.qt-project.org/
 **
-** This file is part of the QtAddOn.JsonDb module of the Qt Toolkit.
+** This file is part of the MNG autotests in the Qt ImageFormats module.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** GNU Lesser General Public License Usage
@@ -35,9 +34,11 @@
 **
 **
 **
+**
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+
 #include <QtTest/QtTest>
 #include <QtGui/QtGui>
 
