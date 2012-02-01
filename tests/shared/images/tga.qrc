@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>tga/test-flag-rle.tga</file>
+        <file>tga/test-flag.tga</file>
+    </qresource>
+</RCC>
