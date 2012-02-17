@@ -56,7 +56,10 @@ QT_BEGIN_NAMESPACE
 
 class QMngPlugin : public QImageIOPlugin
 {
-    public:
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "mng.json")
+
+public:
     QStringList keys() const;
     Capabilities capabilities(QIODevice *device, const QByteArray &format) const;
     QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const;
@@ -90,9 +93,8 @@ QImageIOHandler *QMngPlugin::create(QIODevice *device, const QByteArray &format)
     return hand;
 }
 
-Q_EXPORT_STATIC_PLUGIN(QMngPlugin)
-Q_EXPORT_PLUGIN2(qmng, QMngPlugin)
-
 QT_END_NAMESPACE
+
+#include "main.moc"
 
 #endif // !QT_NO_IMAGEFORMATPLUGIN

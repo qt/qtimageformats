@@ -53,6 +53,9 @@ QT_BEGIN_NAMESPACE
 
 class QTiffPlugin : public QImageIOPlugin
 {
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "tiff.json")
+
 public:
     Capabilities capabilities(QIODevice * device, const QByteArray & format) const;
     QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const;
@@ -89,9 +92,8 @@ QStringList QTiffPlugin::keys() const
     return QStringList() << QLatin1String("tiff") << QLatin1String("tif");
 }
 
-Q_EXPORT_STATIC_PLUGIN(QTiffPlugin)
-Q_EXPORT_PLUGIN2(qtiff, QTiffPlugin)
-
 QT_END_NAMESPACE
+
+#include "main.moc"
 
 #endif /* QT_NO_IMAGEFORMATPLUGIN */
