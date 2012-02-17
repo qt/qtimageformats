@@ -54,6 +54,9 @@ QT_BEGIN_NAMESPACE
 
 class QTgaPlugin : public QImageIOPlugin
 {
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "tga.json")
+
 public:
     Capabilities capabilities(QIODevice * device, const QByteArray & format) const;
     QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const;
@@ -88,8 +91,8 @@ QStringList QTgaPlugin::keys() const
     return QStringList() << QLatin1String("tga");
 }
 
-Q_EXPORT_PLUGIN2(qtga, QTgaPlugin)
-
 QT_END_NAMESPACE
+
+#include "main.moc"
 
 #endif /* QT_NO_IMAGEFORMATPLUGIN */
