@@ -1,7 +1,7 @@
 TARGET = qwbmp
 load(qt_plugin)
 
-HEADERS += qwbmphandler.h
+HEADERS += qwbmphandler_p.h
 SOURCES += qwbmphandler.cpp
 OTHER_FILES += wbmp.json
 
