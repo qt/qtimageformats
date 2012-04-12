@@ -1,7 +1,4 @@
-TEMPLATE = app
 TARGET = tst_bench_qmng
-DEPENDPATH += .
-INCLUDEPATH += .
 
 QT = core gui testlib
 CONFIG -= app_bundle
