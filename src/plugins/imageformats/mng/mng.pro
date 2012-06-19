@@ -3,6 +3,7 @@ load(qt_plugin)
 
 # QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-mng)"
 
+#INCLUDEPATH *= $$PWD
 HEADERS += qmnghandler_p.h
 SOURCES += qmnghandler.cpp
 OTHER_FILES += mng.json
