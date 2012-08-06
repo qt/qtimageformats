@@ -4,7 +4,7 @@ load(qt_plugin)
 HEADERS += qmnghandler_p.h
 SOURCES += qmnghandler.cpp
 OTHER_FILES += mng.json
-contains(QT_CONFIG, system-mng) {
+config_libmng {
         if(unix|win32-g++*):LIBS += -lmng
         else:win32:         LIBS += libmng.lib
 } else {
