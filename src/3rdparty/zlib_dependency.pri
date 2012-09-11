@@ -6,5 +6,5 @@ contains(QT_CONFIG, system-zlib) {
 } else {
 # We could copy the zlib sources over to this module, but for now we don't.
 #    INCLUDEPATH +=  $$PWD/zlib
-    error(zlib not available: Qt was not built with the system's zlib)
+    error("zlib not available: Qt was not built with the system's zlib")
 }
