@@ -1,4 +1,6 @@
 TARGET  = qmng
+
+PLUGIN_TYPE = imageformats
 load(qt_plugin)
 
 HEADERS += qmnghandler_p.h
@@ -13,7 +15,3 @@ config_libmng {
 }
 
 SOURCES += main.cpp
-
-DESTDIR = $$QT.gui.plugins/imageformats
-target.path += $$[QT_INSTALL_PLUGINS]/imageformats
-INSTALLS += target

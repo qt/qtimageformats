@@ -1,4 +1,6 @@
 TARGET  = qtiff
+
+PLUGIN_TYPE = imageformats
 load(qt_plugin)
 
 HEADERS += qtiffhandler_p.h
@@ -11,7 +13,3 @@ config_libtiff {
 } else {
     include($$PWD/../../../3rdparty/libtiff.pri)
 }
-
-DESTDIR = $$QT.gui.plugins/imageformats
-target.path += $$[QT_INSTALL_PLUGINS]/imageformats
-INSTALLS += target
