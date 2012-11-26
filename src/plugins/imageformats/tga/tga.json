@@ -1,3 +1,4 @@
 {
-    "Keys": [ "tga" ]
+    "Keys": [ "tga" ],
+    "MimeTypes": [ "image/x-tga" ]
 }

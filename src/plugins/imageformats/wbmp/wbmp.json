@@ -1,3 +1,4 @@
 {
-    "Keys": [ "wbmp" ]
+    "Keys": [ "wbmp" ],
+    "MimeTypes": [ "image/vnd.wap.wbmp" ]
 }
