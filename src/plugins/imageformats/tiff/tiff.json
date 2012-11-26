@@ -1,3 +1,4 @@
 {
-    "Keys": [ "tiff", "tif" ]
+    "Keys": [ "tiff", "tif" ],
+    "MimeTypes": [ "image/tiff", "image/tiff" ]
 }
