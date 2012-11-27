@@ -1,5 +1,10 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
 # Name of the project.
-project = QtImageFormats
+project     = qtimageformats
+description = Qt Image Formats Documentation
+url         = http://qt-project.org/doc/qtimageformats
+version     = 5.0.0
 
 # Directories in which to search for files to document.
 # Paths are relative to the location of this file.
@@ -15,32 +20,32 @@ imagedirs += images
 # Defines the name of the project. You cannot use operators (+, =, -) in
 # the name. Properties for this project are set using a qhp.<projectname>.property
 # format.
-qhp.projects = QtImageFormats
+qhp.projects = qtimageformats
 
 # Sets the name of the output qhp file.
-qhp.QtImageFormats.file = QtImageFormats.qhp
+qhp.qtimageformats.file = qtimageformats.qhp
 
 # Namespace for the output file. This namespace is used to distinguish between
 # different documentation files in Creator/Assistant. The namespace ends with
 # a version being a number containing a major, minor and revision element.
 # E.g. version 1.0 becomes 100.
-qhp.QtImageFormats.namespace = com.nokia.qtimageformats.100
+qhp.qtimageformats.namespace = org.qt-project.qtimageformats.500
 
 # Title for the package, will be the main title for the package in
 # Assistant/Creator.
-qhp.QtImageFormats.indexTitle = Qt Image Formats Reference Documentation
+qhp.qtimageformats.indexTitle = Qt Image Formats
 
 # Extra files to add to the output which are not linked to from anywhere
 # using a qdoc \l command.
-qhp.QtImageFormats.extraFiles = style/style.css \
+qhp.qtimageformats.extraFiles = style/style.css \
                         index.html
 
 # Only updtae the name of the project for the next variables.
-qhp.QtImageFormats.virtualFolder  = qdoc
-qhp.QtImageFormats.subprojects = classes
-qhp.QtImageFormats.subprojects.classes.title = Classes
-qhp.QtImageFormats.subprojects.classes.selectors = class fake:headerfile
-qhp.QtImageFormats.subprojects.classes.sortPages = true
+qhp.qtimageformats.virtualFolder  = qdoc
+qhp.qtimageformats.subprojects = classes
+qhp.qtimageformats.subprojects.classes.title = Classes
+qhp.qtimageformats.subprojects.classes.selectors = class fake:headerfile
+qhp.qtimageformats.subprojects.classes.sortPages = true
 
 
 
