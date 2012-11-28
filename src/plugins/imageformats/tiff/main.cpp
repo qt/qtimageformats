@@ -47,7 +47,7 @@
 #ifdef QT_NO_IMAGEFORMAT_TIFF
 #undef QT_NO_IMAGEFORMAT_TIFF
 #endif
-#include <qtiffhandler_p.h>
+#include "qtiffhandler_p.h"
 
 QT_BEGIN_NAMESPACE
 
