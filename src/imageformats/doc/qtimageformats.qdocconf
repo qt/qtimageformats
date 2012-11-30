@@ -8,10 +8,12 @@ version     = 5.0.0
 
 # Directories in which to search for files to document.
 # Paths are relative to the location of this file.
-exampledirs += ../examples
+# exampledirs += ../examples
 # headerdirs +=
-imagedirs += images
-# sourcedirs +=
+# imagedirs += images
+sourcedirs += src
+
+depends     += qtcore qtgui
 
 # The following parameters are for creating a qhp file, the qhelpgenerator
 # program can convert the qhp file into a qch file which can be opened in
@@ -60,10 +62,3 @@ examples.imageextensions = "*.png *.jpeg *.jpg *.gif *.mng"
 headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
 sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
 
-HTML.nobreadcrumbs = "true"
-
-HTML.templatedir = .
-HTML.stylesheets = style/style.css
-
-HTML.headerstyles = "  <link rel=\"stylesheet\" type=\"text/css\" href=\"style/style.css\" />\n"
-HTML.endheader = "</head>\n"
