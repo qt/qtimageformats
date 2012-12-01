@@ -6,3 +6,5 @@ CONFIG += testcase
 
 SOURCES += tst_qtiff.cpp
 RESOURCES += $$PWD/../../shared/images/tiff.qrc
+
+CONFIG+=insignificant_test # QTBUG-28320
