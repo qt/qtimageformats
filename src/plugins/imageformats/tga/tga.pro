@@ -10,5 +10,3 @@ SOURCES += qtgahandler.cpp \
 OTHER_FILES += tga.json
 
 SOURCES += main.cpp
-
-symbian: TARGET.UID3=0x20031E99
