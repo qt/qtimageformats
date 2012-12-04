@@ -43,22 +43,5 @@ qhp.qtimageformats.extraFiles = style/style.css \
                         index.html
 
 # Only updtae the name of the project for the next variables.
-qhp.qtimageformats.virtualFolder  = qdoc
-qhp.qtimageformats.subprojects = classes
-qhp.qtimageformats.subprojects.classes.title = Classes
-qhp.qtimageformats.subprojects.classes.selectors = class fake:headerfile
-qhp.qtimageformats.subprojects.classes.sortPages = true
-
-
-
-
-# Do NOT change the variables after this line unless you know what you are doing.
-
-outputdir = html
-outputformats = HTML
-
-examples.fileextensions = "*.cpp *.h *.js *.svg *.xml *.ui *.qml"
-examples.imageextensions = "*.png *.jpeg *.jpg *.gif *.mng"
-headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
-sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
+qhp.qtimageformats.virtualFolder  = qtimageformats
 

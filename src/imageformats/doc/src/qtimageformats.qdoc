@@ -52,11 +52,19 @@ libraries. If not found, it may fall back on using a bundled copy (in
 
 \table
 \header \li Format \li Description                      \li Support      \li 3rd party codec
-\row    \li MNG    \li Multiple-image Network Graphics  \li Read/write   \li Yes (bundled)
-\row    \li TGA    \li Truevision Graphics Adapter      \li Read/write   \li No
+\row    \li MNG    \li Multiple-image Network Graphics  \li Read         \li Yes (bundled)
+\row    \li TGA    \li Truevision Graphics Adapter      \li Read         \li No
 \row    \li TIFF   \li Tagged Image File Format         \li Read/write   \li Yes (bundled)
 \row    \li WBMP   \li Wireless Bitmap                  \li Read/write   \li No
 \endtable
+
+\section2 Deployment
+
+When built, the Qt Image Formats plugins are located as dynamic
+libraries in the runtime plugin directory (typically \c
+plugins/imageformats), together with the default image format
+plugins. They may be deployed to the target system in the same way as
+other plugins, see the \l{Deploying Plugins} documentation.
 
 \section2 Security considerations
 
@@ -64,6 +72,5 @@ Since these file formats are more rarely used, the codecs may be less
 thoroughly debugged against potential security holes. As always, care
 should be taken when creating applications that may be used to decode
 uncontrolled data files.
-
 
 */
