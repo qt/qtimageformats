@@ -98,7 +98,7 @@ static mng_bool myerror(mng_handle /*hMNG*/,
         (iChunkname>>8)&0xff,
         (iChunkname>>0)&0xff,
         iExtra1,iExtra2);
-    return TRUE;
+    return true;
 }
 
 static mng_ptr myalloc(mng_size_t iSize)
