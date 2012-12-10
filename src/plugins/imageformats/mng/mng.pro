@@ -1,6 +1,7 @@
 TARGET  = qmng
 
 PLUGIN_TYPE = imageformats
+PLUGIN_CLASS_NAME = QMngPlugin
 load(qt_plugin)
 
 HEADERS += qmnghandler_p.h

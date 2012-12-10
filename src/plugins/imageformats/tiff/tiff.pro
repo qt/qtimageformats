@@ -1,6 +1,7 @@
 TARGET  = qtiff
 
 PLUGIN_TYPE = imageformats
+PLUGIN_CLASS_NAME = QTiffPlugin
 load(qt_plugin)
 
 HEADERS += qtiffhandler_p.h
