@@ -4,7 +4,7 @@ include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 project     = qtimageformats
 description = Qt Image Formats Documentation
 url         = http://qt-project.org/doc/qtimageformats
-version     = 5.0.0
+version     = 5.0.1
 
 # Directories in which to search for files to document.
 # Paths are relative to the location of this file.
