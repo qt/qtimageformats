@@ -110,7 +110,7 @@
 /* #undef HAVE_PTHREAD */
 
 /* Define to 1 if you have the <search.h> header file. */
-#if !defined(Q_OS_WINCE) && !defined(Q_OS_SYMBIAN) && !defined(Q_OS_VXWORKS)
+#if !defined(Q_OS_WINCE) && !defined(Q_OS_SYMBIAN) && !defined(Q_OS_VXWORKS) && !defined(Q_OS_ANDROID)
 #define HAVE_SEARCH_H 1
 #endif
 
