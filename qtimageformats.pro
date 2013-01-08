@@ -1,3 +1,4 @@
+requires(qtHaveModule(gui))
 load(configure)
 qtCompileTest(libmng)
 qtCompileTest(libtiff)
