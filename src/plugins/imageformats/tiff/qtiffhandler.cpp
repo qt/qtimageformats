@@ -289,9 +289,11 @@ bool QTiffHandler::read(QImage *image)
 
     float resX = 0;
     float resY = 0;
-    uint16 resUnit = RESUNIT_NONE;
-    if (TIFFGetField(tiff, TIFFTAG_RESOLUTIONUNIT, &resUnit)
-        && TIFFGetField(tiff, TIFFTAG_XRESOLUTION, &resX)
+    uint16 resUnit;
+    if (!TIFFGetField(tiff, TIFFTAG_RESOLUTIONUNIT, &resUnit))
+        resUnit = RESUNIT_INCH;
+
+    if (TIFFGetField(tiff, TIFFTAG_XRESOLUTION, &resX)
         && TIFFGetField(tiff, TIFFTAG_YRESOLUTION, &resY)) {
 
         switch(resUnit) {
