@@ -44,6 +44,7 @@
 
 #include <QtGui/QColor>
 #include <QtGui/QImage>
+#include <QtCore/QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 
@@ -51,6 +52,8 @@ class QIODevice;
 
 class QTgaFile
 {
+    Q_DECLARE_TR_FUNCTIONS(QTgaFile)
+
 public:
     enum Compression {
         NoCompression = 0,
