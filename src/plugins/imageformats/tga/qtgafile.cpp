@@ -133,57 +133,57 @@ QTgaFile::QTgaFile(QIODevice *device)
     ::memset(mHeader, 0, HeaderSize);
     if (!mDevice->isReadable())
     {
-        mErrorMessage = QObject::tr("Could not read image data");
+        mErrorMessage = tr("Could not read image data");
         return;
     }
     if (mDevice->isSequential())
     {
-        mErrorMessage = QObject::tr("Sequential device (eg socket) for image read not supported");
+        mErrorMessage = tr("Sequential device (eg socket) for image read not supported");
         return;
     }
     if (!mDevice->seek(0))
     {
-        mErrorMessage = QObject::tr("Seek file/device for image read failed");
+        mErrorMessage = tr("Seek file/device for image read failed");
         return;
     }
     int bytes = device->read((char*)mHeader, HeaderSize);
     if (bytes != HeaderSize)
     {
-        mErrorMessage = QObject::tr("Image mHeader read failed");
+        mErrorMessage = tr("Image header read failed");
         return;
     }
     if (mHeader[ImageType] != 2)
     {
         // TODO: should support other image types
-        mErrorMessage = QObject::tr("Image type not supported");
+        mErrorMessage = tr("Image type not supported");
         return;
     }
     int bitsPerPixel = mHeader[PixelDepth];
     bool validDepth = (bitsPerPixel == 16 || bitsPerPixel == 24 || bitsPerPixel == 32);
     if (!validDepth)
     {
-        mErrorMessage = QObject::tr("Image dpeth not valid");
+        mErrorMessage = tr("Image depth not valid");
     }
     int curPos = mDevice->pos();
     int fileBytes = mDevice->size();
     if (!mDevice->seek(fileBytes - FooterSize))
     {
-        mErrorMessage = QObject::tr("Could not seek to image read footer");
+        mErrorMessage = tr("Could not seek to image read footer");
         return;
     }
     char footer[FooterSize];
     bytes = mDevice->read((char*)footer, FooterSize);
     if (bytes != FooterSize)
     {
-        mErrorMessage = QObject::tr("Could not read footer");
+        mErrorMessage = tr("Could not read footer");
     }
     if (qstrncmp(&footer[SignatureOffset], "TRUEVISION-XFILE", 16) != 0)
     {
-        mErrorMessage = QObject::tr("Image type (non-TrueVision 2.0) not supported");
+        mErrorMessage = tr("Image type (non-TrueVision 2.0) not supported");
     }
     if (!mDevice->seek(curPos))
     {
-        mErrorMessage = QObject::tr("Could not reset to read data");
+        mErrorMessage = tr("Could not reset to read data");
     }
 }
 

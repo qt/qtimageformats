@@ -3,8 +3,8 @@ include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 # Name of the project.
 project     = qtimageformats
 description = Qt Image Formats Documentation
-url         = http://qt-project.org/doc/qtimageformats
-version     = 5.0.1
+url         = http://qt-project.org/doc/qt-$QT_VER/qtimageformats
+version     = $QT_VERSION
 
 # Directories in which to search for files to document.
 # Paths are relative to the location of this file.
@@ -31,7 +31,7 @@ qhp.qtimageformats.file = qtimageformats.qhp
 # different documentation files in Creator/Assistant. The namespace ends with
 # a version being a number containing a major, minor and revision element.
 # E.g. version 1.0 becomes 100.
-qhp.qtimageformats.namespace = org.qt-project.qtimageformats.501
+qhp.qtimageformats.namespace = org.qt-project.qtimageformats.$QT_VERSION_TAG
 
 # Title for the package, will be the main title for the package in
 # Assistant/Creator.
