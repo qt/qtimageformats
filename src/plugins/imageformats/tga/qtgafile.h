@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the TGA plugin in the Qt ImageFormats module.
@@ -44,6 +44,7 @@
 
 #include <QtGui/QColor>
 #include <QtGui/QImage>
+#include <QtCore/QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 
@@ -51,6 +52,8 @@ class QIODevice;
 
 class QTgaFile
 {
+    Q_DECLARE_TR_FUNCTIONS(QTgaFile)
+
 public:
     enum Compression {
         NoCompression = 0,

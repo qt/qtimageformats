@@ -14,3 +14,6 @@ moc_*.cpp
 .qmake.cache
 config.log
 tmp
+
+# Generated static plugin import sources
+*_plugin_import.cpp
