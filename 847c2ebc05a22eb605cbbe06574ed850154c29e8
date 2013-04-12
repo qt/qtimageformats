@@ -1,0 +1,6 @@
+Sanity-Review+1: Qt Sanity Bot <qt_sanitybot@qt-project.org>
+Code-Review+2: aavit <eirik.aavitsland@digia.com>
+Code-Review+1: Andreas Holzammer <andreas.holzammer@kdab.com>
+Reviewed-on: https://codereview.qt-project.org/51913
+Project: qt/qtimageformats
+Branch: refs/heads/stable
