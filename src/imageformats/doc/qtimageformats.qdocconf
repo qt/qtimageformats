@@ -1,7 +1,7 @@
 include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 
 # Name of the project.
-project     = qtimageformats
+project     = QtImageFormats
 description = Qt Image Formats Documentation
 url         = http://qt-project.org/doc/qt-$QT_VER/qtimageformats
 version     = $QT_VERSION
@@ -22,26 +22,26 @@ depends     += qtcore qtgui
 # Defines the name of the project. You cannot use operators (+, =, -) in
 # the name. Properties for this project are set using a qhp.<projectname>.property
 # format.
-qhp.projects = qtimageformats
+qhp.projects = QtImageFormats
 
 # Sets the name of the output qhp file.
-qhp.qtimageformats.file = qtimageformats.qhp
+qhp.QtImageFormats.file = qtimageformats.qhp
 
 # Namespace for the output file. This namespace is used to distinguish between
 # different documentation files in Creator/Assistant. The namespace ends with
 # a version being a number containing a major, minor and revision element.
 # E.g. version 1.0 becomes 100.
-qhp.qtimageformats.namespace = org.qt-project.qtimageformats.$QT_VERSION_TAG
+qhp.QtImageFormats.namespace = org.qt-project.qtimageformats.$QT_VERSION_TAG
 
 # Title for the package, will be the main title for the package in
 # Assistant/Creator.
-qhp.qtimageformats.indexTitle = Qt Image Formats
+qhp.QtImageFormats.indexTitle = Qt Image Formats
 
 # Extra files to add to the output which are not linked to from anywhere
 # using a qdoc \l command.
-qhp.qtimageformats.extraFiles = style/style.css \
+qhp.QtImageFormats.extraFiles = style/style.css \
                         index.html
 
-# Only updtae the name of the project for the next variables.
-qhp.qtimageformats.virtualFolder  = qtimageformats
+# Only update the name of the project for the next variables.
+qhp.QtImageFormats.virtualFolder  = qtimageformats
 
