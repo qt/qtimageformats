@@ -6,7 +6,8 @@ SUBDIRS = \
     mng \
     tga \
     tiff \
-    wbmp
+    wbmp \
+    webp
 
 wince:SUBDIRS -= jp2
 
@@ -14,3 +15,5 @@ winrt {
     SUBDIRS -= tiff \
                tga
 }
+
+winrt|android: SUBDIRS -= webp

@@ -4,6 +4,7 @@ SUBDIRS = \
     wbmp \
     dds \
     icns \
-    jp2
+    jp2 \
+    webp
 
 contains(QT_CONFIG, system-zlib): SUBDIRS += mng tiff
