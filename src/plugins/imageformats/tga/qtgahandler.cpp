@@ -80,6 +80,8 @@ bool QTgaHandler::canRead(QIODevice *device)
 
     // TGA reader implementation needs a seekable QIODevice, so
     // sequential devices are not supported
+    if (device->isSequential())
+        return false;
     qint64 pos = device->pos();
     bool isValid;
     {
