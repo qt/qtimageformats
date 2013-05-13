@@ -1,0 +1,5 @@
+Code-Review+2: Oswald Buddenhagen <oswald.buddenhagen@digia.com>
+Sanity-Review+1: Qt Sanity Bot <qt_sanitybot@qt-project.org>
+Reviewed-on: https://codereview.qt-project.org/56008
+Project: qt/qtimageformats
+Branch: refs/heads/stable
