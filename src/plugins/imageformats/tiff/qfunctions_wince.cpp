@@ -3,7 +3,7 @@
 ** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the TGA plugin in the Qt ImageFormats module.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -38,96 +38,31 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#ifdef _WIN32_WCE //Q_OS_WINCE
 
-#include "qtgahandler.h"
-#include "qtgafile.h"
+#include "qplatformdefs.h"
 
-#include <QtCore/QVariant>
-#include <QtCore/QDebug>
-#include <QtGui/QImage>
+QT_USE_NAMESPACE
 
-QT_BEGIN_NAMESPACE
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-QTgaHandler::QTgaHandler()
-    : QImageIOHandler()
-    , tga(0)
+void *lfind(const void* key, const void* base, size_t* elements, size_t size,
+            int (__cdecl *compare)(const void*, const void*))
 {
-}
-
-QTgaHandler::~QTgaHandler()
-{
-    delete tga;
-}
-
-bool QTgaHandler::canRead() const
-{
-    if (!tga)
-        tga = new QTgaFile(device());
-    if (tga->isValid())
-    {
-        setFormat("tga");
-        return true;
+    const char* current = (char*) base;
+    const char* const end = (char*) (current + (*elements) * size);
+    while (current != end) {
+        if (compare(current, key) == 0)
+            return (void*)current;
+        current += size;
     }
-    return false;
+    return 0;
 }
 
-bool QTgaHandler::canRead(QIODevice *device)
-{
-    if (!device) {
-        qWarning("QTgaHandler::canRead() called with no device");
-        return false;
-    }
 
-    // TGA reader implementation needs a seekable QIODevice, so
-    // sequential devices are not supported
-    if (device->isSequential())
-        return false;
-    qint64 pos = device->pos();
-    bool isValid;
-    {
-        QTgaFile tga(device);
-        isValid = tga.isValid();
-    }
-    device->seek(pos);
-    return isValid;
-}
-
-bool QTgaHandler::read(QImage *image)
-{
-    if (!canRead())
-        return false;
-    *image = tga->readImage();
-    return !image->isNull();
-}
-
-QByteArray QTgaHandler::name() const
-{
-    return "tga";
-}
-
-QVariant QTgaHandler::option(ImageOption option) const
-{
-    if (option == Size && canRead()) {
-        return tga->size();
-    } else if (option == CompressionRatio) {
-        return tga->compression();
-    } else if (option == ImageFormat) {
-        return QImage::Format_ARGB32;
-    }
-    return QVariant();
-}
-
-void QTgaHandler::setOption(ImageOption option, const QVariant &value)
-{
-    Q_UNUSED(option);
-    Q_UNUSED(value);
-}
-
-bool QTgaHandler::supportsOption(ImageOption option) const
-{
-    return option == CompressionRatio
-            || option == Size
-            || option == ImageFormat;
-}
-
-QT_END_NAMESPACE
+#ifdef __cplusplus
+} // extern "C"
+#endif
+#endif // Q_OS_WINCE
