@@ -45,3 +45,7 @@ qhp.QtImageFormats.extraFiles = style/style.css \
 # Only update the name of the project for the next variables.
 qhp.QtImageFormats.virtualFolder  = qtimageformats
 
+qhp.QtImageFormats.subprojects = list
+qhp.QtImageFormats.subprojects.list.title = Qt Image Formats
+qhp.QtImageFormats.subprojects.list.indexTitle = Qt Image Formats
+qhp.QtImageFormats.subprojects.list.type = manual
