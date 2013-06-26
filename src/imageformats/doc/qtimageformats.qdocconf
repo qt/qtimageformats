@@ -13,7 +13,7 @@ version     = $QT_VERSION
 # imagedirs += images
 sourcedirs += src
 
-depends     += qtcore qtgui
+depends     += qtcore qtgui qtdoc
 
 # The following parameters are for creating a qhp file, the qhelpgenerator
 # program can convert the qhp file into a qch file which can be opened in
@@ -49,3 +49,5 @@ qhp.QtImageFormats.subprojects = list
 qhp.QtImageFormats.subprojects.list.title = Qt Image Formats
 qhp.QtImageFormats.subprojects.list.indexTitle = Qt Image Formats
 qhp.QtImageFormats.subprojects.list.type = manual
+
+navigation.landingpage = "Qt Image Formats"
