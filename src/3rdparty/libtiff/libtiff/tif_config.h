@@ -412,9 +412,12 @@
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
+#if defined(Q_CC_MSVC)
 #ifndef __cplusplus
-#undef inline
-#define inline
+# ifndef inline
+#  define inline __inline
+# endif
+#endif
 #endif
 
 /* Define to `long int' if <sys/types.h> does not define. */
