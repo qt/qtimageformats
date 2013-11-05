@@ -3,7 +3,7 @@ include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 # Name of the project.
 project     = QtImageFormats
 description = Qt Image Formats Documentation
-url         = http://qt-project.org/doc/qt-$QT_VER/qtimageformats
+url         = http://qt-project.org/doc/qt-$QT_VER
 version     = $QT_VERSION
 
 # Directories in which to search for files to document.
