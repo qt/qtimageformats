@@ -3,4 +3,5 @@ SUBDIRS = \
     tga \
     wbmp \
     mng \
-    tiff
+    tiff \
+    dds
