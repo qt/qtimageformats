@@ -52,6 +52,7 @@ libraries. If not found, it may fall back on using a bundled copy (in
 
 \table
 \header \li Format \li Description                      \li Support      \li 3rd party codec
+\row    \li DDS    \li Direct Draw Surface              \li Read/write   \li No
 \row    \li MNG    \li Multiple-image Network Graphics  \li Read         \li Yes (bundled)
 \row    \li TGA    \li Truevision Graphics Adapter      \li Read         \li No
 \row    \li TIFF   \li Tagged Image File Format         \li Read/write   \li Yes (bundled)
