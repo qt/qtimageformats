@@ -1316,6 +1316,26 @@ bool QDDSHandler::write(const QImage &outImage)
     return true;
 }
 
+QVariant QDDSHandler::option(QImageIOHandler::ImageOption option) const
+{
+    if (!supportsOption(option) || !ensureHeaderCached())
+        return QVariant();
+
+    switch (option) {
+    case QImageIOHandler::Size:
+        return QSize(m_header.width, m_header.height);
+    default:
+        break;
+    }
+
+    return QVariant();
+}
+
+bool QDDSHandler::supportsOption(QImageIOHandler::ImageOption option) const
+{
+    return option == QImageIOHandler::Size;
+}
+
 int QDDSHandler::imageCount() const
 {
     if (!ensureHeaderCached())
