@@ -50,9 +50,11 @@ QT_BEGIN_NAMESPACE
 
 QImageIOPlugin::Capabilities QDDSPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
-    if (!device || !device->isOpen())
+    if (format == QByteArrayLiteral("dds"))
+        return Capabilities(CanRead | CanWrite);
+    if (!format.isEmpty())
         return 0;
-    if (format.toLower() != "dds")
+    if (!device || !device->isOpen())
         return 0;
 
     Capabilities cap;
