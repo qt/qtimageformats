@@ -241,7 +241,7 @@ static Format getFormat(const DDSHeader &dds)
     return FormatUnknown;
 }
 
-static inline void decodeColor(quint16 color, quint8 & red, quint8 & green, quint8 & blue)
+static inline void decodeColor(quint16 color, quint8 &red, quint8 &green, quint8 &blue)
 {
     red = ((color >> 11) & 0x1f) << 3;
     green = ((color >> 5) & 0x3f) << 2;
@@ -727,7 +727,7 @@ static QImage readCxV8U8(QDataStream &s, const quint32 width, const quint32 heig
     return image;
 }
 
-static QImage readPaletteImage(QDataStream & s, quint32 width, quint32 height)
+static QImage readPaletteImage(QDataStream &s, quint32 width, quint32 height)
 {
     QImage image(width, height, QImage::Format_Indexed8);
     for (int i = 0; i < 256; ++i) {
@@ -972,7 +972,7 @@ static QImage readA2R10G10B10(QDataStream &s, const DDSHeader &dds, quint32 widt
     return image;
 }
 
-static QImage readLayer(QDataStream & s, const DDSHeader & dds, const int format, quint32 width, quint32 height)
+static QImage readLayer(QDataStream &s, const DDSHeader &dds, const int format, quint32 width, quint32 height)
 {
     if (width * height == 0)
         return QImage();
@@ -1084,7 +1084,7 @@ static QImage readLayer(QDataStream & s, const DDSHeader & dds, const int format
     return QImage();
 }
 
-static inline QImage readTexture(QDataStream & s, const DDSHeader & dds, const int format, const int mipmapLevel)
+static inline QImage readTexture(QDataStream &s, const DDSHeader &dds, const int format, const int mipmapLevel)
 {
     quint32 width = dds.width / (1 << mipmapLevel);
     quint32 height = dds.height / (1 << mipmapLevel);
@@ -1195,7 +1195,7 @@ static qint64 mipmapOffset(const DDSHeader &dds, const int format, const int lev
     return result;
 }
 
-static QImage readCubeMap(QDataStream & s, const DDSHeader & dds, const int fmt)
+static QImage readCubeMap(QDataStream &s, const DDSHeader &dds, const int fmt)
 {
     QImage::Format format = hasAlpha(dds) ? QImage::Format_ARGB32 : QImage::Format_RGB32;
     QImage image(4 * dds.width, 3 * dds.height, format);
