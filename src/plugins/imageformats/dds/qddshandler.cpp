@@ -1229,6 +1229,11 @@ QDDSHandler::QDDSHandler() :
 {
 }
 
+QByteArray QDDSHandler::name() const
+{
+    return QByteArrayLiteral("dds");
+}
+
 bool QDDSHandler::canRead() const
 {
     if (canRead(device())) {
@@ -1328,11 +1333,6 @@ bool QDDSHandler::jumpToImage(int imageNumber)
     return true;
 }
 
-QByteArray QDDSHandler::name() const
-{
-    return "dds";
-}
-
 bool QDDSHandler::canRead(QIODevice *device)
 {
     if (!device) {
@@ -1343,7 +1343,7 @@ bool QDDSHandler::canRead(QIODevice *device)
     if (device->isSequential())
         return false;
 
-    return device->peek(4) == "DDS ";
+    return device->peek(4) == QByteArrayLiteral("DDS ");
 }
 
 bool QDDSHandler::ensureHeaderCached() const

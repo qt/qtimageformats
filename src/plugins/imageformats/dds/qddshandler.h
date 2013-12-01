@@ -53,14 +53,14 @@ class QDDSHandler : public QImageIOHandler
 public:
     QDDSHandler();
 
+    QByteArray name() const;
+
     bool canRead() const;
     bool read(QImage *image);
     bool write(const QImage &image);
 
     int imageCount() const;
     bool jumpToImage(int imageNumber);
-
-    QByteArray name() const;
 
     static bool canRead(QIODevice *device);
 
