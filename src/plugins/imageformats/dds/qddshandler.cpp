@@ -1266,18 +1266,19 @@ bool QDDSHandler::read(QImage *outImage)
 
 bool QDDSHandler::write(const QImage &outImage)
 {
-    QDataStream s( device() );
+    const QImage image = outImage.convertToFormat(QImage::Format_ARGB32);
+
+    QDataStream s(device());
     s.setByteOrder(QDataStream::LittleEndian);
 
-    // Filling header
     DDSHeader dds;
     // Filling header
     dds.magic = ddsMagic;
     dds.size = 124;
     dds.flags = DDSHeader::FlagCaps | DDSHeader::FlagHeight |
                 DDSHeader::FlagWidth | DDSHeader::FlagPixelFormat;
-    dds.height = outImage.height();
-    dds.width = outImage.width();
+    dds.height = image.height();
+    dds.width = image.width();
     dds.pitchOrLinearSize = 128;
     dds.depth = 0;
     dds.mipMapCount = 0;
@@ -1300,9 +1301,9 @@ bool QDDSHandler::write(const QImage &outImage)
     dds.pixelFormat.bBitMask = 0x000000ff;
 
     s << dds;
-    for (int width = 0; width < outImage.width(); width++) {
-        for (int height = 0; height < outImage.height(); height++) {
-            QRgb pixel = outImage.pixel(height, width);;
+    for (int width = 0; width < image.width(); width++) {
+        for (int height = 0; height < image.height(); height++) {
+            QRgb pixel = image.pixel(height, width);;
             quint32 color;
             quint8 alpha = qAlpha(pixel);
             quint8 red = qRed(pixel);
