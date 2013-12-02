@@ -474,9 +474,9 @@ static QImage readATI2(QDataStream &s, quint32 width, quint32 height)
             QRgb arr[16];
             memset(arr, 0, sizeof(QRgb) * 16);
             setAlphaDXT<Five>(arr, alpha1);
-            for (int i = 0; i < 16; ++i) {
-                quint8 a = qAlpha(arr[i]);
-                arr[i] = qRgba(0, 0, a, 0);
+            for (int k = 0; k < 16; ++k) {
+                quint8 a = qAlpha(arr[k]);
+                arr[k] = qRgba(0, 0, a, 0);
             }
             setAlphaDXT<Five>(arr, alpha2);
 
