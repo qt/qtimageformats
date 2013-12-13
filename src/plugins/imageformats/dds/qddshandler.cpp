@@ -1238,10 +1238,14 @@ QByteArray QDDSHandler::name() const
 
 bool QDDSHandler::canRead() const
 {
-    if (canRead(device())) {
+    if (m_scanState == ScanNotScanned && !canRead(device()))
+        return false;
+
+    if (m_scanState != ScanError) {
         setFormat(QByteArrayLiteral("dds"));
         return true;
     }
+
     return false;
 }
 
