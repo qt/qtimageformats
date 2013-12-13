@@ -42,9 +42,11 @@
 
 #include <QtGui/qimageiohandler.h>
 
+#include "qddshandler.h"
+
 #ifndef QT_NO_IMAGEFORMATPLUGIN
 
-#include "qddshandler.h"
+#ifndef QT_NO_DATASTREAM
 
 QT_BEGIN_NAMESPACE
 
@@ -85,5 +87,7 @@ QImageIOHandler *QDDSPlugin::create(QIODevice *device, const QByteArray &format)
 QT_END_NAMESPACE
 
 #include "main.moc"
+
+#endif // QT_NO_DATASTREAM
 
 #endif // QT_NO_IMAGEFORMATPLUGIN

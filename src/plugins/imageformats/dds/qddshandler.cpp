@@ -49,6 +49,8 @@
 
 #include "ddsheader.h"
 
+#ifndef QT_NO_DATASTREAM
+
 QT_BEGIN_NAMESPACE
 
 enum Colors {
@@ -1433,3 +1435,5 @@ bool QDDSHandler::verifyHeader(const DDSHeader &dds) const
 }
 
 QT_END_NAMESPACE
+
+#endif // QT_NO_DATASTREAM

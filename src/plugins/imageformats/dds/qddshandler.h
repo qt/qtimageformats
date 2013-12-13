@@ -46,6 +46,8 @@
 #include <QtGui/qimageiohandler.h>
 #include "ddsheader.h"
 
+#ifndef QT_NO_DATASTREAM
+
 QT_BEGIN_NAMESPACE
 
 class QDDSHandler : public QImageIOHandler
@@ -80,5 +82,7 @@ private:
 };
 
 QT_END_NAMESPACE
+
+#endif // QT_NO_DATASTREAM
 
 #endif // QDDSHANDLER_H

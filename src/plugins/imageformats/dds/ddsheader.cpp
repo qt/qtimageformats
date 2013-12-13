@@ -42,6 +42,8 @@
 
 #include "ddsheader.h"
 
+#ifndef QT_NO_DATASTREAM
+
 QT_BEGIN_NAMESPACE
 
 QDataStream &operator>>(QDataStream &s, DDSPixelFormat &pixelFormat)
@@ -133,3 +135,5 @@ QDataStream &operator<<(QDataStream &s, const DDSHeaderDX10 &header)
 }
 
 QT_END_NAMESPACE
+
+#endif // QT_NO_DATASTREAM
