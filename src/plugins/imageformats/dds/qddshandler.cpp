@@ -1227,7 +1227,7 @@ static QImage readCubeMap(QDataStream &s, const DDSHeader &dds, const int fmt)
 
 QDDSHandler::QDDSHandler() :
     m_currentImage(0),
-    m_headerCached(false)
+    m_scanState(ScanNotScanned)
 {
 }
 
@@ -1247,7 +1247,7 @@ bool QDDSHandler::canRead() const
 
 bool QDDSHandler::read(QImage *outImage)
 {
-    if (!ensureHeaderCached() || device()->isSequential())
+    if (!ensureScanned() || device()->isSequential())
         return false;
 
     qint64 pos = headerSize + mipmapOffset(m_header, m_format, m_currentImage);
@@ -1321,7 +1321,7 @@ bool QDDSHandler::write(const QImage &outImage)
 
 QVariant QDDSHandler::option(QImageIOHandler::ImageOption option) const
 {
-    if (!supportsOption(option) || !ensureHeaderCached())
+    if (!supportsOption(option) || !ensureScanned())
         return QVariant();
 
     switch (option) {
@@ -1341,7 +1341,7 @@ bool QDDSHandler::supportsOption(QImageIOHandler::ImageOption option) const
 
 int QDDSHandler::imageCount() const
 {
-    if (!ensureHeaderCached())
+    if (!ensureScanned())
         return 0;
 
     return qMax<quint32>(1, m_header.mipMapCount);
@@ -1369,10 +1369,12 @@ bool QDDSHandler::canRead(QIODevice *device)
     return device->peek(4) == QByteArrayLiteral("DDS ");
 }
 
-bool QDDSHandler::ensureHeaderCached() const
+bool QDDSHandler::ensureScanned() const
 {
-    if (m_headerCached)
-        return true;
+    if (m_scanState != ScanNotScanned)
+        return m_scanState == ScanSuccess;
+
+    m_scanState = ScanError;
 
     if (device()->isSequential()) {
         qWarning() << "Sequential devices are not supported";
@@ -1399,7 +1401,7 @@ bool QDDSHandler::ensureHeaderCached() const
 
     that->m_format = getFormat(m_header);
 
-    m_headerCached = true;
+    m_scanState = ScanSuccess;
     return true;
 }
 

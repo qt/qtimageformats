@@ -70,15 +70,21 @@ public:
     static bool canRead(QIODevice *device);
 
 private:
-    bool ensureHeaderCached() const;
+    bool ensureScanned() const;
     bool verifyHeader(const DDSHeader &dds) const;
 
 private:
+    enum ScanState {
+        ScanError = -1,
+        ScanNotScanned = 0,
+        ScanSuccess = 1,
+    };
+
     DDSHeader m_header;
     int m_format;
     DDSHeaderDX10 m_header10;
     int m_currentImage;
-    mutable bool m_headerCached;
+    mutable ScanState m_scanState;
 };
 
 QT_END_NAMESPACE
