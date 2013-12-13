@@ -6,7 +6,6 @@ load(qt_plugin)
 
 HEADERS += \
     ddsheader.h \
-    main.h \
     qddshandler.h
 
 SOURCES += \

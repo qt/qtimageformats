@@ -40,13 +40,22 @@
 **
 ****************************************************************************/
 
-#include "main.h"
+#include <QtGui/qimageiohandler.h>
 
 #ifndef QT_NO_IMAGEFORMATPLUGIN
 
 #include "qddshandler.h"
 
 QT_BEGIN_NAMESPACE
+
+class QDDSPlugin : public QImageIOPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "dds.json")
+public:
+    Capabilities capabilities(QIODevice *device, const QByteArray &format) const;
+    QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const;
+};
 
 QImageIOPlugin::Capabilities QDDSPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
@@ -74,5 +83,7 @@ QImageIOHandler *QDDSPlugin::create(QIODevice *device, const QByteArray &format)
 }
 
 QT_END_NAMESPACE
+
+#include "main.moc"
 
 #endif // QT_NO_IMAGEFORMATPLUGIN
