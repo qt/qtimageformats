@@ -4,4 +4,5 @@ SUBDIRS = \
     wbmp \
     mng \
     tiff \
-    dds
+    dds \
+    icns
