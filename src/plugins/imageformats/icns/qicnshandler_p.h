@@ -57,9 +57,9 @@ struct ICNSBlockHeader
     enum OS {
         TypeIcns = MAKEOSTYPE('i', 'c', 'n', 's'), // Icns container magic
         TypeToc  = MAKEOSTYPE('T', 'O', 'C', ' '), // Table of contents
-        TypeIcnv = MAKEOSTYPE('i', 'c', 'n', 'V'), // Version of the icns tool
+        TypeIcnv = MAKEOSTYPE('i', 'c', 'n', 'V'), // Icon Composer version
         // Legacy:
-        TypeClut = MAKEOSTYPE('c', 'l', 'u', 't')  // Color look-up table (pre-OS X resources)
+        TypeClut = MAKEOSTYPE('c', 'l', 'u', 't'), // Color look-up table (pre-OS X resources)
     };
 
     quint32 ostype;
@@ -69,41 +69,55 @@ struct ICNSBlockHeader
 struct ICNSEntry
 {
     enum Group {
-        GroupUnknown    = 0,
+        GroupUnknown    = 0,   // Default for invalid ones
         GroupMini       = 'm', // "mini" (16x12)
         GroupSmall      = 's', // "small" (16x16)
         GroupLarge      = 'l', // "large" (32x32)
         GroupHuge       = 'h', // "huge" (48x48)
         GroupThumbnail  = 't', // "thumbnail" (128x128)
-        GroupPortable   = 'p', // "portable"? (various sizes, png/jp2)
-        GroupCompressed = 'c', // "compressed"? (various sizes, png/jp2)
+        GroupPortable   = 'p', // "portable"? (Speculation, used for png/jp2)
+        GroupCompressed = 'c', // "compressed"? (Speculation, used for png/jp2)
         // Legacy icons:
         GroupICON       = 'N', // "ICON" (32x32)
     };
     enum Depth {
-        DepthUnknown    = 0,    // Default for invalid ones
+        DepthUnknown    = 0,    // Default for invalid or compressed ones
         DepthMono       = 1,
         Depth4bit       = 4,
         Depth8bit       = 8,
         Depth32bit      = 32
     };
-    enum Mask {
-        MaskUnknown     = 0x0,              // Default for invalid ones
-        IsIcon          = 0x1,              // Plain icon without alpha
-        IsMask          = 0x2,              // The whole icon entry is alpha mask
-        IconPlusMask    = IsMask | IsIcon   // Plain icon and alpha mask (double size)
+    enum Flags {
+        Unknown         = 0x0,              // Default for invalid ones
+        IsIcon          = 0x1,              // Contains a raw icon without alpha or compressed icon
+        IsMask          = 0x2,              // Contains alpha mask
+        IconPlusMask    = IsIcon | IsMask   // Contains raw icon and mask combined in one entry (double size)
+    };
+    enum Format {
+        FormatUnknown   = 0,    // Default for invalid or undetermined ones
+        RawIcon,                // Raw legacy icon, uncompressed
+        RLE24,                  // Raw 32bit icon, data is compressed
+        PNG,                    // Compressed icon in PNG format
+        JP2                     // Compressed icon in JPEG2000 format
     };
 
-    ICNSBlockHeader header; // Original block header
-    Group group;            // ASCII character number pointing to a format
-    Depth depth;            // Color depth or icon format number for compressed icons
-    Mask mask;              // Flags for uncompressed, should be always IsIcon (0x1) for compressed
-    quint32 width;          // For uncompressed icons only, zero for compressed ones for now
-    quint32 height;         // For uncompressed icons only, zero for compressed ones fow now
-    quint32 dataLength;     // header.length - sizeof(header)
-    quint32 dataOffset;     // Offset from the initial position of the file/device
-    bool dataIsRLE;         // 32bit raw icons may be in rle24 compressed state
+    quint32 ostype;     // Real OSType
+    Group group;        // ASCII character number
+    quint32 width;      // For uncompressed icons only, zero for compressed ones for now
+    quint32 height;     // For uncompressed icons only, zero for compressed ones fow now
+    Depth depth;        // Color depth
+    Flags flags;        // Flags to determine the type of entry
+    Format dataFormat;  // Format of the image data
+    quint32 dataLength; // Length of the image data in bytes
+    qint64 dataOffset;  // Offset from the initial position of the file/device
+
+    ICNSEntry() :
+        ostype(0), group(GroupUnknown), width(0), height(0), depth(DepthUnknown),
+        flags(Unknown), dataFormat(FormatUnknown), dataLength(0), dataOffset(0)
+    {
+    }
 };
+Q_DECLARE_TYPEINFO(ICNSEntry, Q_MOVABLE_TYPE);
 
 class QICNSHandler : public QImageIOHandler
 {
@@ -128,7 +142,7 @@ public:
 private:
     bool ensureScanned() const;
     bool scanDevice();
-    void addEntry(const ICNSBlockHeader &header, quint32 imgDataOffset);
+    bool addEntry(const ICNSBlockHeader &header, qint64 imgDataOffset);
     const ICNSEntry &getIconMask(const ICNSEntry &icon) const;
 
 private:
