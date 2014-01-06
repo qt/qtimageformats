@@ -1,11 +1,14 @@
 TEMPLATE = subdirs
 SUBDIRS = \
-    tga \
-    wbmp \
-    mng \
-    tiff \
     dds \
-    icns
+    icns \
+    jp2 \
+    mng \
+    tga \
+    tiff \
+    wbmp
+
+wince:SUBDIRS -= jp2
 
 winrt {
     SUBDIRS -= tiff \

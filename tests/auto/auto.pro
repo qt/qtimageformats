@@ -3,6 +3,7 @@ SUBDIRS = \
     tga \
     wbmp \
     dds \
-    icns
+    icns \
+    jp2
 
 contains(QT_CONFIG, system-zlib): SUBDIRS += mng tiff
