@@ -62,6 +62,7 @@ public:
     bool write(const QImage &image);
 
     QVariant option(QImageIOHandler::ImageOption option) const;
+    void setOption(ImageOption option, const QVariant &value);
     bool supportsOption(QImageIOHandler::ImageOption option) const;
 
     int imageCount() const;

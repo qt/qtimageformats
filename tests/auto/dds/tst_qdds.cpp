@@ -118,8 +118,12 @@ void tst_qdds::readImage()
     QFETCH(QSize, size);
 
     const QString path = QStringLiteral(":/dds/") + fileName + QStringLiteral(".dds");
+    const QByteArray subType = fileName.left(fileName.lastIndexOf(QLatin1Char('.'))).toLatin1();
     QImageReader reader(path);
     QVERIFY(reader.canRead());
+    QVERIFY(reader.supportsOption(QImageIOHandler::SubType));
+    QCOMPARE(reader.subType(), subType);
+    QVERIFY(reader.supportsOption(QImageIOHandler::SupportedSubTypes));
     QImage image = reader.read();
     QVERIFY2(!image.isNull(), qPrintable(reader.errorString()));
     QCOMPARE(image.size(), size);
@@ -169,6 +173,7 @@ void tst_qdds::testWriteImage()
 
     const QString path = fileName + QStringLiteral(".dds");
     const QString sourcePath = QStringLiteral(":/dds/") + fileName + QStringLiteral(".dds");
+    const QByteArray subType = fileName.left(fileName.lastIndexOf(QLatin1Char('.'))).toLatin1();
 
     QImage image(sourcePath);
     QVERIFY(!image.isNull());
@@ -176,9 +181,15 @@ void tst_qdds::testWriteImage()
 
     QImageWriter writer(path, QByteArrayLiteral("dds"));
     QVERIFY2(writer.canWrite(), qPrintable(writer.errorString()));
+    writer.setSubType(subType);
     QVERIFY2(writer.write(image), qPrintable(writer.errorString()));
 
     QVERIFY(image == QImage(path));
+
+    QImageReader reader(path);
+    QVERIFY(reader.canRead());
+    QCOMPARE(reader.size(), size);
+    QCOMPARE(reader.subType(), subType);
 }
 
 QTEST_MAIN(tst_qdds)
