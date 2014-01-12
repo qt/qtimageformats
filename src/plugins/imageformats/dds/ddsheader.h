@@ -134,6 +134,9 @@ enum Format {
     FormatA2B10G10R10_XR_BIAS  = 119,
     FormatBinaryBuffer         = 199,
 
+    FormatP4,
+    FormatA4P4,
+
     FormatLast                 = 0x7fffffff
 };
 
@@ -143,6 +146,7 @@ struct DDSPixelFormat
         FlagAlphaPixels     = 0x00000001,
         FlagAlpha           = 0x00000002,
         FlagFourCC          = 0x00000004,
+        FlagPaletteIndexed4 = 0x00000008,
         FlagPaletteIndexed8 = 0x00000020,
         FlagRGB             = 0x00000040,
         FlagYUV             = 0x00000200,
