@@ -65,6 +65,7 @@ void tst_qicns::readIcons_data()
     QTest::newRow("2") << QStringLiteral("test-jp2") << QSize(128, 128) << 7 << QByteArrayLiteral("jp2");
     QTest::newRow("3") << QStringLiteral("test-32bit") << QSize(128, 128) << 4 << QByteArray();
     QTest::newRow("4") << QStringLiteral("test-legacy") << QSize(48, 48) << 12 << QByteArray();
+    QTest::newRow("5") << QStringLiteral("test-variants") << QSize(128, 128) << 5 << QByteArrayLiteral("png");
 }
 
 void tst_qicns::readIcons()

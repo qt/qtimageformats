@@ -60,6 +60,11 @@ struct ICNSBlockHeader
         TypeIcnv = MAKEOSTYPE('i', 'c', 'n', 'V'), // Icon Composer version
         // Legacy:
         TypeClut = MAKEOSTYPE('c', 'l', 'u', 't'), // Color look-up table (pre-OS X resources)
+        TypeTile = MAKEOSTYPE('t', 'i', 'l', 'e'), // Container (icon variants)
+        TypeOver = MAKEOSTYPE('o', 'v', 'e', 'r'), // Container (icon variants)
+        TypeOpen = MAKEOSTYPE('o', 'p', 'e', 'n'), // Container (icon variants)
+        TypeDrop = MAKEOSTYPE('d', 'r', 'o', 'p'), // Container (icon variants)
+        TypeOdrp = MAKEOSTYPE('o', 'd', 'r', 'p'), // Container (icon variants)
     };
 
     quint32 ostype;
@@ -102,6 +107,7 @@ struct ICNSEntry
     };
 
     quint32 ostype;     // Real OSType
+    quint32 variant;    // Virtual OSType: a parent container, zero if parent is icns root
     Group group;        // ASCII character number
     quint32 width;      // For uncompressed icons only, zero for compressed ones for now
     quint32 height;     // For uncompressed icons only, zero for compressed ones fow now
@@ -112,7 +118,7 @@ struct ICNSEntry
     qint64 dataOffset;  // Offset from the initial position of the file/device
 
     ICNSEntry() :
-        ostype(0), group(GroupUnknown), width(0), height(0), depth(DepthUnknown),
+        ostype(0), variant(0), group(GroupUnknown), width(0), height(0), depth(DepthUnknown),
         flags(Unknown), dataFormat(FormatUnknown), dataLength(0), dataOffset(0)
     {
     }
@@ -142,7 +148,7 @@ public:
 private:
     bool ensureScanned() const;
     bool scanDevice();
-    bool addEntry(const ICNSBlockHeader &header, qint64 imgDataOffset);
+    bool addEntry(const ICNSBlockHeader &header, qint64 imgDataOffset, quint32 variant = 0);
     const ICNSEntry &getIconMask(const ICNSEntry &icon) const;
 
 private:

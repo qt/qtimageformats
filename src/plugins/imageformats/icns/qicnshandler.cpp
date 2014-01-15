@@ -372,7 +372,8 @@ static inline bool isIconCompressed(const ICNSEntry &icon)
 
 static inline bool isMaskSuitable(const ICNSEntry &mask, const ICNSEntry &icon, ICNSEntry::Depth target)
 {
-    return mask.depth == target && mask.height == icon.height && mask.width == icon.width;
+    return mask.variant == icon.variant && mask.depth == target
+            && mask.height == icon.height && mask.width == icon.width;
 }
 
 static inline QByteArray nameFromOSType(quint32 ostype)
@@ -813,6 +814,8 @@ QVariant QICNSHandler::option(ImageOption option) const
     if (option == SubType) {
         if (imageCount() > 0 && m_currentIconIndex <= imageCount()) {
             const ICNSEntry &icon = m_icons.at(m_currentIconIndex);
+            if (icon.variant != 0)
+                return nameFromOSType(icon.variant) + '-' + nameFromOSType(icon.ostype);
             return nameFromOSType(icon.ostype);
         }
     }
@@ -852,11 +855,12 @@ bool QICNSHandler::ensureScanned() const
     return m_state == ScanSuccess;
 }
 
-bool QICNSHandler::addEntry(const ICNSBlockHeader &header, qint64 imgDataOffset)
+bool QICNSHandler::addEntry(const ICNSBlockHeader &header, qint64 imgDataOffset, quint32 variant)
 {
     // Note: This function returns false only when a device positioning error occurred
     ICNSEntry entry;
     entry.ostype = header.ostype;
+    entry.variant = variant;
     entry.dataOffset = imgDataOffset;
     entry.dataLength = header.length - ICNSBlockHeaderSize;
     // Check for known magic numbers:
@@ -919,6 +923,37 @@ bool QICNSHandler::scanDevice()
         case ICNSBlockHeader::TypeClut:
             // We don't have a good use for these blocks... yet.
             stream.skipRawData(blockDataLength);
+            break;
+        case ICNSBlockHeader::TypeTile:
+        case ICNSBlockHeader::TypeOver:
+        case ICNSBlockHeader::TypeOpen:
+        case ICNSBlockHeader::TypeDrop:
+        case ICNSBlockHeader::TypeOdrp:
+            // Icns container seems to have an embedded icon variant container
+            // Let's start a scan for entries
+            while (device()->pos() < nextBlockOffset) {
+                ICNSBlockHeader icon;
+                stream >> icon;
+                // Check for incorrect variant entry header and stop scan
+                if (!isBlockHeaderValid(icon, blockDataLength))
+                    break;
+                if (!addEntry(icon, device()->pos(), blockHeader.ostype))
+                    return false;
+                if (stream.skipRawData(icon.length - ICNSBlockHeaderSize) < 0)
+                    return false;
+            }
+            if (device()->pos() != nextBlockOffset) {
+                // Scan of this container didn't end where we expected.
+                // Let's generate some output about this incident:
+                qWarning("Scan of the icon variant container (\"%s\") failed at pos %s.\n" \
+                         "Reason: Scan didn't reach the end of this container's block, " \
+                         "delta: %s bytes. This file may be corrupted.",
+                         nameFromOSType(blockHeader.ostype).constData(),
+                         QByteArray::number(device()->pos()).constData(),
+                         QByteArray::number(nextBlockOffset - device()->pos()).constData());
+                if (!device()->seek(nextBlockOffset))
+                    return false;
+            }
             break;
         case ICNSBlockHeader::TypeToc: {
             // Quick scan, table of contents
