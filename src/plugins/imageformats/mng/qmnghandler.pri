@@ -3,7 +3,7 @@ INCLUDEPATH *= $$PWD
 HEADERS += $$PWD/qmnghandler_p.h
 SOURCES += $$PWD/qmnghandler.cpp
 config_libmng {
-    unix|win32-g++*: LIBS += -lmng
+    unix|mingw: LIBS += -lmng
     else:win32: LIBS += libmng.lib
 } else {
     include($$PWD/../../../3rdparty/libmng.pri)

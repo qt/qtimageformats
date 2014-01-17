@@ -10,7 +10,7 @@ wince*: SOURCES += qfunctions_wince.cpp
 OTHER_FILES += tiff.json
 
 config_libtiff {
-    unix|win32-g++*: LIBS += -ltiff
+    unix|mingw: LIBS += -ltiff
     else:win32: LIBS += libtiff.lib
 } else {
     include($$PWD/../../../3rdparty/libtiff.pri)
