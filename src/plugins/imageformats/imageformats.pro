@@ -6,3 +6,8 @@ SUBDIRS = \
     tiff \
     dds \
     icns
+
+winrt {
+    SUBDIRS -= tiff \
+               tga
+}
