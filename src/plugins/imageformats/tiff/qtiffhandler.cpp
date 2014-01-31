@@ -403,7 +403,7 @@ bool QTiffHandler::write(const QImage &image)
         return false;
 
     TIFF *const tiff = TIFFClientOpen("foo",
-                                      "w",
+                                      "wB",
                                       this,
                                       qtiffReadProc,
                                       qtiffWriteProc,
@@ -560,22 +560,17 @@ bool QTiffHandler::write(const QImage &image)
             TIFFClose(tiff);
             return false;
         }
-        // try to do the ARGB32 conversion in chunks no greater than 16 MB
+        // try to do the RGBA8888 conversion in chunks no greater than 16 MB
         int chunks = (width * height * 4 / (1024 * 1024 * 16)) + 1;
         int chunkHeight = qMax(height / chunks, 1);
 
         int y = 0;
         while (y < height) {
-            QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y)).convertToFormat(QImage::Format_ARGB32);
+            QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y)).convertToFormat(QImage::Format_RGBA8888);
 
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
             while (y < chunkEnd) {
-                if (QSysInfo::ByteOrder == QSysInfo::LittleEndian)
-                    convert32BitOrder(chunk.scanLine(y - chunkStart), width);
-                else
-                    convert32BitOrderBigEndian(chunk.scanLine(y - chunkStart), width);
-
                 if (TIFFWriteScanline(tiff, reinterpret_cast<uint32 *>(chunk.scanLine(y - chunkStart)), y) != 1) {
                     TIFFClose(tiff);
                     return false;
@@ -654,17 +649,4 @@ void QTiffHandler::convert32BitOrder(void *buffer, int width)
                     | ((p & 0x000000ff) << 16);
     }
 }
-
-void QTiffHandler::convert32BitOrderBigEndian(void *buffer, int width)
-{
-    uint32 *target = reinterpret_cast<uint32 *>(buffer);
-    for (int32 x=0; x<width; ++x) {
-        uint32 p = target[x];
-        target[x] = (p & 0xff000000) >> 24
-                    | (p & 0x00ff0000) << 8
-                    | (p & 0x0000ff00) << 8
-                    | (p & 0x000000ff) << 8;
-    }
-}
-
 QT_END_NAMESPACE
