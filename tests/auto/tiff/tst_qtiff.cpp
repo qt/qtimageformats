@@ -374,7 +374,8 @@ void tst_qtiff::readWriteNonDestructive_data()
     QTest::addColumn<bool>("grayscale");
     QTest::newRow("tiff mono") << QImage::Format_Mono << QImage::Format_Mono << false;
     QTest::newRow("tiff indexed") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << false;
-    QTest::newRow("tiff rgb32") << QImage::Format_ARGB32 << QImage::Format_ARGB32 << false;
+    QTest::newRow("tiff argb32") << QImage::Format_ARGB32 << QImage::Format_ARGB32 << false;
+    QTest::newRow("tiff rgb32") << QImage::Format_RGB32 << QImage::Format_RGB32 << false;
     QTest::newRow("tiff grayscale") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << true;
 }
 

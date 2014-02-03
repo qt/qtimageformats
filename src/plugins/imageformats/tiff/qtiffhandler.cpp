@@ -267,8 +267,12 @@ bool QTiffHandler::read(QImage *image)
                 // free redTable, greenTable and greenTable done by libtiff
             }
         } else {
-            if (image->size() != QSize(width, height) || image->format() != QImage::Format_ARGB32)
-                *image = QImage(width, height, QImage::Format_ARGB32);
+            QImage::Format format = QImage::Format_ARGB32;
+            if (samplesPerPixel < 4 && image->format() != QImage::Format_ARGB32)
+                format = QImage::Format_RGB32;
+
+            if (image->size() != QSize(width, height) || image->format() != format)
+                *image = QImage(width, height, format);
             if (!image->isNull()) {
                 const int stopOnError = 1;
                 if (TIFFReadRGBAImageOriented(tiff, width, height, reinterpret_cast<uint32 *>(image->bits()), ORIENTATION_TOPLEFT, stopOnError)) {
@@ -315,7 +319,7 @@ bool QTiffHandler::read(QImage *image)
     // rotate the image if the orientation is defined in the file
     uint16 orientationTag;
     if (TIFFGetField(tiff, TIFFTAG_ORIENTATION, &orientationTag)) {
-        if (image->format() == QImage::Format_ARGB32) {
+        if (image->format() == QImage::Format_ARGB32 || image->format() == QImage::Format_RGB32) {
             // TIFFReadRGBAImageOriented() flip the image but does not rotate them
             switch (orientationTag) {
             case 5:
@@ -552,6 +556,33 @@ bool QTiffHandler::write(const QImage &image)
         }
         TIFFClose(tiff);
 
+    } else if (!image.hasAlphaChannel()) {
+        if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
+            || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
+            || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 3)
+            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)) {
+            TIFFClose(tiff);
+            return false;
+        }
+        // try to do the RGB888 conversion in chunks no greater than 16 MB
+        const int chunks = (width * height * 3 / (1024 * 1024 * 16)) + 1;
+        const int chunkHeight = qMax(height / chunks, 1);
+
+        int y = 0;
+        while (y < height) {
+            const QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y)).convertToFormat(QImage::Format_RGB888);
+
+            int chunkStart = y;
+            int chunkEnd = y + chunk.height();
+            while (y < chunkEnd) {
+                if (TIFFWriteScanline(tiff, (void*)chunk.scanLine(y - chunkStart), y) != 1) {
+                    TIFFClose(tiff);
+                    return false;
+                }
+                ++y;
+            }
+        }
+        TIFFClose(tiff);
     } else {
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
             || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
@@ -561,17 +592,17 @@ bool QTiffHandler::write(const QImage &image)
             return false;
         }
         // try to do the RGBA8888 conversion in chunks no greater than 16 MB
-        int chunks = (width * height * 4 / (1024 * 1024 * 16)) + 1;
-        int chunkHeight = qMax(height / chunks, 1);
+        const int chunks = (width * height * 4 / (1024 * 1024 * 16)) + 1;
+        const int chunkHeight = qMax(height / chunks, 1);
 
         int y = 0;
         while (y < height) {
-            QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y)).convertToFormat(QImage::Format_RGBA8888);
+            const QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y)).convertToFormat(QImage::Format_RGBA8888);
 
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
             while (y < chunkEnd) {
-                if (TIFFWriteScanline(tiff, reinterpret_cast<uint32 *>(chunk.scanLine(y - chunkStart)), y) != 1) {
+                if (TIFFWriteScanline(tiff, (void*)chunk.scanLine(y - chunkStart), y) != 1) {
                     TIFFClose(tiff);
                     return false;
                 }
