@@ -22,3 +22,4 @@ information about a particular change.
  - Add read/write support for Direct Draw Surface images.
  - Add read/write support for ICNS images.
  - Add read/write support for JPEG 2000 images.
+ - Add read/write support for WebP images.
