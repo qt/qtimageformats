@@ -137,8 +137,13 @@ bool QWebpHandler::write(const QImage &image)
     }
 
     QImage srcImage = image;
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
     if (srcImage.format() != QImage::Format_ARGB32)
         srcImage = srcImage.convertToFormat(QImage::Format_ARGB32);
+#else /* Q_BIG_ENDIAN */
+    if (srcImage.format() != QImage::Format_RGBA8888)
+        srcImage = srcImage.convertToFormat(QImage::Format_RGBA8888);
+#endif
 
     WebPPicture picture;
     WebPConfig config;
@@ -151,7 +156,11 @@ bool QWebpHandler::write(const QImage &image)
     picture.width = srcImage.width();
     picture.height = srcImage.height();
     picture.use_argb = 1;
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
     if (!WebPPictureImportBGRA(&picture, srcImage.bits(), srcImage.bytesPerLine())) {
+#else /* Q_BIG_ENDIAN */
+    if (!WebPPictureImportRGBA(&picture, srcImage.bits(), srcImage.bytesPerLine())) {
+#endif
         qWarning() << "failed to import image data to webp picture.";
 
         WebPPictureFree(&picture);
