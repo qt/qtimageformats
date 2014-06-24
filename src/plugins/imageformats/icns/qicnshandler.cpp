@@ -665,12 +665,15 @@ bool QICNSHandler::canRead(QIODevice *device)
         return false;
     }
 
-    if (device->isSequential()) {
-        qWarning("QICNSHandler::canRead() called on a sequential device");
-        return false;
+    if (device->peek(4) == QByteArrayLiteral("icns")) {
+        if (device->isSequential()) {
+            qWarning("QICNSHandler::canRead() called on a sequential device");
+            return false;
+        }
+        return true;
     }
 
-    return device->peek(4) == QByteArrayLiteral("icns");
+    return false;
 }
 
 bool QICNSHandler::canRead() const
