@@ -109,6 +109,7 @@ void tst_qdds::readImage_data()
     QTest::newRow("46") << QString("RXGB") << QSize(64, 64);
     QTest::newRow("47") << QString("ATI2") << QSize(64, 64);
     QTest::newRow("48") << QString("P4") << QSize(64, 64);
+    QTest::newRow("49") << QString("A8R8G8B8_2") << QSize(64, 32);
 }
 
 void tst_qdds::readImage()
@@ -158,6 +159,7 @@ void tst_qdds::testWriteImage_data()
     QTest::addColumn<QSize>("size");
 
     QTest::newRow("1") << QString("A8R8G8B8") << QSize(64, 64);
+    QTest::newRow("2") << QString("A8R8G8B8_2") << QSize(64, 32);
 }
 
 void tst_qdds::testWriteImage()

@@ -1338,9 +1338,9 @@ bool QDDSHandler::write(const QImage &outImage)
     dds.pixelFormat.bBitMask = 0x000000ff;
 
     s << dds;
-    for (int width = 0; width < image.width(); width++) {
-        for (int height = 0; height < image.height(); height++) {
-            QRgb pixel = image.pixel(height, width);;
+    for (int height = 0; height < image.height(); height++) {
+        for (int width = 0; width < image.width(); width++) {
+            QRgb pixel = image.pixel(width, height);
             quint32 color;
             quint8 alpha = qAlpha(pixel);
             quint8 red = qRed(pixel);
