@@ -49,6 +49,6 @@
         <file>dds/YUY2.dds</file>
         <file>dds/RXGB.dds</file>
         <file>dds/ATI2.dds</file>
-        <file>dds/A8R8G8B8_2.dds</file>
+        <file>dds/A8R8G8B8.2.dds</file>
     </qresource>
 </RCC>
