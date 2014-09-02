@@ -1204,6 +1204,8 @@ void Jpeg2000JasperReader::printMetadata(jas_image_t *image)
                jas_image_cmpttlx(image, c), jas_image_cmpttly(image, c),
                jas_image_cmptbrx(image, c), jas_image_cmptbry(image, c));
     }
+#else
+    Q_UNUSED(image);
 #endif
 }
 
