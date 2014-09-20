@@ -323,7 +323,7 @@ static Format getFormat(const DDSHeader &dds)
             if ((format.flags & info.flags) == info.flags &&
                  format.rgbBitCount == info.bitCount &&
                  format.rBitMask == info.rBitMask &&
-                 format.bBitMask == info.bBitMask &&
+                 format.gBitMask == info.gBitMask &&
                  format.bBitMask == info.bBitMask &&
                  format.aBitMask == info.aBitMask) {
                 return info.format;
