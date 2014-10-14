@@ -1,8 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/lena.jpg</file>
-        <file>images/lena.webp</file>
-        <file>images/lena_lossless.webp</file>
         <file>images/kollada.png</file>
         <file>images/kollada.webp</file>
         <file>images/kollada_lossless.webp</file>
