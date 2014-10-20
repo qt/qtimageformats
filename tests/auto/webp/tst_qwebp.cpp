@@ -50,8 +50,6 @@ void tst_qwebp::readImage_data()
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<QSize>("size");
 
-    QTest::newRow("lena") << QString("lena") << QSize(103, 103);
-    QTest::newRow("lena_lossless") << QString("lena_lossless") << QSize(103, 103);
     QTest::newRow("kollada") << QString("kollada") << QSize(436, 160);
     QTest::newRow("kollada_lossless") << QString("kollada_lossless") << QSize(436, 160);
 }
@@ -77,8 +75,6 @@ void tst_qwebp::writeImage_data()
     QTest::addColumn<QSize>("size");
     QTest::addColumn<bool>("needcheck");
 
-    QTest::newRow("lena-90") << QString("lena") << QString(".jpg") << 90 << QSize(103, 103) << false;
-    QTest::newRow("lena-100") << QString("lena") << QString(".jpg") << 100 << QSize(103, 103) << false;
     QTest::newRow("kollada-75") << QString("kollada") << QString(".png") << 75 << QSize(436, 160) << false;
     QTest::newRow("kollada-100") << QString("kollada") << QString(".png") << 100 << QSize(436, 160) << true;
 }
