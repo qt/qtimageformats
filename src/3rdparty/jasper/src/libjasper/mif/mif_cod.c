@@ -65,6 +65,7 @@
 
 #include <assert.h>
 
+#include "jasper/jas_debug.h"
 #include "jasper/jas_tvp.h"
 #include "jasper/jas_stream.h"
 #include "jasper/jas_image.h"
