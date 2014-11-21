@@ -341,7 +341,8 @@ bool QMngHandlerPrivate::jumpToImage(int imageNumber)
 
 bool QMngHandlerPrivate::jumpToNextImage()
 {
-    return jumpToImage((currentImageNumber()+1) % imageCount());
+    const int numImages = imageCount();
+    return numImages > 1 && jumpToImage((currentImageNumber() + 1) % numImages);
 }
 
 int QMngHandlerPrivate::nextImageDelay() const
