@@ -75,6 +75,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "jasper/jas_debug.h"
 #include "jasper/jas_fix.h"
 #include "jasper/jas_stream.h"
 #include "jasper/jas_math.h"
