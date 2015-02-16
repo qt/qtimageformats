@@ -35,9 +35,9 @@
 #include "qddshandler.h"
 
 #include <QtCore/qdebug.h>
-#include <QtCore/qmath.h>
-
 #include <QtGui/qimage.h>
+
+#include <cmath>
 
 #include "ddsheader.h"
 
@@ -586,7 +586,7 @@ static QImage readATI2(QDataStream &s, quint32 width, quint32 height)
                     const double fx = nx / 127.5 - 1.0;
                     const double fy = ny / 127.5 - 1.0;
                     const double fxfy = 1.0 - fx * fx - fy * fy;
-                    const double fz = fxfy > 0 ? sqrt(fxfy) : -1.0;
+                    const double fz = fxfy > 0 ? std::sqrt(fxfy) : -1.0;
                     const quint8 nz = quint8((fz + 1.0) * 127.5);
 
                     line[j + l] = qRgb(nx, ny, nz);
@@ -664,9 +664,9 @@ static double readFloat16(QDataStream &s)
     quint16 fraction = value & 0x3FF;
 
     if (exp == 0)
-        return sign * qPow(2.0, -14.0) * fraction / 1024.0;
+        return sign * std::pow(2.0, -14.0) * fraction / 1024.0;
     else
-        return sign * qPow(2.0, exp - 15) * (1 + fraction / 1024.0);
+        return sign * std::pow(2.0, exp - 15) * (1 + fraction / 1024.0);
 }
 
 static inline float readFloat32(QDataStream &s)
@@ -812,7 +812,7 @@ static QImage readCxV8U8(QDataStream &s, const quint32 width, const quint32 heig
             const quint8 vn = v + 128, un = u + 128;
 
             const double vd = vn / 127.5 - 1.0, ud = un / 127.5 - 1.0;
-            const quint8 c = 255 * sqrt(1.0 - vd * vd - ud * ud);
+            const quint8 c = 255 * std::sqrt(1.0 - vd * vd - ud * ud);
             line[x] = qRgb(vn, un, c);
         }
     }
