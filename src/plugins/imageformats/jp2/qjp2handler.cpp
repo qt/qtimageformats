@@ -586,10 +586,7 @@ bool Jpeg2000JasperReader::read(QImage *pImage)
         if (hasAlpha) {
             qtImage = QImage(qtWidth, qtHeight, QImage::Format_ARGB32);
         } else {
-            qtImage = QImage(qtWidth, qtHeight, QImage::Format_Indexed8);
-            qtImage.setColorCount(256);
-            for (int c = 0; c < 256; ++c)
-                qtImage.setColor(c, qRgb(c,c,c));
+            qtImage = QImage(qtWidth, qtHeight, QImage::Format_Grayscale8);
         }
     }
 
