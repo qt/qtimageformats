@@ -24,14 +24,11 @@ SOURCES += \
     $$PWD/libwebp/src/demux/demux.c \
     $$PWD/libwebp/src/dsp/cpu.c \
     $$PWD/libwebp/src/dsp/dec.c \
-    $$PWD/libwebp/src/dsp/dec_neon.c \
     $$PWD/libwebp/src/dsp/dec_sse2.c \
     $$PWD/libwebp/src/dsp/enc.c \
-    $$PWD/libwebp/src/dsp/enc_neon.c \
     $$PWD/libwebp/src/dsp/enc_sse2.c \
     $$PWD/libwebp/src/dsp/lossless.c \
     $$PWD/libwebp/src/dsp/upsampling.c \
-    $$PWD/libwebp/src/dsp/upsampling_neon.c \
     $$PWD/libwebp/src/dsp/upsampling_sse2.c \
     $$PWD/libwebp/src/dsp/yuv.c \
     $$PWD/libwebp/src/dsp/alpha_processing.c \
@@ -41,7 +38,6 @@ SOURCES += \
     $$PWD/libwebp/src/dsp/enc_avx2.c \
     $$PWD/libwebp/src/dsp/enc_mips32.c \
     $$PWD/libwebp/src/dsp/lossless_mips32.c \
-    $$PWD/libwebp/src/dsp/lossless_neon.c \
     $$PWD/libwebp/src/dsp/lossless_sse2.c \
     $$PWD/libwebp/src/dsp/yuv_mips32.c \
     $$PWD/libwebp/src/dsp/yuv_sse2.c \
@@ -80,3 +76,34 @@ SOURCES += \
     $$PWD/libwebp/src/utils/rescaler.c \
     $$PWD/libwebp/src/utils/thread.c \
     $$PWD/libwebp/src/utils/utils.c
+
+android {
+    SOURCES += $$NDK_ROOT/sources/android/cpufeatures/cpu-features.c
+    INCLUDEPATH += $$NDK_ROOT/sources/android/cpufeatures
+}
+
+equals(QT_ARCH, arm) {
+    SOURCES_FOR_NEON += \
+        $$PWD/libwebp/src/dsp/dec_neon.c \
+        $$PWD/libwebp/src/dsp/enc_neon.c \
+        $$PWD/libwebp/src/dsp/upsampling_neon.c \
+        $$PWD/libwebp/src/dsp/lossless_neon.c
+
+    contains(QT_CPU_FEATURES, neon) {
+        # Default compiler settings include this feature, so just add to SOURCES
+        SOURCES += $$SOURCES_FOR_NEON
+    } else {
+        neon_comp.commands = $$QMAKE_CC -c $(CFLAGS)
+        neon_comp.commands += $$QMAKE_CFLAGS_NEON
+        neon_comp.commands += $(INCPATH) ${QMAKE_FILE_IN}
+        msvc: neon_comp.commands += -Fo${QMAKE_FILE_OUT}
+        else: neon_comp.commands += -o ${QMAKE_FILE_OUT}
+        neon_comp.dependency_type = TYPE_C
+        neon_comp.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        neon_comp.input = SOURCES_FOR_NEON
+        neon_comp.variable_out = OBJECTS
+        neon_comp.name = compiling[neon] ${QMAKE_FILE_IN}
+        silent: neon_comp.commands = @echo compiling[neon] ${QMAKE_FILE_IN} && $$neon_comp.commands
+        QMAKE_EXTRA_COMPILERS += neon_comp
+    }
+}
