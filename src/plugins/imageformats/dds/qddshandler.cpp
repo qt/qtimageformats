@@ -41,6 +41,8 @@
 
 #include "ddsheader.h"
 
+#include <cmath>
+
 #ifndef QT_NO_DATASTREAM
 
 QT_BEGIN_NAMESPACE
