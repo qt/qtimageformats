@@ -1173,11 +1173,11 @@ void Jpeg2000JasperReader::printMetadata(jas_image_t *image)
 {
 #ifndef QT_NO_DEBUG
     // jas_image_cmptparm_t param
-    qDebug("Image width: %d", jas_image_width(image));
-    qDebug("Image height: %d", jas_image_height(image));
-    qDebug("Coordinates on reference grid: (%d,%d) (%d,%d)",
-           jas_image_tlx(image), jas_image_tly(image),
-           jas_image_brx(image), jas_image_bry(image));
+    qDebug("Image width: %ld", long(jas_image_width(image)));
+    qDebug("Image height: %ld", long(jas_image_height(image)));
+    qDebug("Coordinates on reference grid: (%ld,%ld) (%ld,%ld)",
+           long(jas_image_tlx(image)), long(jas_image_tly(image)),
+           long(jas_image_brx(image)), long(jas_image_bry(image)));
     qDebug("Number of image components: %d", jas_image_numcmpts(image));
 
     QString colorspaceFamily;
@@ -1190,16 +1190,16 @@ void Jpeg2000JasperReader::printMetadata(jas_image_t *image)
 
     for (int c = 0; c < jas_image_numcmpts(image); ++c) {
         qDebug("Component %d:", c);
-        qDebug("    Component type: %d", jas_image_cmpttype(image, c));
-        qDebug("    Width: %d", jas_image_cmptwidth(image, c));
-        qDebug("    Height: %d", jas_image_cmptheight(image, c));
+        qDebug("    Component type: %ld", long(jas_image_cmpttype(image, c)));
+        qDebug("    Width: %ld", long(jas_image_cmptwidth(image, c)));
+        qDebug("    Height: %ld", long(jas_image_cmptheight(image, c)));
         qDebug("    Signedness: %d", jas_image_cmptsgnd(image, c));
         qDebug("    Precision: %d", jas_image_cmptprec(image, c));
-        qDebug("    Horizontal subsampling factor: %d",jas_image_cmpthstep(image, c));
-        qDebug("    Vertical subsampling factor: %d",  jas_image_cmptvstep(image, c));
-        qDebug("    Coordinates on reference grid: (%d,%d) (%d,%d)",
-               jas_image_cmpttlx(image, c), jas_image_cmpttly(image, c),
-               jas_image_cmptbrx(image, c), jas_image_cmptbry(image, c));
+        qDebug("    Horizontal subsampling factor: %ld",long(jas_image_cmpthstep(image, c)));
+        qDebug("    Vertical subsampling factor: %ld",  long(jas_image_cmptvstep(image, c)));
+        qDebug("    Coordinates on reference grid: (%ld,%ld) (%ld,%ld)",
+               long(jas_image_cmpttlx(image, c)), long(jas_image_cmpttly(image, c)),
+               long(jas_image_cmptbrx(image, c)), long(jas_image_cmptbry(image, c)));
     }
 #else
     Q_UNUSED(image);
