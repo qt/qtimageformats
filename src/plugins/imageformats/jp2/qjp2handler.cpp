@@ -38,9 +38,6 @@
 #include "qvariant.h"
 #include "qcolor.h"
 
-#ifdef Q_CC_MSVC
-#define JAS_WIN_MSVC_BUILD
-#endif
 #include <jasper/jasper.h>
 
 QT_BEGIN_NAMESPACE
