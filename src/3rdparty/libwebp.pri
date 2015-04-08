@@ -16,7 +16,6 @@ SOURCES += \
     $$PWD/libwebp/src/dec/frame.c \
     $$PWD/libwebp/src/dec/idec.c \
     $$PWD/libwebp/src/dec/io.c \
-    $$PWD/libwebp/src/dec/layer.c \
     $$PWD/libwebp/src/dec/quant.c \
     $$PWD/libwebp/src/dec/tree.c \
     $$PWD/libwebp/src/dec/vp8.c \
@@ -35,6 +34,17 @@ SOURCES += \
     $$PWD/libwebp/src/dsp/upsampling_neon.c \
     $$PWD/libwebp/src/dsp/upsampling_sse2.c \
     $$PWD/libwebp/src/dsp/yuv.c \
+    $$PWD/libwebp/src/dsp/alpha_processing.c \
+    $$PWD/libwebp/src/dsp/alpha_processing_sse2.c \
+    $$PWD/libwebp/src/dsp/dec_clip_tables.c \
+    $$PWD/libwebp/src/dsp/dec_mips32.c \
+    $$PWD/libwebp/src/dsp/enc_avx2.c \
+    $$PWD/libwebp/src/dsp/enc_mips32.c \
+    $$PWD/libwebp/src/dsp/lossless_mips32.c \
+    $$PWD/libwebp/src/dsp/lossless_neon.c \
+    $$PWD/libwebp/src/dsp/lossless_sse2.c \
+    $$PWD/libwebp/src/dsp/yuv_mips32.c \
+    $$PWD/libwebp/src/dsp/yuv_sse2.c \
     $$PWD/libwebp/src/enc/alpha.c \
     $$PWD/libwebp/src/enc/analysis.c \
     $$PWD/libwebp/src/enc/backward_references.c \
@@ -44,7 +54,6 @@ SOURCES += \
     $$PWD/libwebp/src/enc/frame.c \
     $$PWD/libwebp/src/enc/histogram.c \
     $$PWD/libwebp/src/enc/iterator.c \
-    $$PWD/libwebp/src/enc/layer.c \
     $$PWD/libwebp/src/enc/picture.c \
     $$PWD/libwebp/src/enc/quant.c \
     $$PWD/libwebp/src/enc/syntax.c \
@@ -52,10 +61,13 @@ SOURCES += \
     $$PWD/libwebp/src/enc/tree.c \
     $$PWD/libwebp/src/enc/vp8l.c \
     $$PWD/libwebp/src/enc/webpenc.c \
+    $$PWD/libwebp/src/enc/picture_csp.c \
+    $$PWD/libwebp/src/enc/picture_psnr.c \
+    $$PWD/libwebp/src/enc/picture_rescale.c \
+    $$PWD/libwebp/src/enc/picture_tools.c \
     $$PWD/libwebp/src/mux/muxedit.c \
     $$PWD/libwebp/src/mux/muxinternal.c \
     $$PWD/libwebp/src/mux/muxread.c \
-    $$PWD/libwebp/src/utils/alpha_processing.c \
     $$PWD/libwebp/src/utils/bit_reader.c \
     $$PWD/libwebp/src/utils/bit_writer.c \
     $$PWD/libwebp/src/utils/color_cache.c \
