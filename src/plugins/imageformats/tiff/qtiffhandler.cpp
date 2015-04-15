@@ -494,20 +494,13 @@ bool QTiffHandler::write(const QImage &image)
             }
             //// write the color table
             // allocate the color tables
-            uint16 *redTable = static_cast<uint16 *>(malloc(256 * sizeof(uint16)));
-            uint16 *greenTable = static_cast<uint16 *>(malloc(256 * sizeof(uint16)));
-            uint16 *blueTable = static_cast<uint16 *>(malloc(256 * sizeof(uint16)));
-            if (!redTable || !greenTable || !blueTable) {
-                free(redTable);
-                free(greenTable);
-                free(blueTable);
-                TIFFClose(tiff);
-                return false;
-            }
-
-            // set the color table
             const int tableSize = colorTable.size();
             Q_ASSERT(tableSize <= 256);
+            QVarLengthArray<uint16> redTable(tableSize);
+            QVarLengthArray<uint16> greenTable(tableSize);
+            QVarLengthArray<uint16> blueTable(tableSize);
+
+            // set the color table
             for (int i = 0; i<tableSize; ++i) {
                 const QRgb color = colorTable.at(i);
                 redTable[i] = qRed(color) * 257;
@@ -515,11 +508,7 @@ bool QTiffHandler::write(const QImage &image)
                 blueTable[i] = qBlue(color) * 257;
             }
 
-            const bool setColorTableSuccess = TIFFSetField(tiff, TIFFTAG_COLORMAP, redTable, greenTable, blueTable);
-
-            free(redTable);
-            free(greenTable);
-            free(blueTable);
+            const bool setColorTableSuccess = TIFFSetField(tiff, TIFFTAG_COLORMAP, redTable.data(), greenTable.data(), blueTable.data());
 
             if (!setColorTableSuccess) {
                 TIFFClose(tiff);
