@@ -394,6 +394,8 @@ void tst_qtiff::readWriteNonDestructive()
 
     QVERIFY(buf.open(QIODevice::ReadOnly));
     QImageReader reader(&buf);
+    QCOMPARE(reader.imageFormat(), expectedFormat);
+    QCOMPARE(reader.size(), image.size());
     QImage image2 = reader.read();
     QVERIFY2(!image.isNull(), qPrintable(reader.errorString()));
 
