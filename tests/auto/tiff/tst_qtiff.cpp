@@ -364,30 +364,22 @@ void tst_qtiff::readWriteNonDestructive_data()
 {
     QTest::addColumn<QImage::Format>("format");
     QTest::addColumn<QImage::Format>("expectedFormat");
-    QTest::addColumn<bool>("grayscale");
     QTest::addColumn<QImageIOHandler::Transformation>("transformation");
-    QTest::newRow("tiff mono") << QImage::Format_Mono << QImage::Format_Mono << false << QImageIOHandler::TransformationNone;
-    QTest::newRow("tiff indexed") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << false << QImageIOHandler::TransformationMirror;
-    QTest::newRow("tiff argb32pm") << QImage::Format_ARGB32_Premultiplied << QImage::Format_ARGB32_Premultiplied << false << QImageIOHandler::TransformationRotate90;
-    QTest::newRow("tiff rgb32") << QImage::Format_RGB32 << QImage::Format_RGB32 << false << QImageIOHandler::TransformationRotate270;
-    QTest::newRow("tiff grayscale") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << true << QImageIOHandler::TransformationFlip;
+    QTest::newRow("tiff mono") << QImage::Format_Mono << QImage::Format_Mono << QImageIOHandler::TransformationNone;
+    QTest::newRow("tiff indexed") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << QImageIOHandler::TransformationMirror;
+    QTest::newRow("tiff argb32pm") << QImage::Format_ARGB32_Premultiplied << QImage::Format_ARGB32_Premultiplied << QImageIOHandler::TransformationRotate90;
+    QTest::newRow("tiff rgb32") << QImage::Format_RGB32 << QImage::Format_RGB32 << QImageIOHandler::TransformationRotate270;
+    QTest::newRow("tiff grayscale") << QImage::Format_Grayscale8 << QImage::Format_Grayscale8 << QImageIOHandler::TransformationFlip;
 }
 
 void tst_qtiff::readWriteNonDestructive()
 {
     QFETCH(QImage::Format, format);
     QFETCH(QImage::Format, expectedFormat);
-    QFETCH(bool, grayscale);
     QFETCH(QImageIOHandler::Transformation, transformation);
+
     QImage image = QImage(prefix + "colorful.bmp").convertToFormat(format);
     QVERIFY(!image.isNull());
-
-    if (grayscale) {
-        QVector<QRgb> colors;
-        for (int i = 0; i < 256; ++i)
-            colors << qRgb(i, i, i);
-        image.setColorTable(colors);
-    }
 
     QByteArray output;
     QBuffer buf(&output);

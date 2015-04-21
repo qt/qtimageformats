@@ -245,6 +245,8 @@ bool QTiffHandlerPrivate::openForRead(QIODevice *device)
 
     if (grayscale && bitPerSample == 1 && samplesPerPixel == 1)
         format = QImage::Format_Mono;
+    else if (photometric == PHOTOMETRIC_MINISBLACK && bitPerSample == 8 && samplesPerPixel == 1)
+        format = QImage::Format_Grayscale8;
     else if ((grayscale || photometric == PHOTOMETRIC_PALETTE) && bitPerSample == 8 && samplesPerPixel == 1)
         format = QImage::Format_Indexed8;
     else if (samplesPerPixel < 4)
@@ -366,6 +368,15 @@ bool QTiffHandler::read(QImage *image)
 
                 // free redTable, greenTable and greenTable done by libtiff
             }
+        } else if (format == QImage::Format_Grayscale8) {
+            if (!image->isNull()) {
+                for (uint32 y = 0; y < height; ++y) {
+                    if (TIFFReadScanline(tiff, image->scanLine(y), y, 0) < 0) {
+                        d->close();
+                        return false;
+                    }
+                }
+            }
         } else {
             if (!image->isNull()) {
                 const int stopOnError = 1;
@@ -426,6 +437,29 @@ static bool checkGrayscale(const QVector<QRgb> &colorTable)
             return false;
     }
     return true;
+}
+
+static QVector<QRgb> effectiveColorTable(const QImage &image)
+{
+    QVector<QRgb> colors;
+    switch (image.format()) {
+    case QImage::Format_Indexed8:
+        colors = image.colorTable();
+        break;
+    case QImage::Format_Alpha8:
+        colors.resize(256);
+        for (int i = 0; i < 256; ++i)
+            colors[i] = qRgba(0, 0, 0, i);
+        break;
+    case QImage::Format_Grayscale8:
+        colors.resize(256);
+        for (int i = 0; i < 256; ++i)
+            colors[i] = qRgb(i, i, i);
+        break;
+    default:
+        Q_UNREACHABLE();
+    }
+    return colors;
 }
 
 bool QTiffHandler::write(const QImage &image)
@@ -515,12 +549,14 @@ bool QTiffHandler::write(const QImage &image)
             }
         }
         TIFFClose(tiff);
-    } else if (format == QImage::Format_Indexed8) {
-        const QVector<QRgb> colorTable = image.colorTable();
+    } else if (format == QImage::Format_Indexed8
+               || format == QImage::Format_Grayscale8
+               || format == QImage::Format_Alpha8) {
+        QVector<QRgb> colorTable = effectiveColorTable(image);
         bool isGrayscale = checkGrayscale(colorTable);
         if (isGrayscale) {
             uint16 photometric = PHOTOMETRIC_MINISBLACK;
-            if (image.colorTable().at(0) == 0xffffffff)
+            if (colorTable.at(0) == 0xffffffff)
                 photometric = PHOTOMETRIC_MINISWHITE;
             if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, photometric)
                     || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_PACKBITS)
@@ -579,7 +615,6 @@ bool QTiffHandler::write(const QImage &image)
             }
         }
         TIFFClose(tiff);
-
     } else if (!image.hasAlphaChannel()) {
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
             || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
