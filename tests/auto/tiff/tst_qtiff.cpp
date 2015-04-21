@@ -366,7 +366,7 @@ void tst_qtiff::readWriteNonDestructive_data()
     QTest::addColumn<bool>("grayscale");
     QTest::newRow("tiff mono") << QImage::Format_Mono << QImage::Format_Mono << false;
     QTest::newRow("tiff indexed") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << false;
-    QTest::newRow("tiff argb32") << QImage::Format_ARGB32 << QImage::Format_ARGB32 << false;
+    QTest::newRow("tiff argb32pm") << QImage::Format_ARGB32_Premultiplied << QImage::Format_ARGB32_Premultiplied << false;
     QTest::newRow("tiff rgb32") << QImage::Format_RGB32 << QImage::Format_RGB32 << false;
     QTest::newRow("tiff grayscale") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << true;
 }
@@ -410,7 +410,7 @@ void tst_qtiff::largeTiff()
     QSKIP("not tested on WinCE");
 #endif
 
-    QImage img(4096, 2048, QImage::Format_ARGB32);
+    QImage img(4096, 2048, QImage::Format_ARGB32_Premultiplied);
 
     QPainter p(&img);
     img.fill(0x0);

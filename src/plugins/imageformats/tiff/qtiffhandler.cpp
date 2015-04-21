@@ -232,7 +232,7 @@ bool QTiffHandlerPrivate::openForRead(QIODevice *device)
     else if (samplesPerPixel < 4)
         format = QImage::Format_RGB32;
     else
-        format = QImage::Format_ARGB32;
+        format = QImage::Format_ARGB32_Premultiplied;
 
     headersRead = true;
     return true;
@@ -275,7 +275,9 @@ bool QTiffHandler::read(QImage *image)
         return false;
 
     QImage::Format format = d->format;
-    if (format == QImage::Format_RGB32 && image->format() == QImage::Format_ARGB32)
+    if (format == QImage::Format_RGB32 &&
+            (image->format() == QImage::Format_ARGB32 ||
+             image->format() == QImage::Format_ARGB32_Premultiplied))
         format = image->format();
 
     if (image->size() != d->size || image->format() != format)
@@ -647,10 +649,14 @@ bool QTiffHandler::write(const QImage &image)
         }
         TIFFClose(tiff);
     } else {
+        const bool premultiplied = image.format() != QImage::Format_ARGB32
+                                && image.format() != QImage::Format_RGBA8888;
+        const uint16 extrasamples = premultiplied ? EXTRASAMPLE_ASSOCALPHA : EXTRASAMPLE_UNASSALPHA;
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
             || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)) {
+            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
+            || !TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, 1, &extrasamples)) {
             TIFFClose(tiff);
             return false;
         }
@@ -658,9 +664,11 @@ bool QTiffHandler::write(const QImage &image)
         const int chunks = (width * height * 4 / (1024 * 1024 * 16)) + 1;
         const int chunkHeight = qMax(height / chunks, 1);
 
+        const QImage::Format format = premultiplied ? QImage::Format_RGBA8888_Premultiplied
+                                                    : QImage::Format_RGBA8888;
         int y = 0;
         while (y < height) {
-            const QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y)).convertToFormat(QImage::Format_RGBA8888);
+            const QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y)).convertToFormat(format);
 
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
