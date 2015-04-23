@@ -336,6 +336,14 @@ static Format getFormat(const DDSHeader &dds)
     return FormatUnknown;
 }
 
+static inline quint8 getNormalZ(quint8 nx, quint8 ny)
+{
+    const double fx = nx / 127.5 - 1.0;
+    const double fy = ny / 127.5 - 1.0;
+    const double fxfy = 1.0 - fx * fx - fy * fy;
+    return fxfy > 0 ? 255 * std::sqrt(fxfy) : 0;
+}
+
 static inline void decodeColor(quint16 color, quint8 &red, quint8 &green, quint8 &blue)
 {
     red = ((color >> 11) & 0x1f) << 3;
@@ -583,14 +591,7 @@ static QImage readATI2(QDataStream &s, quint32 width, quint32 height)
                     QRgb pixel = arr[k * 4 + l];
                     const quint8 nx = qAlpha(pixel);
                     const quint8 ny = qBlue(pixel);
-
-                    // TODO: formulas can be incorrect
-                    const double fx = nx / 127.5 - 1.0;
-                    const double fy = ny / 127.5 - 1.0;
-                    const double fxfy = 1.0 - fx * fx - fy * fy;
-                    const double fz = fxfy > 0 ? std::sqrt(fxfy) : -1.0;
-                    const quint8 nz = quint8((fz + 1.0) * 127.5);
-
+                    const quint8 nz = getNormalZ(nx, ny);
                     line[j + l] = qRgb(nx, ny, nz);
                 }
             }
@@ -800,7 +801,6 @@ static QImage readQ16W16V16U16(QDataStream &s, const quint32 width, const quint3
     return image;
 }
 
-// TODO: this seems incorrect
 static QImage readCxV8U8(QDataStream &s, const quint32 width, const quint32 height)
 {
     QImage image(width, height, QImage::Format_RGB32);
@@ -811,10 +811,10 @@ static QImage readCxV8U8(QDataStream &s, const quint32 width, const quint32 heig
             qint8 v, u;
             s >> v >> u;
 
-            const quint8 vn = v + 128, un = u + 128;
+            const quint8 vn = v + 128;
+            const quint8 un = u + 128;
+            const quint8 c = getNormalZ(vn, un);
 
-            const double vd = vn / 127.5 - 1.0, ud = un / 127.5 - 1.0;
-            const quint8 c = 255 * std::sqrt(1.0 - vd * vd - ud * ud);
             line[x] = qRgb(vn, un, c);
         }
     }
