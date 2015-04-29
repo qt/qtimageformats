@@ -90,42 +90,6 @@ void qtiffUnmapProc(thandle_t /*fd*/, tdata_t /*base*/, toff_t /*size*/)
 {
 }
 
-// for 32 bits images
-inline void rotate_right_mirror_horizontal(QImage *const image)// rotate right->mirrored horizontal
-{
-    const int height = image->height();
-    const int width = image->width();
-    QImage generated(/* width = */ height, /* height = */ width, image->format());
-    const uint32 *originalPixel = reinterpret_cast<const uint32*>(image->bits());
-    uint32 *const generatedPixels = reinterpret_cast<uint32*>(generated.bits());
-    for (int row=0; row < height; ++row) {
-        for (int col=0; col < width; ++col) {
-            int idx = col * height + row;
-            generatedPixels[idx] = *originalPixel;
-            ++originalPixel;
-        }
-    }
-    *image = generated;
-}
-
-inline void rotate_right_mirror_vertical(QImage *const image) // rotate right->mirrored vertical
-{
-    const int height = image->height();
-    const int width = image->width();
-    QImage generated(/* width = */ height, /* height = */ width, image->format());
-    const int lastCol = width - 1;
-    const int lastRow = height - 1;
-    const uint32 *pixel = reinterpret_cast<const uint32*>(image->bits());
-    uint32 *const generatedBits = reinterpret_cast<uint32*>(generated.bits());
-    for (int row=0; row < height; ++row) {
-        for (int col=0; col < width; ++col) {
-            int idx = (lastCol - col) * height + (lastRow - row);
-            generatedBits[idx] = *pixel;
-            ++pixel;
-        }
-    }
-    *image = generated;
-}
 
 class QTiffHandlerPrivate
 {
@@ -140,6 +104,7 @@ public:
 
     TIFF *tiff;
     int compression;
+    QImageIOHandler::Transformations transformation;
     QImage::Format format;
     QSize size;
     uint16 photometric;
@@ -147,9 +112,58 @@ public:
     bool headersRead;
 };
 
+static QImageIOHandler::Transformations exif2Qt(int exifOrientation)
+{
+    switch (exifOrientation) {
+    case 1: // normal
+        return QImageIOHandler::TransformationNone;
+    case 2: // mirror horizontal
+        return QImageIOHandler::TransformationMirror;
+    case 3: // rotate 180
+        return QImageIOHandler::TransformationRotate180;
+    case 4: // mirror vertical
+        return QImageIOHandler::TransformationFlip;
+    case 5: // mirror horizontal and rotate 270 CW
+        return QImageIOHandler::TransformationFlipAndRotate90;
+    case 6: // rotate 90 CW
+        return QImageIOHandler::TransformationRotate90;
+    case 7: // mirror horizontal and rotate 90 CW
+        return QImageIOHandler::TransformationMirrorAndRotate90;
+    case 8: // rotate 270 CW
+        return QImageIOHandler::TransformationRotate270;
+    }
+    qWarning("Invalid EXIF orientation");
+    return QImageIOHandler::TransformationNone;
+}
+
+static int qt2Exif(QImageIOHandler::Transformations transformation)
+{
+    switch (transformation) {
+    case QImageIOHandler::TransformationNone:
+        return 1;
+    case QImageIOHandler::TransformationMirror:
+        return 2;
+    case QImageIOHandler::TransformationRotate180:
+        return 3;
+    case QImageIOHandler::TransformationFlip:
+        return 4;
+    case QImageIOHandler::TransformationFlipAndRotate90:
+        return 5;
+    case QImageIOHandler::TransformationRotate90:
+        return 6;
+    case QImageIOHandler::TransformationMirrorAndRotate90:
+        return 7;
+    case QImageIOHandler::TransformationRotate270:
+        return 8;
+    }
+    qWarning("Invalid Qt image transformation");
+    return 1;
+}
+
 QTiffHandlerPrivate::QTiffHandlerPrivate()
     : tiff(0)
     , compression(QTiffHandler::NoCompression)
+    , transformation(QImageIOHandler::TransformationNone)
     , format(QImage::Format_Invalid)
     , photometric(false)
     , grayscale(false)
@@ -214,6 +228,10 @@ bool QTiffHandlerPrivate::openForRead(QIODevice *device)
         return false;
     }
     size = QSize(width, height);
+
+    uint16 orientationTag;
+    if (TIFFGetField(tiff, TIFFTAG_ORIENTATION, &orientationTag))
+        transformation = exif2Qt(orientationTag);
 
     // BitsPerSample defaults to 1 according to the TIFF spec.
     uint16 bitPerSample;
@@ -351,7 +369,7 @@ bool QTiffHandler::read(QImage *image)
         } else {
             if (!image->isNull()) {
                 const int stopOnError = 1;
-                if (TIFFReadRGBAImageOriented(tiff, width, height, reinterpret_cast<uint32 *>(image->bits()), ORIENTATION_TOPLEFT, stopOnError)) {
+                if (TIFFReadRGBAImageOriented(tiff, width, height, reinterpret_cast<uint32 *>(image->bits()), qt2Exif(d->transformation), stopOnError)) {
                     for (uint32 y=0; y<height; ++y)
                         convert32BitOrder(image->scanLine(y), width);
                 } else {
@@ -389,72 +407,6 @@ bool QTiffHandler::read(QImage *image)
             // do nothing as defaults have already
             // been set within the QImage class
             break;
-        }
-    }
-
-    // rotate the image if the orientation is defined in the file
-    uint16 orientationTag;
-    if (TIFFGetField(tiff, TIFFTAG_ORIENTATION, &orientationTag)) {
-        if (image->format() == QImage::Format_ARGB32 || image->format() == QImage::Format_RGB32) {
-            // TIFFReadRGBAImageOriented() flip the image but does not rotate them
-            switch (orientationTag) {
-            case 5:
-                rotate_right_mirror_horizontal(image);
-                break;
-            case 6:
-                rotate_right_mirror_vertical(image);
-                break;
-            case 7:
-                rotate_right_mirror_horizontal(image);
-                break;
-            case 8:
-                rotate_right_mirror_vertical(image);
-                break;
-            }
-        } else {
-            switch (orientationTag) {
-            case 1: // default orientation
-                break;
-            case 2: // mirror horizontal
-                *image = image->mirrored(true, false);
-                break;
-            case 3: // mirror both
-                *image = image->mirrored(true, true);
-                break;
-            case 4: // mirror vertical
-                *image = image->mirrored(false, true);
-                break;
-            case 5: // rotate right mirror horizontal
-                {
-                    QMatrix transformation;
-                    transformation.rotate(90);
-                    *image = image->transformed(transformation);
-                    *image = image->mirrored(true, false);
-                    break;
-                }
-            case 6: // rotate right
-                {
-                    QMatrix transformation;
-                    transformation.rotate(90);
-                    *image = image->transformed(transformation);
-                    break;
-                }
-            case 7: // rotate right, mirror vertical
-                {
-                    QMatrix transformation;
-                    transformation.rotate(90);
-                    *image = image->transformed(transformation);
-                    *image = image->mirrored(false, true);
-                    break;
-                }
-            case 8: // rotate left
-                {
-                    QMatrix transformation;
-                    transformation.rotate(270);
-                    *image = image->transformed(transformation);
-                    break;
-                }
-            }
         }
     }
 
@@ -520,6 +472,13 @@ bool QTiffHandler::write(const QImage &image)
                         && TIFFSetField(tiff, TIFFTAG_YRESOLUTION, static_cast<float>(image.logicalDpiY()));
     }
     if (!resolutionSet) {
+        TIFFClose(tiff);
+        return false;
+    }
+    // set the orienataion
+    bool orientationSet = false;
+    orientationSet = TIFFSetField(tiff, TIFFTAG_ORIENTATION, qt2Exif(d->transformation));
+    if (!orientationSet) {
         TIFFClose(tiff);
         return false;
     }
@@ -701,6 +660,9 @@ QVariant QTiffHandler::option(ImageOption option) const
     } else if (option == ImageFormat) {
         if (d->readHeaders(device()))
             return d->format;
+    } else if (option == ImageTransformation) {
+        if (d->readHeaders(device()))
+            return int(d->transformation);
     }
     return QVariant();
 }
@@ -709,13 +671,20 @@ void QTiffHandler::setOption(ImageOption option, const QVariant &value)
 {
     if (option == CompressionRatio && value.type() == QVariant::Int)
         d->compression = value.toInt();
+    if (option == ImageTransformation) {
+        int transformation = value.toInt();
+        if (transformation > 0 && transformation < 8)
+            d->transformation = QImageIOHandler::Transformations(transformation);
+    }
 }
 
 bool QTiffHandler::supportsOption(ImageOption option) const
 {
     return option == CompressionRatio
             || option == Size
-            || option == ImageFormat;
+            || option == ImageFormat
+            || option == ImageTransformation
+            || option == TransformedByDefault;
 }
 
 void QTiffHandler::convert32BitOrder(void *buffer, int width)

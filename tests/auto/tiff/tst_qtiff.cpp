@@ -36,6 +36,7 @@
 
 Q_DECLARE_METATYPE(QImage::Format)
 Q_DECLARE_METATYPE(QImageWriter::ImageWriterError)
+Q_DECLARE_METATYPE(QImageIOHandler::Transformation)
 typedef QList<int> QIntList;
 Q_DECLARE_METATYPE(QIntList)
 
@@ -364,11 +365,12 @@ void tst_qtiff::readWriteNonDestructive_data()
     QTest::addColumn<QImage::Format>("format");
     QTest::addColumn<QImage::Format>("expectedFormat");
     QTest::addColumn<bool>("grayscale");
-    QTest::newRow("tiff mono") << QImage::Format_Mono << QImage::Format_Mono << false;
-    QTest::newRow("tiff indexed") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << false;
-    QTest::newRow("tiff argb32pm") << QImage::Format_ARGB32_Premultiplied << QImage::Format_ARGB32_Premultiplied << false;
-    QTest::newRow("tiff rgb32") << QImage::Format_RGB32 << QImage::Format_RGB32 << false;
-    QTest::newRow("tiff grayscale") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << true;
+    QTest::addColumn<QImageIOHandler::Transformation>("transformation");
+    QTest::newRow("tiff mono") << QImage::Format_Mono << QImage::Format_Mono << false << QImageIOHandler::TransformationNone;
+    QTest::newRow("tiff indexed") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << false << QImageIOHandler::TransformationMirror;
+    QTest::newRow("tiff argb32pm") << QImage::Format_ARGB32_Premultiplied << QImage::Format_ARGB32_Premultiplied << false << QImageIOHandler::TransformationRotate90;
+    QTest::newRow("tiff rgb32") << QImage::Format_RGB32 << QImage::Format_RGB32 << false << QImageIOHandler::TransformationRotate270;
+    QTest::newRow("tiff grayscale") << QImage::Format_Indexed8 << QImage::Format_Indexed8 << true << QImageIOHandler::TransformationFlip;
 }
 
 void tst_qtiff::readWriteNonDestructive()
@@ -376,6 +378,7 @@ void tst_qtiff::readWriteNonDestructive()
     QFETCH(QImage::Format, format);
     QFETCH(QImage::Format, expectedFormat);
     QFETCH(bool, grayscale);
+    QFETCH(QImageIOHandler::Transformation, transformation);
     QImage image = QImage(prefix + "colorful.bmp").convertToFormat(format);
     QVERIFY(!image.isNull());
 
@@ -389,19 +392,23 @@ void tst_qtiff::readWriteNonDestructive()
     QByteArray output;
     QBuffer buf(&output);
     QVERIFY(buf.open(QIODevice::WriteOnly));
-    QVERIFY(image.save(&buf, "tiff"));
+    QImageWriter writer(&buf, "tiff");
+    writer.setTransformation(transformation);
+    writer.write(image);
     buf.close();
 
     QVERIFY(buf.open(QIODevice::ReadOnly));
     QImageReader reader(&buf);
     QCOMPARE(reader.imageFormat(), expectedFormat);
     QCOMPARE(reader.size(), image.size());
+    QCOMPARE(reader.autoTransform(), true);
+    reader.setAutoTransform(false);
+    QCOMPARE(reader.transformation(), transformation);
     QImage image2 = reader.read();
     QVERIFY2(!image.isNull(), qPrintable(reader.errorString()));
 
-    QImage::Format readFormat = image2.format();
-    QCOMPARE(readFormat, expectedFormat);
-    QCOMPARE(image, image2);
+    QCOMPARE(image2.format(), expectedFormat);
+    QCOMPARE(image2, image);
 }
 
 void tst_qtiff::largeTiff()
@@ -441,8 +448,11 @@ void tst_qtiff::supportsOption_data()
 {
     QTest::addColumn<QIntList>("options");
 
-    QTest::newRow("tiff") << (QIntList() << QImageIOHandler::Size
-                              << QImageIOHandler::CompressionRatio);
+    QTest::newRow("tiff") << (QIntList()
+                              << QImageIOHandler::Size
+                              << QImageIOHandler::CompressionRatio
+                              << QImageIOHandler::ImageTransformation
+                              << QImageIOHandler::TransformedByDefault);
 }
 
 void tst_qtiff::supportsOption()
@@ -463,7 +473,9 @@ void tst_qtiff::supportsOption()
                << QImageIOHandler::IncrementalReading
                << QImageIOHandler::Endianness
                << QImageIOHandler::Animation
-               << QImageIOHandler::BackgroundColor;
+               << QImageIOHandler::BackgroundColor
+               << QImageIOHandler::ImageTransformation
+               << QImageIOHandler::TransformedByDefault;
 
     QImageWriter writer;
     writer.setFormat("tiff");
