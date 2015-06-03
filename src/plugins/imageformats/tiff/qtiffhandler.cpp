@@ -44,18 +44,18 @@ QT_BEGIN_NAMESPACE
 
 tsize_t qtiffReadProc(thandle_t fd, tdata_t buf, tsize_t size)
 {
-    QIODevice* device = static_cast<QTiffHandler*>(fd)->device();
+    QIODevice *device = static_cast<QIODevice *>(fd);
     return device->isReadable() ? device->read(static_cast<char *>(buf), size) : -1;
 }
 
 tsize_t qtiffWriteProc(thandle_t fd, tdata_t buf, tsize_t size)
 {
-    return static_cast<QTiffHandler*>(fd)->device()->write(static_cast<char *>(buf), size);
+    return static_cast<QIODevice *>(fd)->write(static_cast<char *>(buf), size);
 }
 
 toff_t qtiffSeekProc(thandle_t fd, toff_t off, int whence)
 {
-    QIODevice *device = static_cast<QTiffHandler*>(fd)->device();
+    QIODevice *device = static_cast<QIODevice *>(fd);
     switch (whence) {
     case SEEK_SET:
         device->seek(off);
@@ -78,7 +78,7 @@ int qtiffCloseProc(thandle_t /*fd*/)
 
 toff_t qtiffSizeProc(thandle_t fd)
 {
-    return static_cast<QTiffHandler*>(fd)->device()->size();
+    return static_cast<QIODevice *>(fd)->size();
 }
 
 int qtiffMapProc(thandle_t /*fd*/, tdata_t* /*pbase*/, toff_t* /*psize*/)
@@ -90,58 +90,100 @@ void qtiffUnmapProc(thandle_t /*fd*/, tdata_t /*base*/, toff_t /*size*/)
 {
 }
 
-// for 32 bits images
-inline void rotate_right_mirror_horizontal(QImage *const image)// rotate right->mirrored horizontal
+
+class QTiffHandlerPrivate
 {
-    const int height = image->height();
-    const int width = image->width();
-    QImage generated(/* width = */ height, /* height = */ width, image->format());
-    const uint32 *originalPixel = reinterpret_cast<const uint32*>(image->bits());
-    uint32 *const generatedPixels = reinterpret_cast<uint32*>(generated.bits());
-    for (int row=0; row < height; ++row) {
-        for (int col=0; col < width; ++col) {
-            int idx = col * height + row;
-            generatedPixels[idx] = *originalPixel;
-            ++originalPixel;
-        }
+public:
+    QTiffHandlerPrivate();
+    ~QTiffHandlerPrivate();
+
+    static bool canRead(QIODevice *device);
+    bool openForRead(QIODevice *device);
+    bool readHeaders(QIODevice *device);
+    void close();
+
+    TIFF *tiff;
+    int compression;
+    QImageIOHandler::Transformations transformation;
+    QImage::Format format;
+    QSize size;
+    uint16 photometric;
+    bool grayscale;
+    bool headersRead;
+};
+
+static QImageIOHandler::Transformations exif2Qt(int exifOrientation)
+{
+    switch (exifOrientation) {
+    case 1: // normal
+        return QImageIOHandler::TransformationNone;
+    case 2: // mirror horizontal
+        return QImageIOHandler::TransformationMirror;
+    case 3: // rotate 180
+        return QImageIOHandler::TransformationRotate180;
+    case 4: // mirror vertical
+        return QImageIOHandler::TransformationFlip;
+    case 5: // mirror horizontal and rotate 270 CW
+        return QImageIOHandler::TransformationFlipAndRotate90;
+    case 6: // rotate 90 CW
+        return QImageIOHandler::TransformationRotate90;
+    case 7: // mirror horizontal and rotate 90 CW
+        return QImageIOHandler::TransformationMirrorAndRotate90;
+    case 8: // rotate 270 CW
+        return QImageIOHandler::TransformationRotate270;
     }
-    *image = generated;
+    qWarning("Invalid EXIF orientation");
+    return QImageIOHandler::TransformationNone;
 }
 
-inline void rotate_right_mirror_vertical(QImage *const image) // rotate right->mirrored vertical
+static int qt2Exif(QImageIOHandler::Transformations transformation)
 {
-    const int height = image->height();
-    const int width = image->width();
-    QImage generated(/* width = */ height, /* height = */ width, image->format());
-    const int lastCol = width - 1;
-    const int lastRow = height - 1;
-    const uint32 *pixel = reinterpret_cast<const uint32*>(image->bits());
-    uint32 *const generatedBits = reinterpret_cast<uint32*>(generated.bits());
-    for (int row=0; row < height; ++row) {
-        for (int col=0; col < width; ++col) {
-            int idx = (lastCol - col) * height + (lastRow - row);
-            generatedBits[idx] = *pixel;
-            ++pixel;
-        }
+    switch (transformation) {
+    case QImageIOHandler::TransformationNone:
+        return 1;
+    case QImageIOHandler::TransformationMirror:
+        return 2;
+    case QImageIOHandler::TransformationRotate180:
+        return 3;
+    case QImageIOHandler::TransformationFlip:
+        return 4;
+    case QImageIOHandler::TransformationFlipAndRotate90:
+        return 5;
+    case QImageIOHandler::TransformationRotate90:
+        return 6;
+    case QImageIOHandler::TransformationMirrorAndRotate90:
+        return 7;
+    case QImageIOHandler::TransformationRotate270:
+        return 8;
     }
-    *image = generated;
+    qWarning("Invalid Qt image transformation");
+    return 1;
 }
 
-QTiffHandler::QTiffHandler() : QImageIOHandler()
+QTiffHandlerPrivate::QTiffHandlerPrivate()
+    : tiff(0)
+    , compression(QTiffHandler::NoCompression)
+    , transformation(QImageIOHandler::TransformationNone)
+    , format(QImage::Format_Invalid)
+    , photometric(false)
+    , grayscale(false)
+    , headersRead(false)
 {
-    compression = NoCompression;
 }
 
-bool QTiffHandler::canRead() const
+QTiffHandlerPrivate::~QTiffHandlerPrivate()
 {
-    if (canRead(device())) {
-        setFormat("tiff");
-        return true;
-    }
-    return false;
+    close();
 }
 
-bool QTiffHandler::canRead(QIODevice *device)
+void QTiffHandlerPrivate::close()
+{
+    if (tiff)
+        TIFFClose(tiff);
+    tiff = 0;
+}
+
+bool QTiffHandlerPrivate::canRead(QIODevice *device)
 {
     if (!device) {
         qWarning("QTiffHandler::canRead() called with no device");
@@ -155,34 +197,41 @@ bool QTiffHandler::canRead(QIODevice *device)
            || header == QByteArray::fromRawData("\x4D\x4D\x00\x2A", 4);
 }
 
-bool QTiffHandler::read(QImage *image)
+bool QTiffHandlerPrivate::openForRead(QIODevice *device)
 {
-    if (!canRead())
+    if (tiff)
+        return true;
+
+    if (!canRead(device))
         return false;
 
-    TIFF *const tiff = TIFFClientOpen("foo",
-                                      "r",
-                                      this,
-                                      qtiffReadProc,
-                                      qtiffWriteProc,
-                                      qtiffSeekProc,
-                                      qtiffCloseProc,
-                                      qtiffSizeProc,
-                                      qtiffMapProc,
-                                      qtiffUnmapProc);
+    tiff = TIFFClientOpen("foo",
+                          "r",
+                          device,
+                          qtiffReadProc,
+                          qtiffWriteProc,
+                          qtiffSeekProc,
+                          qtiffCloseProc,
+                          qtiffSizeProc,
+                          qtiffMapProc,
+                          qtiffUnmapProc);
 
     if (!tiff) {
         return false;
     }
     uint32 width;
     uint32 height;
-    uint16 photometric;
     if (!TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &width)
         || !TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &height)
         || !TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &photometric)) {
-        TIFFClose(tiff);
+        close();
         return false;
     }
+    size = QSize(width, height);
+
+    uint16 orientationTag;
+    if (TIFFGetField(tiff, TIFFTAG_ORIENTATION, &orientationTag))
+        transformation = exif2Qt(orientationTag);
 
     // BitsPerSample defaults to 1 according to the TIFF spec.
     uint16 bitPerSample;
@@ -192,12 +241,75 @@ bool QTiffHandler::read(QImage *image)
     if (!TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &samplesPerPixel))
         samplesPerPixel = 1;
 
-    bool grayscale = photometric == PHOTOMETRIC_MINISBLACK || photometric == PHOTOMETRIC_MINISWHITE;
-    if (grayscale && bitPerSample == 1 && samplesPerPixel == 1) {
-        if (image->size() != QSize(width, height) || image->format() != QImage::Format_Mono)
-            *image = QImage(width, height, QImage::Format_Mono);
+    grayscale = photometric == PHOTOMETRIC_MINISBLACK || photometric == PHOTOMETRIC_MINISWHITE;
+
+    if (grayscale && bitPerSample == 1 && samplesPerPixel == 1)
+        format = QImage::Format_Mono;
+    else if (photometric == PHOTOMETRIC_MINISBLACK && bitPerSample == 8 && samplesPerPixel == 1)
+        format = QImage::Format_Grayscale8;
+    else if ((grayscale || photometric == PHOTOMETRIC_PALETTE) && bitPerSample == 8 && samplesPerPixel == 1)
+        format = QImage::Format_Indexed8;
+    else if (samplesPerPixel < 4)
+        format = QImage::Format_RGB32;
+    else
+        format = QImage::Format_ARGB32_Premultiplied;
+
+    headersRead = true;
+    return true;
+}
+
+bool QTiffHandlerPrivate::readHeaders(QIODevice *device)
+{
+    if (headersRead)
+        return true;
+
+    return openForRead(device);
+}
+
+QTiffHandler::QTiffHandler()
+    : QImageIOHandler()
+    , d(new QTiffHandlerPrivate)
+{
+}
+
+bool QTiffHandler::canRead() const
+{
+    if (d->tiff)
+        return true;
+    if (QTiffHandlerPrivate::canRead(device())) {
+        setFormat("tiff");
+        return true;
+    }
+    return false;
+}
+
+bool QTiffHandler::canRead(QIODevice *device)
+{
+    return QTiffHandlerPrivate::canRead(device);
+}
+
+bool QTiffHandler::read(QImage *image)
+{
+    // Open file and read headers if it hasn't already been done.
+    if (!d->openForRead(device()))
+        return false;
+
+    QImage::Format format = d->format;
+    if (format == QImage::Format_RGB32 &&
+            (image->format() == QImage::Format_ARGB32 ||
+             image->format() == QImage::Format_ARGB32_Premultiplied))
+        format = image->format();
+
+    if (image->size() != d->size || image->format() != format)
+        *image = QImage(d->size, format);
+
+    TIFF *const tiff = d->tiff;
+    const uint32 width = d->size.width();
+    const uint32 height = d->size.height();
+
+    if (format == QImage::Format_Mono) {
         QVector<QRgb> colortable(2);
-        if (photometric == PHOTOMETRIC_MINISBLACK) {
+        if (d->photometric == PHOTOMETRIC_MINISBLACK) {
             colortable[0] = 0xff000000;
             colortable[1] = 0xffffffff;
         } else {
@@ -209,21 +321,19 @@ bool QTiffHandler::read(QImage *image)
         if (!image->isNull()) {
             for (uint32 y=0; y<height; ++y) {
                 if (TIFFReadScanline(tiff, image->scanLine(y), y, 0) < 0) {
-                    TIFFClose(tiff);
+                    d->close();
                     return false;
                 }
             }
         }
     } else {
-        if ((grayscale || photometric == PHOTOMETRIC_PALETTE) && bitPerSample == 8 && samplesPerPixel == 1) {
-            if (image->size() != QSize(width, height) || image->format() != QImage::Format_Indexed8)
-                *image = QImage(width, height, QImage::Format_Indexed8);
+        if (format == QImage::Format_Indexed8) {
             if (!image->isNull()) {
                 const uint16 tableSize = 256;
                 QVector<QRgb> qtColorTable(tableSize);
-                if (grayscale) {
+                if (d->grayscale) {
                     for (int i = 0; i<tableSize; ++i) {
-                        const int c = (photometric == PHOTOMETRIC_MINISBLACK) ? i : (255 - i);
+                        const int c = (d->photometric == PHOTOMETRIC_MINISBLACK) ? i : (255 - i);
                         qtColorTable[i] = qRgb(c, c, c);
                     }
                 } else {
@@ -232,11 +342,11 @@ bool QTiffHandler::read(QImage *image)
                     uint16 *greenTable = 0;
                     uint16 *blueTable = 0;
                     if (!TIFFGetField(tiff, TIFFTAG_COLORMAP, &redTable, &greenTable, &blueTable)) {
-                        TIFFClose(tiff);
+                        d->close();
                         return false;
                     }
                     if (!redTable || !greenTable || !blueTable) {
-                        TIFFClose(tiff);
+                        d->close();
                         return false;
                     }
 
@@ -251,27 +361,30 @@ bool QTiffHandler::read(QImage *image)
                 image->setColorTable(qtColorTable);
                 for (uint32 y=0; y<height; ++y) {
                     if (TIFFReadScanline(tiff, image->scanLine(y), y, 0) < 0) {
-                        TIFFClose(tiff);
+                        d->close();
                         return false;
                     }
                 }
 
                 // free redTable, greenTable and greenTable done by libtiff
             }
+        } else if (format == QImage::Format_Grayscale8) {
+            if (!image->isNull()) {
+                for (uint32 y = 0; y < height; ++y) {
+                    if (TIFFReadScanline(tiff, image->scanLine(y), y, 0) < 0) {
+                        d->close();
+                        return false;
+                    }
+                }
+            }
         } else {
-            QImage::Format format = QImage::Format_ARGB32;
-            if (samplesPerPixel < 4 && image->format() != QImage::Format_ARGB32)
-                format = QImage::Format_RGB32;
-
-            if (image->size() != QSize(width, height) || image->format() != format)
-                *image = QImage(width, height, format);
             if (!image->isNull()) {
                 const int stopOnError = 1;
-                if (TIFFReadRGBAImageOriented(tiff, width, height, reinterpret_cast<uint32 *>(image->bits()), ORIENTATION_TOPLEFT, stopOnError)) {
+                if (TIFFReadRGBAImageOriented(tiff, width, height, reinterpret_cast<uint32 *>(image->bits()), qt2Exif(d->transformation), stopOnError)) {
                     for (uint32 y=0; y<height; ++y)
                         convert32BitOrder(image->scanLine(y), width);
                 } else {
-                    TIFFClose(tiff);
+                    d->close();
                     return false;
                 }
             }
@@ -279,7 +392,7 @@ bool QTiffHandler::read(QImage *image)
     }
 
     if (image->isNull()) {
-        TIFFClose(tiff);
+        d->close();
         return false;
     }
 
@@ -308,74 +421,7 @@ bool QTiffHandler::read(QImage *image)
         }
     }
 
-    // rotate the image if the orientation is defined in the file
-    uint16 orientationTag;
-    if (TIFFGetField(tiff, TIFFTAG_ORIENTATION, &orientationTag)) {
-        if (image->format() == QImage::Format_ARGB32 || image->format() == QImage::Format_RGB32) {
-            // TIFFReadRGBAImageOriented() flip the image but does not rotate them
-            switch (orientationTag) {
-            case 5:
-                rotate_right_mirror_horizontal(image);
-                break;
-            case 6:
-                rotate_right_mirror_vertical(image);
-                break;
-            case 7:
-                rotate_right_mirror_horizontal(image);
-                break;
-            case 8:
-                rotate_right_mirror_vertical(image);
-                break;
-            }
-        } else {
-            switch (orientationTag) {
-            case 1: // default orientation
-                break;
-            case 2: // mirror horizontal
-                *image = image->mirrored(true, false);
-                break;
-            case 3: // mirror both
-                *image = image->mirrored(true, true);
-                break;
-            case 4: // mirror vertical
-                *image = image->mirrored(false, true);
-                break;
-            case 5: // rotate right mirror horizontal
-                {
-                    QMatrix transformation;
-                    transformation.rotate(90);
-                    *image = image->transformed(transformation);
-                    *image = image->mirrored(true, false);
-                    break;
-                }
-            case 6: // rotate right
-                {
-                    QMatrix transformation;
-                    transformation.rotate(90);
-                    *image = image->transformed(transformation);
-                    break;
-                }
-            case 7: // rotate right, mirror vertical
-                {
-                    QMatrix transformation;
-                    transformation.rotate(90);
-                    *image = image->transformed(transformation);
-                    *image = image->mirrored(false, true);
-                    break;
-                }
-            case 8: // rotate left
-                {
-                    QMatrix transformation;
-                    transformation.rotate(270);
-                    *image = image->transformed(transformation);
-                    break;
-                }
-            }
-        }
-    }
-
-
-    TIFFClose(tiff);
+    d->close();
     return true;
 }
 
@@ -393,6 +439,29 @@ static bool checkGrayscale(const QVector<QRgb> &colorTable)
     return true;
 }
 
+static QVector<QRgb> effectiveColorTable(const QImage &image)
+{
+    QVector<QRgb> colors;
+    switch (image.format()) {
+    case QImage::Format_Indexed8:
+        colors = image.colorTable();
+        break;
+    case QImage::Format_Alpha8:
+        colors.resize(256);
+        for (int i = 0; i < 256; ++i)
+            colors[i] = qRgba(0, 0, 0, i);
+        break;
+    case QImage::Format_Grayscale8:
+        colors.resize(256);
+        for (int i = 0; i < 256; ++i)
+            colors[i] = qRgb(i, i, i);
+        break;
+    default:
+        Q_UNREACHABLE();
+    }
+    return colors;
+}
+
 bool QTiffHandler::write(const QImage &image)
 {
     if (!device()->isWritable())
@@ -400,7 +469,7 @@ bool QTiffHandler::write(const QImage &image)
 
     TIFF *const tiff = TIFFClientOpen("foo",
                                       "wB",
-                                      this,
+                                      device(),
                                       qtiffReadProc,
                                       qtiffWriteProc,
                                       qtiffSeekProc,
@@ -413,6 +482,7 @@ bool QTiffHandler::write(const QImage &image)
 
     const int width = image.width();
     const int height = image.height();
+    const int compression = d->compression;
 
     if (!TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, width)
         || !TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, height)
@@ -436,6 +506,13 @@ bool QTiffHandler::write(const QImage &image)
                         && TIFFSetField(tiff, TIFFTAG_YRESOLUTION, static_cast<float>(image.logicalDpiY()));
     }
     if (!resolutionSet) {
+        TIFFClose(tiff);
+        return false;
+    }
+    // set the orienataion
+    bool orientationSet = false;
+    orientationSet = TIFFSetField(tiff, TIFFTAG_ORIENTATION, qt2Exif(d->transformation));
+    if (!orientationSet) {
         TIFFClose(tiff);
         return false;
     }
@@ -472,12 +549,14 @@ bool QTiffHandler::write(const QImage &image)
             }
         }
         TIFFClose(tiff);
-    } else if (format == QImage::Format_Indexed8) {
-        const QVector<QRgb> colorTable = image.colorTable();
+    } else if (format == QImage::Format_Indexed8
+               || format == QImage::Format_Grayscale8
+               || format == QImage::Format_Alpha8) {
+        QVector<QRgb> colorTable = effectiveColorTable(image);
         bool isGrayscale = checkGrayscale(colorTable);
         if (isGrayscale) {
             uint16 photometric = PHOTOMETRIC_MINISBLACK;
-            if (image.colorTable().at(0) == 0xffffffff)
+            if (colorTable.at(0) == 0xffffffff)
                 photometric = PHOTOMETRIC_MINISWHITE;
             if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, photometric)
                     || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_PACKBITS)
@@ -494,20 +573,13 @@ bool QTiffHandler::write(const QImage &image)
             }
             //// write the color table
             // allocate the color tables
-            uint16 *redTable = static_cast<uint16 *>(malloc(256 * sizeof(uint16)));
-            uint16 *greenTable = static_cast<uint16 *>(malloc(256 * sizeof(uint16)));
-            uint16 *blueTable = static_cast<uint16 *>(malloc(256 * sizeof(uint16)));
-            if (!redTable || !greenTable || !blueTable) {
-                free(redTable);
-                free(greenTable);
-                free(blueTable);
-                TIFFClose(tiff);
-                return false;
-            }
-
-            // set the color table
             const int tableSize = colorTable.size();
             Q_ASSERT(tableSize <= 256);
+            QVarLengthArray<uint16> redTable(tableSize);
+            QVarLengthArray<uint16> greenTable(tableSize);
+            QVarLengthArray<uint16> blueTable(tableSize);
+
+            // set the color table
             for (int i = 0; i<tableSize; ++i) {
                 const QRgb color = colorTable.at(i);
                 redTable[i] = qRed(color) * 257;
@@ -515,11 +587,7 @@ bool QTiffHandler::write(const QImage &image)
                 blueTable[i] = qBlue(color) * 257;
             }
 
-            const bool setColorTableSuccess = TIFFSetField(tiff, TIFFTAG_COLORMAP, redTable, greenTable, blueTable);
-
-            free(redTable);
-            free(greenTable);
-            free(blueTable);
+            const bool setColorTableSuccess = TIFFSetField(tiff, TIFFTAG_COLORMAP, redTable.data(), greenTable.data(), blueTable.data());
 
             if (!setColorTableSuccess) {
                 TIFFClose(tiff);
@@ -547,7 +615,6 @@ bool QTiffHandler::write(const QImage &image)
             }
         }
         TIFFClose(tiff);
-
     } else if (!image.hasAlphaChannel()) {
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
             || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
@@ -576,10 +643,14 @@ bool QTiffHandler::write(const QImage &image)
         }
         TIFFClose(tiff);
     } else {
+        const bool premultiplied = image.format() != QImage::Format_ARGB32
+                                && image.format() != QImage::Format_RGBA8888;
+        const uint16 extrasamples = premultiplied ? EXTRASAMPLE_ASSOCALPHA : EXTRASAMPLE_UNASSALPHA;
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
             || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)) {
+            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
+            || !TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, 1, &extrasamples)) {
             TIFFClose(tiff);
             return false;
         }
@@ -587,9 +658,11 @@ bool QTiffHandler::write(const QImage &image)
         const int chunks = (width * height * 4 / (1024 * 1024 * 16)) + 1;
         const int chunkHeight = qMax(height / chunks, 1);
 
+        const QImage::Format format = premultiplied ? QImage::Format_RGBA8888_Premultiplied
+                                                    : QImage::Format_RGBA8888;
         int y = 0;
         while (y < height) {
-            const QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y)).convertToFormat(QImage::Format_RGBA8888);
+            const QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y)).convertToFormat(format);
 
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
@@ -615,34 +688,16 @@ QByteArray QTiffHandler::name() const
 QVariant QTiffHandler::option(ImageOption option) const
 {
     if (option == Size && canRead()) {
-        QSize imageSize;
-        qint64 pos = device()->pos();
-        TIFF *tiff = TIFFClientOpen("foo",
-                                    "r",
-                                    const_cast<QTiffHandler*>(this),
-                                    qtiffReadProc,
-                                    qtiffWriteProc,
-                                    qtiffSeekProc,
-                                    qtiffCloseProc,
-                                    qtiffSizeProc,
-                                    qtiffMapProc,
-                                    qtiffUnmapProc);
-
-        if (tiff) {
-            uint32 width = 0;
-            uint32 height = 0;
-            TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &width);
-            TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &height);
-            imageSize = QSize(width, height);
-            TIFFClose(tiff);
-        }
-        device()->seek(pos);
-        if (imageSize.isValid())
-            return imageSize;
+        if (d->readHeaders(device()))
+            return d->size;
     } else if (option == CompressionRatio) {
-        return compression;
+        return d->compression;
     } else if (option == ImageFormat) {
-        return QImage::Format_ARGB32;
+        if (d->readHeaders(device()))
+            return d->format;
+    } else if (option == ImageTransformation) {
+        if (d->readHeaders(device()))
+            return int(d->transformation);
     }
     return QVariant();
 }
@@ -650,14 +705,21 @@ QVariant QTiffHandler::option(ImageOption option) const
 void QTiffHandler::setOption(ImageOption option, const QVariant &value)
 {
     if (option == CompressionRatio && value.type() == QVariant::Int)
-        compression = value.toInt();
+        d->compression = value.toInt();
+    if (option == ImageTransformation) {
+        int transformation = value.toInt();
+        if (transformation > 0 && transformation < 8)
+            d->transformation = QImageIOHandler::Transformations(transformation);
+    }
 }
 
 bool QTiffHandler::supportsOption(ImageOption option) const
 {
     return option == CompressionRatio
             || option == Size
-            || option == ImageFormat;
+            || option == ImageFormat
+            || option == ImageTransformation
+            || option == TransformedByDefault;
 }
 
 void QTiffHandler::convert32BitOrder(void *buffer, int width)
