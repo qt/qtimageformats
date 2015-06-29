@@ -16,4 +16,4 @@ winrt {
                tga
 }
 
-winrt|ios: SUBDIRS -= webp
+winrt: SUBDIRS -= webp
