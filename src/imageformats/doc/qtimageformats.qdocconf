@@ -36,11 +36,6 @@ qhp.QtImageFormats.namespace = org.qt-project.qtimageformats.$QT_VERSION_TAG
 # Assistant/Creator.
 qhp.QtImageFormats.indexTitle = Qt Image Formats
 
-# Extra files to add to the output which are not linked to from anywhere
-# using a qdoc \l command.
-qhp.QtImageFormats.extraFiles = style/style.css \
-                        index.html
-
 # Only update the name of the project for the next variables.
 qhp.QtImageFormats.virtualFolder  = qtimageformats
 
