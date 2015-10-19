@@ -1569,6 +1569,8 @@ bool QDDSHandler::ensureScanned() const
         return false;
 
     that->m_format = getFormat(m_header);
+    if (that->m_format == FormatUnknown)
+        return false;
 
     m_scanState = ScanSuccess;
     return true;
