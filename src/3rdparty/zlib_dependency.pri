@@ -3,9 +3,5 @@ contains(QT_CONFIG, system-zlib) {
     unix|mingw: LIBS_PRIVATE += -lz
     else:       LIBS += zdll.lib
 } else {
-    load(qt_build_paths)
-    git_build: \
-        INCLUDEPATH += $$[QT_INSTALL_HEADERS/get]/QtZlib
-    else: \
-        INCLUDEPATH += $$[QT_INSTALL_HEADERS/src]/QtZlib
+    QT_PRIVATE += zlib-private
 }
