@@ -1,3 +1,5 @@
+warning("Using bundled unmaintained copy of libjasper.")
+
 msvc: DEFINES += JAS_WIN_MSVC_BUILD
 INCLUDEPATH += $$PWD/jasper/src/libjasper/include $$PWD/libjasper/include
 SOURCES += \
