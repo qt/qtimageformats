@@ -38,6 +38,10 @@
 /* Define to 1 if you have the <assert.h> header file. */
 #define HAVE_ASSERT_H 1
 
+/* Define to 1 if you have the declaration of `optarg', and to 0 if you don't.
+   */
+#define HAVE_DECL_OPTARG 0
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 /* #undef HAVE_DLFCN_H */
 
@@ -48,6 +52,9 @@
 
 /* Define to 1 if you have the `floor' function. */
 /* #undef HAVE_FLOOR */
+
+/* Define to 1 if fseeko (and presumably ftello) exists and is declared. */
+/* #undef HAVE_FSEEKO */
 
 /* Define to 1 if you have the `getopt' function. */
 /* #undef HAVE_GETOPT */
@@ -101,9 +108,6 @@
 /* Define to 1 if you have the `c' library (-lc). */
 /* #undef HAVE_LIBC */
 
-/* Define to 1 if you have the `m' library (-lm). */
-/* #undef HAVE_LIBM */
-
 /* Define to 1 if you have the <limits.h> header file. */
 /* #undef HAVE_LIMITS_H */
 
@@ -141,6 +145,11 @@
 
 /* Define to 1 if you have the `setmode' function. */
 /* #undef HAVE_SETMODE */
+
+/* Define to 1 if you have the `snprintf' function. */
+#if defined(snprintf) || (!defined(_MSC_VER) || _MSC_VER >= 1900)
+#define HAVE_SNPRINTF 1
+#endif
 
 /* Define to 1 if you have the `sqrt' function. */
 /* #undef HAVE_SQRT */
@@ -220,8 +229,7 @@
 /* Support LogLuv high dynamic range encoding */
 /* #undef LOGLUV_SUPPORT */
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 /* #undef LT_OBJDIR */
 
 /* Support LZMA2 compression */
@@ -235,9 +243,6 @@
 
 /* Support NeXT 2-bit RLE algorithm */
 /* #undef NEXT_SUPPORT */
-
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-/* #undef NO_MINUS_C_MINUS_O */
 
 /* Support Old JPEG compresson (read-only) */
 /* #undef OJPEG_SUPPORT */
@@ -261,7 +266,7 @@
 /* #undef PACKAGE_URL */
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "4.0.3"
+#define PACKAGE_VERSION "4.0.6"
 
 /* Support Macintosh PackBits algorithm */
 /* #undef PACKBITS_SUPPORT */
@@ -284,6 +289,9 @@
 
 /* The size of `signed short', as computed by sizeof. */
 /* #undef SIZEOF_SIGNED_SHORT */
+
+/* The size of `size_t', as computed by sizeof. */
+/* #undef SIZEOF_SIZE_T */
 
 /* The size of `unsigned char *', as computed by sizeof. */
 /* #undef SIZEOF_UNSIGNED_CHAR_P */
@@ -339,6 +347,12 @@
 
 /* Pointer difference type */
 #define TIFF_PTRDIFF_T ptrdiff_t
+
+/* Size type formatter */
+/* #undef TIFF_SIZE_FORMAT */
+
+/* Unsigned size type */
+/* #undef TIFF_SIZE_T */
 
 /* Signed size type formatter */
 #if QT_POINTER_SIZE == 4
@@ -403,6 +417,9 @@
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 /* #undef _FILE_OFFSET_BITS */
+
+/* Define to 1 to make fseeko visible on some hosts (e.g. glibc 2.2). */
+/* #undef _LARGEFILE_SOURCE */
 
 /* Define for large files, on AIX-style hosts. */
 /* #undef _LARGE_FILES */
