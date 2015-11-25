@@ -39,11 +39,18 @@ class tst_qmng: public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void readImage_data();
     void readImage();
     void readCorruptImage_data();
     void readCorruptImage();
 };
+
+void tst_qmng::initTestCase()
+{
+    if (!QImageReader::supportedImageFormats().contains("mng"))
+        QSKIP("The image format handler is not installed.");
+}
 
 void tst_qmng::readImage_data()
 {

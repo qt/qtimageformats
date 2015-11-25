@@ -5,6 +5,6 @@ SUBDIRS = \
     dds \
     icns \
     jp2 \
-    webp
-
-contains(QT_CONFIG, system-zlib): SUBDIRS += mng tiff
+    webp \
+    mng \
+    tiff

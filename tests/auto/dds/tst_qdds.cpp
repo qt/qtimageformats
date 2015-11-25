@@ -40,6 +40,7 @@ class tst_qdds: public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void readImage_data();
     void readImage();
     void testMipmaps_data();
@@ -47,6 +48,12 @@ private slots:
     void testWriteImage_data();
     void testWriteImage();
 };
+
+void tst_qdds::initTestCase()
+{
+    if (!QImageReader::supportedImageFormats().contains("dds"))
+        QSKIP("The image format handler is not installed.");
+}
 
 void tst_qdds::readImage_data()
 {

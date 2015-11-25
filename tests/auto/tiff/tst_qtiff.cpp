@@ -89,6 +89,9 @@ private:
 
 void tst_qtiff::initTestCase()
 {
+    if (!QImageReader::supportedImageFormats().contains("tiff"))
+        QSKIP("The image format handler is not installed.");
+
     prefix = ":/tiff/";
 }
 

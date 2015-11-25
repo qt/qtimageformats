@@ -39,9 +39,16 @@ class tst_qtga: public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void readImage_data();
     void readImage();
 };
+
+void tst_qtga::initTestCase()
+{
+    if (!QImageReader::supportedImageFormats().contains("tga"))
+        QSKIP("The image format handler is not installed.");
+}
 
 void tst_qtga::readImage_data()
 {
