@@ -40,11 +40,18 @@ class tst_qicns: public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void readIcons_data();
     void readIcons();
     void writeIcons_data();
     void writeIcons();
 };
+
+void tst_qicns::initTestCase()
+{
+    if (!QImageReader::supportedImageFormats().contains("icns"))
+        QSKIP("The image format handler is not installed.");
+}
 
 void tst_qicns::readIcons_data()
 {

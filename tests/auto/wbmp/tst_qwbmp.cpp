@@ -39,9 +39,16 @@ class tst_qwbmp: public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void readImage_data();
     void readImage();
 };
+
+void tst_qwbmp::initTestCase()
+{
+    if (!QImageReader::supportedImageFormats().contains("wbmp"))
+        QSKIP("The image format handler is not installed.");
+}
 
 void tst_qwbmp::readImage_data()
 {

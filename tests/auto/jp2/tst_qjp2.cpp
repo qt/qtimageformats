@@ -40,9 +40,16 @@ class tst_qjp2: public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void readImage_data();
     void readImage();
 };
+
+void tst_qjp2::initTestCase()
+{
+    if (!QImageReader::supportedImageFormats().contains("jp2"))
+        QSKIP("The image format handler is not installed.");
+}
 
 void tst_qjp2::readImage_data()
 {

@@ -1,3 +1,5 @@
+warning("Using bundled unmaintained copy of libmng.")
+
 DEFINES += MNG_BUILD_SO
 DEFINES += MNG_NO_INCLUDE_JNG
 INCLUDEPATH += $$PWD/libmng

@@ -39,11 +39,18 @@ class tst_qwebp : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void readImage_data();
     void readImage();
     void writeImage_data();
     void writeImage();
 };
+
+void tst_qwebp::initTestCase()
+{
+    if (!QImageReader::supportedImageFormats().contains("webp"))
+        QSKIP("The image format handler is not installed.");
+}
 
 void tst_qwebp::readImage_data()
 {
