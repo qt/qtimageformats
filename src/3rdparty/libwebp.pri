@@ -82,7 +82,7 @@ android {
     INCLUDEPATH += $$NDK_ROOT/sources/android/cpufeatures
 }
 
-equals(QT_ARCH, arm) {
+equals(QT_ARCH, arm)|equals(QT_ARCH, arm64) {
     SOURCES_FOR_NEON += \
         $$PWD/libwebp/src/dsp/dec_neon.c \
         $$PWD/libwebp/src/dsp/enc_neon.c \
