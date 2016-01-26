@@ -32,7 +32,8 @@ SOURCES += \
     $$PWD/libtiff/libtiff/tif_version.c \
     $$PWD/libtiff/libtiff/tif_warning.c \
     $$PWD/libtiff/libtiff/tif_write.c \
-    $$PWD/libtiff/libtiff/tif_zip.c
+    $$PWD/libtiff/libtiff/tif_zip.c \
+    $$PWD/libtiff/port/snprintf.c
 
 wince*:       SOURCES += $$PWD/libtiff/libtiff/tif_win32.c
 win32:        SOURCES += $$PWD/libtiff/libtiff/tif_win32.c
