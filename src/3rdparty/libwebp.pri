@@ -89,7 +89,7 @@ equals(QT_ARCH, arm) {
         $$PWD/libwebp/src/dsp/upsampling_neon.c \
         $$PWD/libwebp/src/dsp/lossless_neon.c
 
-    contains(QT_CPU_FEATURES, neon) {
+    contains(QT_CPU_FEATURES.$$QT_ARCH, neon) {
         # Default compiler settings include this feature, so just add to SOURCES
         SOURCES += $$SOURCES_FOR_NEON
     } else {
