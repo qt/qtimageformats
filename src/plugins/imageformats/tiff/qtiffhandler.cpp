@@ -251,8 +251,19 @@ bool QTiffHandlerPrivate::openForRead(QIODevice *device)
         format = QImage::Format_Indexed8;
     else if (samplesPerPixel < 4)
         format = QImage::Format_RGB32;
-    else
-        format = QImage::Format_ARGB32_Premultiplied;
+    else {
+        uint16 count;
+        uint16 *extrasamples;
+        // If there is any definition of the alpha-channel, libtiff will return premultiplied
+        // data to us. If there is none, libtiff will not touch it and  we assume it to be
+        // non-premultiplied, matching behavior of tested image editors, and how older Qt
+        // versions used to save it.
+        bool gotField = TIFFGetField(tiff, TIFFTAG_EXTRASAMPLES, &count, &extrasamples);
+        if (!gotField || !count || extrasamples[0] == EXTRASAMPLE_UNSPECIFIED)
+            format = QImage::Format_ARGB32;
+        else
+            format = QImage::Format_ARGB32_Premultiplied;
+    }
 
     headersRead = true;
     return true;
