@@ -341,6 +341,7 @@ void tst_qtiff::writeImage()
         QImageWriter writer(&buf, format);
         QVERIFY(writer.write(image));
     }
+    image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     QImage image2;
     {
