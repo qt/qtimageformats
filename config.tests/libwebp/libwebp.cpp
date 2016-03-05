@@ -28,6 +28,7 @@
 
 #include <webp/decode.h>
 #include <webp/encode.h>
+#include <webp/demux.h>
 
 #if WEBP_ABI_IS_INCOMPATIBLE(WEBP_DECODER_ABI_VERSION, 0x0203) || WEBP_ABI_IS_INCOMPATIBLE(WEBP_ENCODER_ABI_VERSION, 0x0202)
 #error "Incompatible libwebp version"
@@ -42,6 +43,10 @@ int main(int, char **)
     picture.use_argb = 0;
     WebPConfig config2;
     config2.lossless = 0;
+    WebPData data = {};
+    WebPDemuxer *demuxer = WebPDemux(&data);
+    WebPIterator iter;
+    iter.frame_num = 0;
 
     return 0;
 }

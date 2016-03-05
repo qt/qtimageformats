@@ -37,6 +37,8 @@ private slots:
     void initTestCase();
     void readImage_data();
     void readImage();
+    void readAnimation_data();
+    void readAnimation();
     void writeImage_data();
     void writeImage();
 };
@@ -67,6 +69,64 @@ void tst_qwebp::readImage()
     QImage image = reader.read();
     QVERIFY2(!image.isNull(), qPrintable(reader.errorString()));
     QCOMPARE(image.size(), size);
+}
+
+void tst_qwebp::readAnimation_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<QSize>("size");
+    QTest::addColumn<int>("imageCount");
+    QTest::addColumn<int>("loopCount");
+    QTest::addColumn<QColor>("bgColor");
+    QTest::addColumn<QList<QRect> >("imageRects");
+    QTest::addColumn<QList<int> >("imageDelays");
+
+    QTest::newRow("kollada")
+        << QString("kollada")
+        << QSize(436, 160)
+        << 1
+        << 0
+        << QColor()
+        << (QList<QRect>() << QRect(0, 0, 436, 160))
+        << (QList<int>() << 0);
+    QTest::newRow("kollada_animation")
+        << QString("kollada_animation")
+        << QSize(536, 260)
+        << 2
+        << 2
+        << QColor(128, 128, 128, 128)
+        << (QList<QRect>() << QRect(0, 0, 436, 160) << QRect(100, 100, 436, 160))
+        << (QList<int>() << 1000 << 1200);
+}
+
+void tst_qwebp::readAnimation()
+{
+    QFETCH(QString, fileName);
+    QFETCH(QSize, size);
+    QFETCH(int, imageCount);
+    QFETCH(int, loopCount);
+    QFETCH(QColor, bgColor);
+    QFETCH(QList<QRect>, imageRects);
+    QFETCH(QList<int>, imageDelays);
+
+    const QString path = QStringLiteral(":/images/") + fileName + QStringLiteral(".webp");
+    QImageReader reader(path);
+    QVERIFY(reader.canRead());
+    QCOMPARE(reader.size(), size);
+    QCOMPARE(reader.imageCount(), imageCount);
+    QCOMPARE(reader.loopCount(), loopCount);
+    QCOMPARE(reader.backgroundColor(), bgColor);
+
+    for (int i = 0; i < reader.imageCount(); ++i) {
+        QImage image = reader.read();
+        QVERIFY2(!image.isNull(), qPrintable(reader.errorString()));
+        QCOMPARE(image.size(), size);
+        QCOMPARE(reader.currentImageNumber(), i);
+        QCOMPARE(reader.currentImageRect(), imageRects[i]);
+        QCOMPARE(reader.nextImageDelay(), imageDelays[i]);
+    }
+
+    QVERIFY(reader.read().isNull());
 }
 
 void tst_qwebp::writeImage_data()
