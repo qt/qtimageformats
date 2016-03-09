@@ -5,6 +5,7 @@ INCLUDEPATH += \
     $$PWD/libwebp/src \
     $$PWD/libwebp/src/dec \
     $$PWD/libwebp/src/enc \
+    $$PWD/libwebp/src/extra \
     $$PWD/libwebp/src/dsp \
     $$PWD/libwebp/src/mux \
     $$PWD/libwebp/src/utils \
@@ -22,22 +23,50 @@ SOURCES += \
     $$PWD/libwebp/src/dec/vp8l.c \
     $$PWD/libwebp/src/dec/webp.c \
     $$PWD/libwebp/src/demux/demux.c \
+    $$PWD/libwebp/src/demux/anim_decode.c \
+    $$PWD/libwebp/src/dsp/alpha_processing_mips_dsp_r2.c \
+    $$PWD/libwebp/src/dsp/alpha_processing_sse41.c \
+    $$PWD/libwebp/src/dsp/argb.c \
+    $$PWD/libwebp/src/dsp/argb_mips_dsp_r2.c \
+    $$PWD/libwebp/src/dsp/argb_sse2.c \
+    $$PWD/libwebp/src/dsp/cost.c \
+    $$PWD/libwebp/src/dsp/cost_mips32.c \
+    $$PWD/libwebp/src/dsp/cost_mips_dsp_r2.c \
+    $$PWD/libwebp/src/dsp/cost_sse2.c \
     $$PWD/libwebp/src/dsp/cpu.c \
     $$PWD/libwebp/src/dsp/dec.c \
+    $$PWD/libwebp/src/dsp/dec_mips_dsp_r2.c \
     $$PWD/libwebp/src/dsp/dec_sse2.c \
+    $$PWD/libwebp/src/dsp/dec_sse41.c \
     $$PWD/libwebp/src/dsp/enc.c \
+    $$PWD/libwebp/src/dsp/enc_mips_dsp_r2.c \
     $$PWD/libwebp/src/dsp/enc_sse2.c \
+    $$PWD/libwebp/src/dsp/enc_sse41.c \
+    $$PWD/libwebp/src/dsp/filters.c \
+    $$PWD/libwebp/src/dsp/filters_mips_dsp_r2.c \
+    $$PWD/libwebp/src/dsp/filters_sse2.c \
     $$PWD/libwebp/src/dsp/lossless.c \
+    $$PWD/libwebp/src/dsp/lossless_enc.c \
+    $$PWD/libwebp/src/dsp/lossless_enc_mips32.c \
+    $$PWD/libwebp/src/dsp/lossless_enc_mips_dsp_r2.c \
+    $$PWD/libwebp/src/dsp/lossless_enc_sse2.c \
+    $$PWD/libwebp/src/dsp/lossless_enc_sse41.c \
+    $$PWD/libwebp/src/dsp/lossless_mips_dsp_r2.c \
+    $$PWD/libwebp/src/dsp/rescaler.c \
+    $$PWD/libwebp/src/dsp/rescaler_mips32.c \
+    $$PWD/libwebp/src/dsp/rescaler_mips_dsp_r2.c \
+    $$PWD/libwebp/src/dsp/rescaler_sse2.c \
     $$PWD/libwebp/src/dsp/upsampling.c \
+    $$PWD/libwebp/src/dsp/upsampling_mips_dsp_r2.c \
     $$PWD/libwebp/src/dsp/upsampling_sse2.c \
     $$PWD/libwebp/src/dsp/yuv.c \
+    $$PWD/libwebp/src/dsp/yuv_mips_dsp_r2.c \
     $$PWD/libwebp/src/dsp/alpha_processing.c \
     $$PWD/libwebp/src/dsp/alpha_processing_sse2.c \
     $$PWD/libwebp/src/dsp/dec_clip_tables.c \
     $$PWD/libwebp/src/dsp/dec_mips32.c \
     $$PWD/libwebp/src/dsp/enc_avx2.c \
     $$PWD/libwebp/src/dsp/enc_mips32.c \
-    $$PWD/libwebp/src/dsp/lossless_mips32.c \
     $$PWD/libwebp/src/dsp/lossless_sse2.c \
     $$PWD/libwebp/src/dsp/yuv_mips32.c \
     $$PWD/libwebp/src/dsp/yuv_sse2.c \
@@ -46,10 +75,12 @@ SOURCES += \
     $$PWD/libwebp/src/enc/backward_references.c \
     $$PWD/libwebp/src/enc/config.c \
     $$PWD/libwebp/src/enc/cost.c \
+    $$PWD/libwebp/src/enc/delta_palettization.c \
     $$PWD/libwebp/src/enc/filter.c \
     $$PWD/libwebp/src/enc/frame.c \
     $$PWD/libwebp/src/enc/histogram.c \
     $$PWD/libwebp/src/enc/iterator.c \
+    $$PWD/libwebp/src/enc/near_lossless.c \
     $$PWD/libwebp/src/enc/picture.c \
     $$PWD/libwebp/src/enc/quant.c \
     $$PWD/libwebp/src/enc/syntax.c \
@@ -61,6 +92,8 @@ SOURCES += \
     $$PWD/libwebp/src/enc/picture_psnr.c \
     $$PWD/libwebp/src/enc/picture_rescale.c \
     $$PWD/libwebp/src/enc/picture_tools.c \
+    $$PWD/libwebp/src/extras/extras.c \
+    $$PWD/libwebp/src/mux/anim_encode.c \
     $$PWD/libwebp/src/mux/muxedit.c \
     $$PWD/libwebp/src/mux/muxinternal.c \
     $$PWD/libwebp/src/mux/muxread.c \
@@ -86,8 +119,10 @@ equals(QT_ARCH, arm)|equals(QT_ARCH, arm64) {
     SOURCES_FOR_NEON += \
         $$PWD/libwebp/src/dsp/dec_neon.c \
         $$PWD/libwebp/src/dsp/enc_neon.c \
-        $$PWD/libwebp/src/dsp/upsampling_neon.c \
-        $$PWD/libwebp/src/dsp/lossless_neon.c
+        $$PWD/libwebp/src/dsp/lossless_enc_neon.c \
+        $$PWD/libwebp/src/dsp/lossless_neon.c \
+        $$PWD/libwebp/src/dsp/rescaler_neon.c \
+        $$PWD/libwebp/src/dsp/upsampling_neon.c
 
     contains(QT_CPU_FEATURES.$$QT_ARCH, neon) {
         # Default compiler settings include this feature, so just add to SOURCES
