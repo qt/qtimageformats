@@ -101,13 +101,7 @@ static mng_bool myerror(mng_handle /*hMNG*/,
 
 static mng_ptr myalloc(mng_size_t iSize)
 {
-#if defined(Q_OS_WINCE)
-    mng_ptr ptr = malloc(iSize);
-    memset(ptr, 0, iSize);
-    return ptr;
-#else
     return (mng_ptr)calloc(1, iSize);
-#endif
 }
 
 static void myfree(mng_ptr pPtr, mng_size_t /*iSize*/)

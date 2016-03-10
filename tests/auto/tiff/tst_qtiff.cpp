@@ -404,10 +404,6 @@ void tst_qtiff::readWriteNonDestructive()
 
 void tst_qtiff::largeTiff()
 {
-#if defined(Q_OS_WINCE)
-    QSKIP("not tested on WinCE");
-#endif
-
     QImage img(4096, 2048, QImage::Format_ARGB32_Premultiplied);
 
     QPainter p(&img);
