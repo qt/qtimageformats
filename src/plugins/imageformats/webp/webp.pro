@@ -5,8 +5,8 @@ SOURCES += main.cpp qwebphandler.cpp
 OTHER_FILES += webp.json
 
 config_libwebp {
-    unix|win32-g++*: LIBS += -lwebp
-    else:win32: LIBS += libwebp.lib
+    unix|win32-g++*: LIBS += -lwebp -lwebpdemux
+    else:win32: LIBS += libwebp.lib libwebpdemux.lib
 } else {
     include($$PWD/../../../3rdparty/libwebp.pri)
 }
