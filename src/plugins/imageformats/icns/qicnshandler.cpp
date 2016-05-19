@@ -816,7 +816,7 @@ QVariant QICNSHandler::option(ImageOption option) const
         if (imageCount() > 0 && m_currentIconIndex <= imageCount()) {
             const ICNSEntry &icon = m_icons.at(m_currentIconIndex);
             if (icon.variant != 0)
-                return nameFromOSType(icon.variant) + '-' + nameFromOSType(icon.ostype);
+                return QByteArray(nameFromOSType(icon.variant) + '-' + nameFromOSType(icon.ostype));
             return nameFromOSType(icon.ostype);
         }
     }
