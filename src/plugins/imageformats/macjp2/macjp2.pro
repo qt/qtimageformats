@@ -2,7 +2,7 @@ TARGET  = qmacjp2
 PLUGIN_TYPE = imageformats
 PLUGIN_CLASS_NAME = QMacJp2Plugin
 
-LIBS += -framework IOKit -framework ImageIO
+LIBS += -framework ImageIO
 
 QT += core-private gui-private platformsupport-private
 
