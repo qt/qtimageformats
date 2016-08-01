@@ -51,16 +51,20 @@ libraries. If not found, it may fall back on using a bundled copy (in
 \c src/3rdparty).
 
 \table
-\header \li Format \li Description                      \li Support      \li 3rd party codec
+\header \li Format \li Description                      \li Support      \li 3rd Party Codec
 \row    \li DDS    \li Direct Draw Surface              \li Read/write   \li No
 \row    \li ICNS   \li Apple Icon Image                 \li Read/write   \li No
-\row    \li JP2    \li Joint Photographic Experts Group 2000 \li Read/write   \li Yes (bundled)
-\row    \li MNG    \li Multiple-image Network Graphics  \li Read         \li Yes (bundled)
+\row    \li JP2    \li Joint Photographic Experts Group 2000 \li Read/write   \li Yes (bundled, unmaintained)
+\row    \li MNG    \li Multiple-image Network Graphics  \li Read         \li Yes (bundled, unmaintained)
 \row    \li TGA    \li Truevision Graphics Adapter      \li Read         \li No
 \row    \li TIFF   \li Tagged Image File Format         \li Read/write   \li Yes (bundled)
 \row    \li WBMP   \li Wireless Bitmap                  \li Read/write   \li No
 \row    \li WEBP   \li WebP                             \li Read/write   \li Yes (bundled)
 \endtable
+
+\note Some bundled third party codecs are not maintained anymore. They are
+provided for manual builds only, and not used as a fallback in case system
+libraries are unavailable.
 
 \section2 Deployment
 
