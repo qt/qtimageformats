@@ -70,6 +70,19 @@ plugins/imageformats), together with the default image format
 plugins. They may be deployed to the target system in the same way as
 other plugins, see the \l{Deploying Plugins} documentation.
 
+\section2 Licenses and Attributions
+
+Qt Image Formats is available under commercial licenses from \l{The Qt Company}.
+In addition, it is available under the
+\l{GNU Lesser General Public License, version 3}, or
+the \l{GNU General Public License, version 2}.
+See \l{Qt Licensing} for further details.
+
+Furthermore Qt Image Formats potentially contains third party
+modules under following permissive licenses:
+
+\generatelist{groupsbymodule attributions-qtimageformats}
+
 \section2 Security considerations
 
 Since these file formats are more rarely used, the codecs may be less
