@@ -138,9 +138,7 @@ QTgaFile::QTgaFile(QIODevice *device)
         mErrorMessage = tr("Seek file/device for image read failed");
         return;
     }
-    int bytes = device->read((char*)mHeader, HeaderSize);
-    if (bytes != HeaderSize)
-    {
+    if (device->read(reinterpret_cast<char*>(mHeader), HeaderSize) != HeaderSize) {
         mErrorMessage = tr("Image header read failed");
         return;
     }
@@ -164,9 +162,7 @@ QTgaFile::QTgaFile(QIODevice *device)
         return;
     }
     char footer[FooterSize];
-    bytes = mDevice->read((char*)footer, FooterSize);
-    if (bytes != FooterSize)
-    {
+    if (mDevice->read(reinterpret_cast<char*>(footer), FooterSize) != FooterSize) {
         mErrorMessage = tr("Could not read footer");
     }
     if (qstrncmp(&footer[SignatureOffset], "TRUEVISION-XFILE", 16) != 0)
