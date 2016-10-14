@@ -42,7 +42,8 @@ static const int riffHeaderSize = 12; // RIFF_HEADER_SIZE from webp/format_const
 QWebpHandler::QWebpHandler() :
     m_lossless(false),
     m_quality(75),
-    m_scanState(ScanNotScanned)
+    m_scanState(ScanNotScanned),
+    m_features()
 {
 }
 

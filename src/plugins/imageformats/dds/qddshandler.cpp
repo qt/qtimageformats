@@ -1368,7 +1368,9 @@ static int formatByName(const QByteArray &name)
 }
 
 QDDSHandler::QDDSHandler() :
+    m_header(),
     m_format(FormatA8R8G8B8),
+    m_header10(),
     m_currentImage(0),
     m_scanState(ScanNotScanned)
 {
