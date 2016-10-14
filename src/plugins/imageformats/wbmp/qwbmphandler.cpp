@@ -238,7 +238,7 @@ bool WBMPReader::canRead(QIODevice *device)
         WBMPHeader hdr;
         if (readWBMPHeader(device, &hdr)) {
             if ((hdr.type == 0) && (hdr.format == 0)) {
-                qint64 imageSize = hdr.height * ((hdr.width + 7) / 8);
+                const qint64 imageSize = hdr.height * ((qint64(hdr.width) + 7) / 8);
                 qint64 available = device->bytesAvailable();
                 device->seek(oldPos);
                 return (imageSize == available);
