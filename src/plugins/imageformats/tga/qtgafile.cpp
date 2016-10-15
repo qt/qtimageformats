@@ -52,7 +52,7 @@ struct Tga16Reader : public TgaReader
         if (s->getChar(&ch1) && s->getChar(&ch2)) {
             quint16 d = (int(ch1) & 0xFF) | ((int(ch2) & 0xFF) << 8);
             QRgb result = (d & 0x8000) ? 0xFF000000 : 0x00000000;
-            result |= (d & 0x7C00 << 6) | (d & 0x03E0 << 3) | (d & 0x001F);
+            result |= ((d & 0x7C00) << 6) | ((d & 0x03E0) << 3) | (d & 0x001F);
             return result;
         } else {
             return 0;
