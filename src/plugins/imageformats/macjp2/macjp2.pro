@@ -2,9 +2,9 @@ TARGET  = qmacjp2
 PLUGIN_TYPE = imageformats
 PLUGIN_CLASS_NAME = QMacJp2Plugin
 
-LIBS += -framework CoreFoundation -framework ImageIO
+LIBS += -framework CoreFoundation -framework CoreGraphics -framework ImageIO
 
-QT += core-private gui-private platformsupport-private
+QT += core-private gui-private
 
 SOURCES += \
     qmacjp2handler.cpp \
