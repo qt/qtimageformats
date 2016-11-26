@@ -74,7 +74,7 @@ static off_t cbSkipForward(void *info, off_t count)
     } else {
         char *buf = new char[count];
         res = dev->read(buf, count);
-        delete buf;
+        delete[] buf;
     }
     return qMax(qint64(0), res);
 }

@@ -996,7 +996,8 @@ static QImage readA2W10V10U10(QDataStream &s, quint32 width, quint32 height)
             quint8 b = qint8((tmp & 0x000003ff) >> 0 >> 2) + 128;
             quint8 a = 0xff * ((tmp & 0xc0000000) >> 30) / 3;
             // dunno why we should swap b and r here
-            line[x] = qRgba(b, g, r, a);
+            std::swap(b, r);
+            line[x] = qRgba(r, g, b, a);
         }
     }
 
@@ -1373,7 +1374,9 @@ static int formatByName(const QByteArray &name)
 }
 
 QDDSHandler::QDDSHandler() :
+    m_header(),
     m_format(FormatA8R8G8B8),
+    m_header10(),
     m_currentImage(0),
     m_scanState(ScanNotScanned)
 {

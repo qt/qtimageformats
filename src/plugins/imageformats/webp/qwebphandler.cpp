@@ -51,6 +51,7 @@ QWebpHandler::QWebpHandler() :
     m_lossless(false),
     m_quality(75),
     m_scanState(ScanNotScanned),
+    m_features(),
     m_loop(0),
     m_frameCount(0),
     m_demuxer(NULL),
