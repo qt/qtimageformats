@@ -56,8 +56,8 @@ class QWbmpPlugin : public QImageIOPlugin
 
 public:
     QStringList keys() const;
-    QImageIOPlugin::Capabilities capabilities(QIODevice *device, const QByteArray &format) const;
-    QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const;
+    QImageIOPlugin::Capabilities capabilities(QIODevice *device, const QByteArray &format) const override;
+    QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const override;
 };
 
 QImageIOPlugin::Capabilities QWbmpPlugin::capabilities(QIODevice *device, const QByteArray &format) const

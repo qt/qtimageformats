@@ -55,7 +55,7 @@ class QMacJp2Handler : public QImageIOHandler
 {
 public:
     QMacJp2Handler();
-    virtual ~QMacJp2Handler();
+    ~QMacJp2Handler();
 
     bool canRead() const override;
     bool read(QImage *image) override;

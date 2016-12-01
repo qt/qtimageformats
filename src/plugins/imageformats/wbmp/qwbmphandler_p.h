@@ -61,14 +61,14 @@ class QWbmpHandler : public QImageIOHandler
 {
 public:
     QWbmpHandler(QIODevice *device);
-    virtual ~QWbmpHandler();
+    ~QWbmpHandler();
 
-    bool canRead() const;
-    bool read(QImage *image);
-    bool write(const QImage &image);
+    bool canRead() const override;
+    bool read(QImage *image) override;
+    bool write(const QImage &image) override;
 
-    QVariant option(ImageOption option) const;
-    bool supportsOption(ImageOption option) const;
+    QVariant option(ImageOption option) const override;
+    bool supportsOption(ImageOption option) const override;
 
     static bool canRead(QIODevice *device);
 
