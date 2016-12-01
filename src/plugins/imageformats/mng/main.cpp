@@ -58,15 +58,9 @@ class QMngPlugin : public QImageIOPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "mng.json")
 
 public:
-    QStringList keys() const;
     Capabilities capabilities(QIODevice *device, const QByteArray &format) const override;
     QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const override;
 };
-
-QStringList QMngPlugin::keys() const
-{
-    return QStringList() << QLatin1String("mng");
-}
 
 QImageIOPlugin::Capabilities QMngPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {

@@ -55,7 +55,6 @@ class QWbmpPlugin : public QImageIOPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "wbmp.json")
 
 public:
-    QStringList keys() const;
     QImageIOPlugin::Capabilities capabilities(QIODevice *device, const QByteArray &format) const override;
     QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const override;
 };
@@ -87,11 +86,6 @@ QImageIOHandler * QWbmpPlugin::create(QIODevice *device, const QByteArray &forma
 
     handler->setFormat(format);
     return handler;
-}
-
-QStringList QWbmpPlugin::keys() const
-{
-    return QStringList() << QLatin1String("wbmp");
 }
 
 QT_END_NAMESPACE

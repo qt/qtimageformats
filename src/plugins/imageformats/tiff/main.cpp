@@ -57,7 +57,6 @@ class QTiffPlugin : public QImageIOPlugin
 public:
     Capabilities capabilities(QIODevice * device, const QByteArray & format) const override;
     QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const override;
-    QStringList keys() const;
 };
 
 QImageIOPlugin::Capabilities QTiffPlugin::capabilities(QIODevice *device, const QByteArray &format) const
@@ -83,11 +82,6 @@ QImageIOHandler* QTiffPlugin::create(QIODevice *device, const QByteArray &format
     tiffHandler->setDevice(device);
     tiffHandler->setFormat(format);
     return tiffHandler;
-}
-
-QStringList QTiffPlugin::keys() const
-{
-    return QStringList() << QLatin1String("tiff") << QLatin1String("tif");
 }
 
 QT_END_NAMESPACE

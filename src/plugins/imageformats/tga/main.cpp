@@ -58,7 +58,6 @@ class QTgaPlugin : public QImageIOPlugin
 public:
     Capabilities capabilities(QIODevice * device, const QByteArray & format) const override;
     QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const override;
-    QStringList keys() const;
 };
 
 QImageIOPlugin::Capabilities QTgaPlugin::capabilities(QIODevice *device, const QByteArray &format) const
@@ -82,11 +81,6 @@ QImageIOHandler* QTgaPlugin::create(QIODevice *device, const QByteArray &format)
     tgaHandler->setDevice(device);
     tgaHandler->setFormat(format);
     return tgaHandler;
-}
-
-QStringList QTgaPlugin::keys() const
-{
-    return QStringList() << QLatin1String("tga");
 }
 
 QT_END_NAMESPACE
