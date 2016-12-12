@@ -56,23 +56,23 @@ public:
     ~QWebpHandler();
 
 public:
-    QByteArray name() const;
+    QByteArray name() const override;
 
-    bool canRead() const;
-    bool read(QImage *image);
+    bool canRead() const override;
+    bool read(QImage *image) override;
 
     static bool canRead(QIODevice *device);
 
-    bool write(const QImage &image);
-    QVariant option(ImageOption option) const;
-    void setOption(ImageOption option, const QVariant &value);
-    bool supportsOption(ImageOption option) const;
+    bool write(const QImage &image) override;
+    QVariant option(ImageOption option) const override;
+    void setOption(ImageOption option, const QVariant &value) override;
+    bool supportsOption(ImageOption option) const override;
 
-    int imageCount() const;
-    int currentImageNumber() const;
-    QRect currentImageRect() const;
-    int loopCount() const;
-    int nextImageDelay() const;
+    int imageCount() const override;
+    int currentImageNumber() const override;
+    QRect currentImageRect() const override;
+    int loopCount() const override;
+    int nextImageDelay() const override;
 
 private:
     bool ensureScanned() const;

@@ -53,18 +53,18 @@ class QDDSHandler : public QImageIOHandler
 public:
     QDDSHandler();
 
-    QByteArray name() const;
+    QByteArray name() const override;
 
-    bool canRead() const;
-    bool read(QImage *image);
-    bool write(const QImage &image);
+    bool canRead() const override;
+    bool read(QImage *image) override;
+    bool write(const QImage &image) override;
 
-    QVariant option(QImageIOHandler::ImageOption option) const;
-    void setOption(ImageOption option, const QVariant &value);
-    bool supportsOption(QImageIOHandler::ImageOption option) const;
+    QVariant option(QImageIOHandler::ImageOption option) const override;
+    void setOption(ImageOption option, const QVariant &value) override;
+    bool supportsOption(QImageIOHandler::ImageOption option) const override;
 
-    int imageCount() const;
-    bool jumpToImage(int imageNumber);
+    int imageCount() const override;
+    bool jumpToImage(int imageNumber) override;
 
     static bool canRead(QIODevice *device);
 

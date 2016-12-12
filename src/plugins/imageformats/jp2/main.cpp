@@ -56,15 +56,9 @@ class QJp2Plugin : public QImageIOPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "jp2.json")
 
 public:
-    QStringList keys() const;
-    Capabilities capabilities(QIODevice *device, const QByteArray &format) const;
-    QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const;
+    Capabilities capabilities(QIODevice *device, const QByteArray &format) const override;
+    QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const override;
 };
-
-QStringList QJp2Plugin::keys() const
-{
-    return QStringList() << QLatin1String("jp2") << QLatin1String("j2k");
-}
 
 QImageIOPlugin::Capabilities QJp2Plugin::capabilities(QIODevice *device, const QByteArray &format) const
 {

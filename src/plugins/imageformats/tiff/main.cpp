@@ -55,9 +55,8 @@ class QTiffPlugin : public QImageIOPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "tiff.json")
 
 public:
-    Capabilities capabilities(QIODevice * device, const QByteArray & format) const;
-    QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const;
-    QStringList keys() const;
+    Capabilities capabilities(QIODevice * device, const QByteArray & format) const override;
+    QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const override;
 };
 
 QImageIOPlugin::Capabilities QTiffPlugin::capabilities(QIODevice *device, const QByteArray &format) const
@@ -83,11 +82,6 @@ QImageIOHandler* QTiffPlugin::create(QIODevice *device, const QByteArray &format
     tiffHandler->setDevice(device);
     tiffHandler->setFormat(format);
     return tiffHandler;
-}
-
-QStringList QTiffPlugin::keys() const
-{
-    return QStringList() << QLatin1String("tiff") << QLatin1String("tif");
 }
 
 QT_END_NAMESPACE

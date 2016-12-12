@@ -56,9 +56,8 @@ class QTgaPlugin : public QImageIOPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "tga.json")
 
 public:
-    Capabilities capabilities(QIODevice * device, const QByteArray & format) const;
-    QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const;
-    QStringList keys() const;
+    Capabilities capabilities(QIODevice * device, const QByteArray & format) const override;
+    QImageIOHandler * create(QIODevice * device, const QByteArray & format = QByteArray()) const override;
 };
 
 QImageIOPlugin::Capabilities QTgaPlugin::capabilities(QIODevice *device, const QByteArray &format) const
@@ -82,11 +81,6 @@ QImageIOHandler* QTgaPlugin::create(QIODevice *device, const QByteArray &format)
     tgaHandler->setDevice(device);
     tgaHandler->setFormat(format);
     return tgaHandler;
-}
-
-QStringList QTgaPlugin::keys() const
-{
-    return QStringList() << QLatin1String("tga");
 }
 
 QT_END_NAMESPACE

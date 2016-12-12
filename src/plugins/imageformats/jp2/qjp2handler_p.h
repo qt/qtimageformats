@@ -56,15 +56,15 @@ class QJp2Handler : public QImageIOHandler
 {
 public:
     QJp2Handler();
-    virtual ~QJp2Handler();
+    ~QJp2Handler();
     static bool canRead(QIODevice *iod, QByteArray *subType);
-    virtual bool canRead() const;
-    virtual bool read(QImage *image);
-    virtual bool write(const QImage &image);
-    virtual QVariant option(ImageOption option) const;
-    virtual void setOption(ImageOption option, const QVariant &value);
-    virtual bool supportsOption(ImageOption option) const;
-    virtual QByteArray name() const;
+    bool canRead() const override;
+    bool read(QImage *image) override;
+    bool write(const QImage &image) override;
+    QVariant option(ImageOption option) const override;
+    void setOption(ImageOption option, const QVariant &value) override;
+    bool supportsOption(ImageOption option) const override;
+    QByteArray name() const override;
 
 private:
     Q_DECLARE_PRIVATE(QJp2Handler)
