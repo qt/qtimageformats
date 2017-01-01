@@ -116,6 +116,8 @@ public:
     uint16 photometric;
     bool grayscale;
     bool headersRead;
+    int currentDirectory;
+    int directoryCount;
 };
 
 static QImageIOHandler::Transformations exif2Qt(int exifOrientation)
@@ -174,6 +176,8 @@ QTiffHandlerPrivate::QTiffHandlerPrivate()
     , photometric(false)
     , grayscale(false)
     , headersRead(false)
+    , currentDirectory(0)
+    , directoryCount(0)
 {
 }
 
@@ -225,6 +229,19 @@ bool QTiffHandlerPrivate::openForRead(QIODevice *device)
     if (!tiff) {
         return false;
     }
+    return true;
+}
+
+bool QTiffHandlerPrivate::readHeaders(QIODevice *device)
+{
+    if (headersRead)
+        return true;
+
+    if (!openForRead(device))
+        return false;
+
+    TIFFSetDirectory(tiff, currentDirectory);
+
     uint32 width;
     uint32 height;
     if (!TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &width)
@@ -275,14 +292,6 @@ bool QTiffHandlerPrivate::openForRead(QIODevice *device)
     return true;
 }
 
-bool QTiffHandlerPrivate::readHeaders(QIODevice *device)
-{
-    if (headersRead)
-        return true;
-
-    return openForRead(device);
-}
-
 QTiffHandler::QTiffHandler()
     : QImageIOHandler()
     , d(new QTiffHandlerPrivate)
@@ -308,7 +317,7 @@ bool QTiffHandler::canRead(QIODevice *device)
 bool QTiffHandler::read(QImage *image)
 {
     // Open file and read headers if it hasn't already been done.
-    if (!d->openForRead(device()))
+    if (!d->readHeaders(device()))
         return false;
 
     QImage::Format format = d->format;
@@ -438,7 +447,6 @@ bool QTiffHandler::read(QImage *image)
         }
     }
 
-    d->close();
     return true;
 }
 
@@ -739,6 +747,45 @@ bool QTiffHandler::supportsOption(ImageOption option) const
             || option == TransformedByDefault;
 }
 
+bool QTiffHandler::jumpToNextImage()
+{
+    if (!ensureHaveDirectoryCount())
+        return false;
+    if (d->currentDirectory >= d->directoryCount - 1)
+        return false;
+
+    d->headersRead = false;
+    ++d->currentDirectory;
+    return true;
+}
+
+bool QTiffHandler::jumpToImage(int imageNumber)
+{
+    if (!ensureHaveDirectoryCount())
+        return false;
+    if (imageNumber < 0 || imageNumber >= d->directoryCount)
+        return false;
+
+    if (d->currentDirectory != imageNumber) {
+        d->headersRead = false;
+        d->currentDirectory = imageNumber;
+    }
+    return true;
+}
+
+int QTiffHandler::imageCount() const
+{
+    if (!ensureHaveDirectoryCount())
+        return 1;
+
+    return d->directoryCount;
+}
+
+int QTiffHandler::currentImageNumber() const
+{
+    return d->currentDirectory;
+}
+
 void QTiffHandler::convert32BitOrder(void *buffer, int width)
 {
     uint32 *target = reinterpret_cast<uint32 *>(buffer);
@@ -751,4 +798,33 @@ void QTiffHandler::convert32BitOrder(void *buffer, int width)
                     | ((p & 0x000000ff) << 16);
     }
 }
+
+bool QTiffHandler::ensureHaveDirectoryCount() const
+{
+    if (d->directoryCount > 0)
+        return true;
+
+    TIFF *tiff = TIFFClientOpen("foo",
+                                "r",
+                                device(),
+                                qtiffReadProc,
+                                qtiffWriteProc,
+                                qtiffSeekProc,
+                                qtiffCloseProc,
+                                qtiffSizeProc,
+                                qtiffMapProc,
+                                qtiffUnmapProc);
+    if (!tiff) {
+        device()->reset();
+        return false;
+    }
+
+    do {
+        ++d->directoryCount;
+    } while (TIFFReadDirectory(tiff));
+    TIFFClose(tiff);
+    device()->reset();
+    return true;
+}
+
 QT_END_NAMESPACE

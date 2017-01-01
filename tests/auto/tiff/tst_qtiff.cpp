@@ -78,6 +78,9 @@ private slots:
     void resolution_data();
     void resolution();
 
+    void multipage_data();
+    void multipage();
+
 private:
     QString prefix;
 };
@@ -511,6 +514,47 @@ void tst_qtiff::resolution()
 
     QCOMPARE(expectedDotsPerMeterX, generatedImage.dotsPerMeterX());
     QCOMPARE(expectedDotsPerMeterY, generatedImage.dotsPerMeterY());
+}
+
+void tst_qtiff::multipage_data()
+{
+    QTest::addColumn<QString>("filename");
+    QTest::addColumn<int>("expectedNumPages");
+    QTest::addColumn<QVector<QSize>>("expectedSizes");
+
+    QVector<QSize> sizes = QVector<QSize>() << QSize(640, 480) << QSize(800, 600) << QSize(320, 240);
+    QTest::newRow("3 page TIFF") << ("multipage.tiff") << 3 << sizes;
+}
+
+void tst_qtiff::multipage()
+{
+    QFETCH(QString, filename);
+    QFETCH(int, expectedNumPages);
+    QFETCH(QVector<QSize>, expectedSizes);
+
+    QImageReader reader(prefix + filename);
+    QCOMPARE(reader.imageCount(), expectedNumPages);
+
+    // Test jumpToImage, currentImageNumber and whether the actual image is correct
+    QCOMPARE(reader.jumpToImage(-1), false);
+    for (int i = 0; i < expectedNumPages; ++i) {
+        reader.jumpToImage(i);
+        QCOMPARE(reader.currentImageNumber(), i);
+        QSize size = reader.size();
+        QCOMPARE(size.width(), expectedSizes[i].width());
+        QCOMPARE(size.height(), expectedSizes[i].height());
+        QImage image = reader.read();
+        QVERIFY2(!image.isNull(), qPrintable(reader.errorString()));
+    }
+    QCOMPARE(reader.jumpToImage(expectedNumPages), false);
+
+    // Test jumpToNextImage
+    reader.jumpToImage(0);
+    QCOMPARE(reader.currentImageNumber(), 0);
+    for (int i = 0; i < expectedNumPages - 1; ++i) {
+        QCOMPARE(reader.jumpToNextImage(), true);
+    }
+    QCOMPARE(reader.jumpToNextImage(), false);
 }
 
 QTEST_MAIN(tst_qtiff)

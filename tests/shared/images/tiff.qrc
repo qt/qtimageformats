@@ -21,6 +21,7 @@
         <file>tiff/mono_orientation_6.tiff</file>
         <file>tiff/mono_orientation_7.tiff</file>
         <file>tiff/mono_orientation_8.tiff</file>
+        <file>tiff/multipage.tiff</file>
         <file>tiff/original_indexed.tiff</file>
         <file>tiff/original_mono.tiff</file>
         <file>tiff/original_rgb.tiff</file>

@@ -63,6 +63,11 @@ public:
     void setOption(ImageOption option, const QVariant &value) override;
     bool supportsOption(ImageOption option) const override;
 
+    bool jumpToNextImage() Q_DECL_OVERRIDE;
+    bool jumpToImage(int imageNumber) Q_DECL_OVERRIDE;
+    int imageCount() const Q_DECL_OVERRIDE;
+    int currentImageNumber() const Q_DECL_OVERRIDE;
+
     enum Compression {
         NoCompression = 0,
         LzwCompression = 1
@@ -70,6 +75,7 @@ public:
 private:
     void convert32BitOrder(void *buffer, int width);
     const QScopedPointer<QTiffHandlerPrivate> d;
+    bool ensureHaveDirectoryCount() const;
 };
 
 QT_END_NAMESPACE
