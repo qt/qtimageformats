@@ -115,6 +115,10 @@ android {
     INCLUDEPATH += $$NDK_ROOT/sources/android/cpufeatures
 }
 
+integrity {
+    QMAKE_CFLAGS += -c99
+}
+
 equals(QT_ARCH, arm)|equals(QT_ARCH, arm64) {
     SOURCES_FOR_NEON += \
         $$PWD/libwebp/src/dsp/dec_neon.c \
