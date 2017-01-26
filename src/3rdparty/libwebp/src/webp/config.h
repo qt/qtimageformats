@@ -79,7 +79,7 @@
 #define PACKAGE_NAME "libwebp"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libwebp 0.5.0"
+#define PACKAGE_STRING "libwebp 0.5.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libwebp"
@@ -88,7 +88,7 @@
 #define PACKAGE_URL "http://developers.google.com/speed/webp"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.5.0"
+#define PACKAGE_VERSION "0.5.1"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -98,7 +98,7 @@
 /* #undef STDC_HEADERS */
 
 /* Version number of package */
-#define VERSION "0.5.0"
+#define VERSION "0.5.1"
 
 /* Enable experimental code */
 /* #undef WEBP_EXPERIMENTAL_FEATURES */
@@ -118,11 +118,20 @@
 /* Set to 1 if JPEG library is installed */
 /* #undef WEBP_HAVE_JPEG */
 
+/* Set to 1 if NEON is supported */
+/* #undef WEBP_HAVE_NEON */
+
+/* Set to 1 if runtime detection of NEON is enabled */
+/* #undef WEBP_HAVE_NEON_RTCD */
+
 /* Set to 1 if PNG library is installed */
 /* #undef WEBP_HAVE_PNG */
 
 /* Set to 1 if SSE2 is supported */
 /* #undef WEBP_HAVE_SSE2 */
+
+/* Set to 1 if SSE4.1 is supported */
+/* #undef WEBP_HAVE_SSE41 */
 
 /* Set to 1 if TIFF library is installed */
 /* #undef WEBP_HAVE_TIFF */
@@ -132,6 +141,15 @@
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
+/* #if defined AC_APPLE_UNIVERSAL_BUILD */
+/* # if defined __BIG_ENDIAN__ */
+/* #  define WORDS_BIGENDIAN 1 */
+/* # endif */
+/* #else */
+/* # ifndef WORDS_BIGENDIAN */
+/* /* #  undef WORDS_BIGENDIAN */
+/* # endif */
+/* #endif */
 #if (Q_BYTE_ORDER == Q_BIG_ENDIAN)
 #define WORDS_BIGENDIAN 1
 #endif
