@@ -36,6 +36,7 @@ SOURCES += \
     $$PWD/libwebp/src/dsp/cpu.c \
     $$PWD/libwebp/src/dsp/dec.c \
     $$PWD/libwebp/src/dsp/dec_mips_dsp_r2.c \
+    $$PWD/libwebp/src/dsp/dec_msa.c \
     $$PWD/libwebp/src/dsp/dec_sse2.c \
     $$PWD/libwebp/src/dsp/dec_sse41.c \
     $$PWD/libwebp/src/dsp/enc.c \
