@@ -38,10 +38,10 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_IMAGEFORMATPLUGIN
-
+#include <QtGui/qimageiohandler.h>
 #include "qicnshandler_p.h"
 
+#ifndef QT_NO_IMAGEFORMATPLUGIN
 #ifndef QT_NO_DATASTREAM
 
 QT_BEGIN_NAMESPACE
