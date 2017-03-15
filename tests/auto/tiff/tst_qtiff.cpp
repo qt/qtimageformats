@@ -81,6 +81,9 @@ private slots:
     void multipage_data();
     void multipage();
 
+    void tiled_data();
+    void tiled();
+
 private:
     QString prefix;
 };
@@ -153,6 +156,8 @@ void tst_qtiff::readImage_data()
     QTest::newRow("rgb_orientation_7") << QString("rgb_orientation_7.tiff") << QSize(64, 64);
     QTest::newRow("rgb_orientation_8") << QString("rgb_orientation_8.tiff") << QSize(64, 64);
     QTest::newRow("teapot") << QString("teapot.tiff") << QSize(256, 256);
+    QTest::newRow("indexed_nontiled") << QString("indexed_nontiled.tif") << QSize(512, 384);
+    QTest::newRow("indexed_tiled") << QString("indexed_tiled.tif") << QSize(512, 384);
 }
 
 void tst_qtiff::readImage()
@@ -555,6 +560,23 @@ void tst_qtiff::multipage()
         QCOMPARE(reader.jumpToNextImage(), true);
     }
     QCOMPARE(reader.jumpToNextImage(), false);
+}
+
+void tst_qtiff::tiled_data()
+{
+    QTest::addColumn<QString>("expectedFile");
+    QTest::addColumn<QString>("tiledFile");
+    QTest::newRow("Indexed") << "indexed_nontiled.tif" << "indexed_tiled.tif";
+}
+
+void tst_qtiff::tiled()
+{
+    QFETCH(QString, expectedFile);
+    QFETCH(QString, tiledFile);
+
+    QImage expectedImage(prefix + expectedFile);
+    QImage tiledImage(prefix + tiledFile);
+    QCOMPARE(expectedImage, tiledImage);
 }
 
 QTEST_MAIN(tst_qtiff)

@@ -41,5 +41,7 @@
         <file>tiff/rgb_orientation_8.tiff</file>
         <file>tiff/teapot.tiff</file>
         <file>tiff/colorful.bmp</file>
+        <file>tiff/indexed_tiled.tif</file>
+        <file>tiff/indexed_nontiled.tif</file>
     </qresource>
 </RCC>

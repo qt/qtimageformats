@@ -385,10 +385,37 @@ bool QTiffHandler::read(QImage *image)
                 }
 
                 image->setColorTable(qtColorTable);
-                for (uint32 y=0; y<height; ++y) {
-                    if (TIFFReadScanline(tiff, image->scanLine(y), y, 0) < 0) {
+
+                if (TIFFIsTiled(tiff)) {
+                    quint32 tileWidth, tileLength;
+                    TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &tileWidth);
+                    TIFFGetField(tiff, TIFFTAG_TILELENGTH, &tileLength);
+                    uchar *buf = (uchar *)_TIFFmalloc(TIFFTileSize(tiff));
+                    if (!tileWidth || !tileLength || !buf) {
+                        _TIFFfree(buf);
                         d->close();
                         return false;
+                    }
+                    for (quint32 y = 0; y < height; y += tileLength) {
+                        for (quint32 x = 0; x < width; x += tileWidth) {
+                            if (TIFFReadTile(tiff, buf, x, y, 0, 0) < 0) {
+                                _TIFFfree(buf);
+                                d->close();
+                                return false;
+                            }
+                            quint32 linesToCopy = qMin(tileLength, height - y);
+                            quint32 widthToCopy = qMin(tileWidth, width - x);
+                            for (quint32 i = 0; i < linesToCopy; i++)
+                                ::memcpy(image->scanLine(y + i) + x, buf + (i * tileWidth), widthToCopy);
+                        }
+                    }
+                    _TIFFfree(buf);
+                } else {
+                    for (uint32 y=0; y<height; ++y) {
+                        if (TIFFReadScanline(tiff, image->scanLine(y), y, 0) < 0) {
+                            d->close();
+                            return false;
+                        }
                     }
                 }
 
