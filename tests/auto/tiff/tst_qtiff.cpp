@@ -139,6 +139,7 @@ void tst_qtiff::readImage_data()
     QTest::newRow("mono_orientation_7") << QString("mono_orientation_7.tiff") << QSize(64, 64);
     QTest::newRow("mono_orientation_8") << QString("mono_orientation_8.tiff") << QSize(64, 64);
     QTest::newRow("original_indexed") << QString("original_indexed.tiff") << QSize(64, 64);
+    QTest::newRow("original_grayscale") << QString("original_grayscale.tiff") << QSize(64, 64);
     QTest::newRow("original_mono") << QString("original_mono.tiff") << QSize(64, 64);
     QTest::newRow("original_rgb") << QString("original_rgb.tiff") << QSize(64, 64);
     QTest::newRow("rgba_adobedeflate_littleendian") << QString("rgba_adobedeflate_littleendian.tif") << QSize(200, 200);
@@ -156,8 +157,14 @@ void tst_qtiff::readImage_data()
     QTest::newRow("rgb_orientation_7") << QString("rgb_orientation_7.tiff") << QSize(64, 64);
     QTest::newRow("rgb_orientation_8") << QString("rgb_orientation_8.tiff") << QSize(64, 64);
     QTest::newRow("teapot") << QString("teapot.tiff") << QSize(256, 256);
-    QTest::newRow("indexed_nontiled") << QString("indexed_nontiled.tif") << QSize(512, 384);
-    QTest::newRow("indexed_tiled") << QString("indexed_tiled.tif") << QSize(512, 384);
+    QTest::newRow("oddsize_grayscale") << QString("oddsize_grayscale.tiff") << QSize(59, 71);
+    QTest::newRow("oddsize_mono") << QString("oddsize_mono.tiff") << QSize(59, 71);
+    QTest::newRow("tiled_rgb") << QString("tiled_rgb.tiff") << QSize(64, 64);
+    QTest::newRow("tiled_indexed") << QString("tiled_indexed.tiff") << QSize(64, 64);
+    QTest::newRow("tiled_grayscale") << QString("tiled_grayscale.tiff") << QSize(64, 64);
+    QTest::newRow("tiled_mono") << QString("tiled_mono.tiff") << QSize(64, 64);
+    QTest::newRow("tiled_oddsize_grayscale") << QString("tiled_oddsize_grayscale.tiff") << QSize(59, 71);
+    QTest::newRow("tiled_oddsize_mono") << QString("tiled_oddsize_mono.tiff") << QSize(59, 71);
 }
 
 void tst_qtiff::readImage()
@@ -566,7 +573,12 @@ void tst_qtiff::tiled_data()
 {
     QTest::addColumn<QString>("expectedFile");
     QTest::addColumn<QString>("tiledFile");
-    QTest::newRow("Indexed") << "indexed_nontiled.tif" << "indexed_tiled.tif";
+    QTest::newRow("RGB") << "original_rgb.tiff" << "tiled_rgb.tiff";
+    QTest::newRow("Indexed") << "original_indexed.tiff" << "tiled_indexed.tiff";
+    QTest::newRow("Grayscale") << "original_grayscale.tiff" << "tiled_grayscale.tiff";
+    QTest::newRow("Mono") << "original_mono.tiff" << "tiled_mono.tiff";
+    QTest::newRow("Oddsize (Grayscale)") << "oddsize_grayscale.tiff" << "tiled_oddsize_grayscale.tiff";
+    QTest::newRow("Oddsize (Mono)") << "oddsize_mono.tiff" << "tiled_oddsize_mono.tiff";
 }
 
 void tst_qtiff::tiled()
@@ -576,6 +588,7 @@ void tst_qtiff::tiled()
 
     QImage expectedImage(prefix + expectedFile);
     QImage tiledImage(prefix + tiledFile);
+    QVERIFY(!tiledImage.isNull());
     QCOMPARE(expectedImage, tiledImage);
 }
 
