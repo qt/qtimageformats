@@ -18,7 +18,7 @@
 #include <string.h>
 #endif
 
-#if defined(WEBP_ANDROID_NEON)
+#if defined(WEBP_ANDROID_NEON) && !defined(Q_OS_ANDROID_EMBEDDED)
 #include <cpu-features.h>
 #endif
 
@@ -168,7 +168,7 @@ static int x86CPUInfo(CPUFeature feature) {
   return 0;
 }
 VP8CPUInfo VP8GetCPUInfo = x86CPUInfo;
-#elif defined(WEBP_ANDROID_NEON)  // NB: needs to be before generic NEON test.
+#elif defined(WEBP_ANDROID_NEON) && !defined(Q_OS_ANDROID_EMBEDDED) // NB: needs to be before generic NEON test.
 static int AndroidCPUInfo(CPUFeature feature) {
   const AndroidCpuFamily cpu_family = android_getCpuFamily();
   const uint64_t cpu_features = android_getCpuFeatures();

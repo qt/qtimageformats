@@ -113,7 +113,7 @@ SOURCES += \
     $$PWD/libwebp/src/utils/thread_utils.c \
     $$PWD/libwebp/src/utils/utils.c
 
-android {
+android:!android-embedded {
     SOURCES += $$NDK_ROOT/sources/android/cpufeatures/cpu-features.c
     INCLUDEPATH += $$NDK_ROOT/sources/android/cpufeatures
 }
