@@ -17,8 +17,8 @@
 #if defined(WEBP_USE_MIPS_DSP_R2)
 
 #include "./mips_macro.h"
-#include "../enc/cost.h"
-#include "../enc/vp8enci.h"
+#include "../enc/cost_enc.h"
+#include "../enc/vp8i_enc.h"
 
 static const int kC1 = 20091 + (1 << 16);
 static const int kC2 = 35468;
@@ -1393,8 +1393,6 @@ static void FTransformWHT(const int16_t* in, int16_t* out) {
   "absq_s.ph  %[temp1],  %[temp1]                      \n\t"                   \
   "absq_s.ph  %[temp2],  %[temp2]                      \n\t"                   \
   "absq_s.ph  %[temp3],  %[temp3]                      \n\t"                   \
-  /* TODO(skal): add rounding ? shra_r.ph : shra.ph */                         \
-  /*             for following 4 instructions       */                         \
   "shra.ph    %[temp0],  %[temp0],    3                \n\t"                   \
   "shra.ph    %[temp1],  %[temp1],    3                \n\t"                   \
   "shra.ph    %[temp2],  %[temp2],    3                \n\t"                   \
