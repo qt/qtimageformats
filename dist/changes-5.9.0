@@ -15,13 +15,13 @@ corresponding to tasks in the Qt Bug Tracker:
 Each of these identifiers can be entered in the bug tracker to obtain more
 information about a particular change.
 
+Third-Party Code
+----------------
+
+ - Update the bundled libwebp to version 0.6.0.
+
 TIFF handler
 --------------
 
  - Add support for reading color indexed and grayscale images stored
    in tiled format.
-
-WEBP
-----
-
- - Update the bundled libwebp to version 0.6.0.
