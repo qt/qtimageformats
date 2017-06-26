@@ -74,6 +74,10 @@ bool QWebpHandler::canRead() const
 
     if (m_scanState != ScanError) {
         setFormat(QByteArrayLiteral("webp"));
+
+        if (m_features.has_animation && m_iter.frame_num >= m_frameCount)
+            return false;
+
         return true;
     }
     return false;
