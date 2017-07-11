@@ -177,7 +177,7 @@ bool QWebpHandler::read(QImage *image)
 
     QImage frame(m_iter.width, m_iter.height, QImage::Format_ARGB32);
     uint8_t *output = frame.bits();
-    size_t output_size = frame.byteCount();
+    size_t output_size = frame.sizeInBytes();
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
     if (!WebPDecodeBGRAInto(
         reinterpret_cast<const uint8_t*>(m_iter.fragment.bytes), m_iter.fragment.size,
