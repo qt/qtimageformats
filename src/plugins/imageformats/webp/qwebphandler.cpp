@@ -295,7 +295,7 @@ void QWebpHandler::setOption(ImageOption option, const QVariant &value)
     default:
         break;
     }
-    return QImageIOHandler::setOption(option, value);
+    QImageIOHandler::setOption(option, value);
 }
 
 bool QWebpHandler::supportsOption(ImageOption option) const
