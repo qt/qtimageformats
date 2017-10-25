@@ -1,20 +1,20 @@
-TARGET  = qmacjp2
+TARGET  = qmacheif
 PLUGIN_TYPE = imageformats
-PLUGIN_CLASS_NAME = QMacJp2Plugin
+PLUGIN_CLASS_NAME = QMacHeifPlugin
 
 LIBS += -framework CoreFoundation -framework CoreGraphics -framework ImageIO
 
 QT += core-private gui-private
 
 SOURCES += \
-    qmacjp2handler.cpp \
+    qmacheifhandler.cpp \
     main.cpp
 
 HEADERS += \
-    qmacjp2handler.h
+    qmacheifhandler.h
 
 include (../shared/qiiofhelpers.pri)
 
-OTHER_FILES += macjp2.json
+OTHER_FILES += macheif.json
 
 load(qt_plugin)

@@ -98,6 +98,24 @@ static size_t cbPutBytes(void *info, const void *buffer, size_t count)
 typedef QImage (*cgImageToQImagePtr)(CGImageRef image);
 typedef CGImageRef (*qImageToCGImagePtr)(const QImage &image);
 
+QImageIOPlugin::Capabilities QIIOFHelpers::systemCapabilities(const QString &uti)
+{
+    QImageIOPlugin::Capabilities res;
+    QCFString cfUti(uti);
+
+    QCFType<CFArrayRef> cfSourceTypes = CGImageSourceCopyTypeIdentifiers();
+    CFIndex len = CFArrayGetCount(cfSourceTypes);
+    if (CFArrayContainsValue(cfSourceTypes, CFRangeMake(0, len), cfUti))
+        res |= QImageIOPlugin::CanRead;
+
+    QCFType<CFArrayRef> cfDestTypes = CGImageDestinationCopyTypeIdentifiers();
+    len = CFArrayGetCount(cfDestTypes);
+    if (CFArrayContainsValue(cfDestTypes, CFRangeMake(0, len), cfUti))
+        res |= QImageIOPlugin::CanWrite;
+
+    return res;
+}
+
 bool QIIOFHelpers::readImage(QImageIOHandler *q_ptr, QImage *out)
 {
     static const CGDataProviderSequentialCallbacks cgCallbacks = { 0, &cbGetBytes, &cbSkipForward, &cbRewind, nullptr };
