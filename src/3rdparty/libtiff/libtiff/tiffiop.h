@@ -37,11 +37,7 @@
 #endif
 
 #ifdef HAVE_SYS_TYPES_H
-#  ifdef Q_OS_WINCE
-#    include <types.h>
-#  else
-#    include <sys/types.h>
-#  endif
+# include <sys/types.h>
 #endif
 
 #ifdef HAVE_STRING_H
