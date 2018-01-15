@@ -266,7 +266,7 @@
 /* #undef PACKAGE_URL */
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "4.0.8"
+#define PACKAGE_VERSION "4.0.9"
 
 /* Support Macintosh PackBits algorithm */
 /* #undef PACKBITS_SUPPORT */
