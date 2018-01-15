@@ -48,7 +48,6 @@
 static const int riffHeaderSize = 12; // RIFF_HEADER_SIZE from webp/format_constants.h
 
 QWebpHandler::QWebpHandler() :
-    m_lossless(false),
     m_quality(75),
     m_scanState(ScanNotScanned),
     m_features(),
@@ -250,8 +249,8 @@ bool QWebpHandler::write(const QImage &image)
         return false;
     }
 
-    config.lossless = m_lossless;
-    config.quality = m_quality;
+    config.quality = m_quality < 0 ? 75 : qMin(m_quality, 100);
+    config.lossless = (config.quality >= 100);
     picture.writer = pictureWriter;
     picture.custom_ptr = device();
 
@@ -289,8 +288,7 @@ void QWebpHandler::setOption(ImageOption option, const QVariant &value)
 {
     switch (option) {
     case Quality:
-        m_quality = qBound(0, value.toInt(), 100);
-        m_lossless = (m_quality >= 100);
+        m_quality = value.toInt();
         return;
     default:
         break;

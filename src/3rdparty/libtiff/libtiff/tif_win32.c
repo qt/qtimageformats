@@ -398,6 +398,7 @@ _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c)
 	return (memcmp(p1, p2, (size_t) c));
 }
 
+#ifndef _WIN32_WCE
 
 #if (_MSC_VER < 1500)
 #  define vsnprintf _vsnprintf
@@ -463,6 +464,7 @@ Win32ErrorHandler(const char* module, const char* fmt, va_list ap)
 }
 TIFFErrorHandler _TIFFerrorHandler = Win32ErrorHandler;
 
+#endif /* ndef _WIN32_WCE */
 
 /* vim: set ts=8 sts=8 sw=8 noet: */
 /*

@@ -94,20 +94,15 @@ static size_t cbPutBytes(void *info, const void *buffer, size_t count)
 }
 
 
-// QImage <-> CGImage conversion functions
-typedef QImage (*cgImageToQImagePtr)(CGImageRef image);
-typedef CGImageRef (*qImageToCGImagePtr)(const QImage &image);
+// QImage <-> CGImage conversion functions from QtGui on darwin
+CGImageRef qt_mac_toCGImage(const QImage &qImage);
+QImage qt_mac_toQImage(CGImageRef image);
 
 bool QIIOFHelpers::readImage(QImageIOHandler *q_ptr, QImage *out)
 {
     static const CGDataProviderSequentialCallbacks cgCallbacks = { 0, &cbGetBytes, &cbSkipForward, &cbRewind, nullptr };
-    static cgImageToQImagePtr cgImageToQImageFn = nullptr;
-    if (!cgImageToQImageFn) {
-        if (QPlatformNativeInterface *pni = QGuiApplication::platformNativeInterface())
-            cgImageToQImageFn = reinterpret_cast<cgImageToQImagePtr>(pni->nativeResourceFunctionForIntegration(QByteArrayLiteral("cgImageToQImage")));
-    }
 
-    if (!q_ptr || !q_ptr->device() || !out || !cgImageToQImageFn)
+    if (!q_ptr || !q_ptr->device() || !out)
         return false;
 
     QCFType<CGDataProviderRef> cgDataProvider;
@@ -127,7 +122,7 @@ bool QIIOFHelpers::readImage(QImageIOHandler *q_ptr, QImage *out)
     if (!cgImage)
         return false;
 
-    *out = cgImageToQImageFn(cgImage);
+    *out = qt_mac_toQImage(cgImage);
     return !out->isNull();
 }
 
@@ -135,16 +130,11 @@ bool QIIOFHelpers::readImage(QImageIOHandler *q_ptr, QImage *out)
 bool QIIOFHelpers::writeImage(QImageIOHandler *q_ptr, const QImage &in, const QString &uti)
 {
     static const CGDataConsumerCallbacks cgCallbacks = { &cbPutBytes, nullptr };
-    static qImageToCGImagePtr qImageToCGImageFn = nullptr;
-    if (!qImageToCGImageFn) {
-        if (QPlatformNativeInterface *pni = QGuiApplication::platformNativeInterface())
-            qImageToCGImageFn = reinterpret_cast<qImageToCGImagePtr>(pni->nativeResourceFunctionForIntegration(QByteArrayLiteral("qImageToCGImage")));
-    }
 
-    if (!q_ptr || !q_ptr->device() || in.isNull() || !qImageToCGImageFn)
+    if (!q_ptr || !q_ptr->device() || in.isNull())
         return false;
 
-    QCFType<CGImageRef> cgImage = qImageToCGImageFn(in);
+    QCFType<CGImageRef> cgImage = qt_mac_toCGImage(in);
     QCFType<CGDataConsumerRef> cgDataConsumer = CGDataConsumerCreate(q_ptr->device(), &cgCallbacks);
     QCFType<CFStringRef> cfUti = uti.toCFString();
     QCFType<CGImageDestinationRef> cgImageDest = CGImageDestinationCreateWithDataConsumer(cgDataConsumer, cfUti, 1, nullptr);
