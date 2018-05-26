@@ -67,18 +67,19 @@ SOURCES += \
     $$PWD/libwebp/src/dsp/upsampling_mips_dsp_r2.c \
     $$PWD/libwebp/src/dsp/upsampling_msa.c \
     $$PWD/libwebp/src/dsp/upsampling_sse2.c \
+    $$PWD/libwebp/src/dsp/upsampling_sse41.c \
     $$PWD/libwebp/src/dsp/yuv.c \
     $$PWD/libwebp/src/dsp/yuv_mips_dsp_r2.c \
     $$PWD/libwebp/src/dsp/lossless_sse2.c \
     $$PWD/libwebp/src/dsp/yuv_mips32.c \
     $$PWD/libwebp/src/dsp/yuv_sse2.c \
+    $$PWD/libwebp/src/dsp/yuv_sse41.c \
     $$PWD/libwebp/src/enc/alpha_enc.c \
     $$PWD/libwebp/src/enc/analysis_enc.c \
     $$PWD/libwebp/src/enc/backward_references_cost_enc.c \
     $$PWD/libwebp/src/enc/backward_references_enc.c \
     $$PWD/libwebp/src/enc/config_enc.c \
     $$PWD/libwebp/src/enc/cost_enc.c \
-    $$PWD/libwebp/src/enc/delta_palettization_enc.c \
     $$PWD/libwebp/src/enc/filter_enc.c \
     $$PWD/libwebp/src/enc/frame_enc.c \
     $$PWD/libwebp/src/enc/histogram_enc.c \
