@@ -248,8 +248,15 @@ bool QWebpHandler::write(const QImage &image)
         return false;
     }
 
-    config.quality = m_quality < 0 ? 75 : qMin(m_quality, 100);
-    config.lossless = (config.quality >= 100);
+    int reqQuality = m_quality < 0 ? 75 : qMin(m_quality, 100);
+    if (reqQuality < 100) {
+        config.lossless = 0;
+        config.quality = reqQuality;
+    } else {
+        config.lossless = 1;
+        config.quality = 70;  // For lossless, specifies compression effort; 70 is libwebp default
+    }
+    config.alpha_quality = config.quality;
     picture.writer = pictureWriter;
     picture.custom_ptr = device();
 
