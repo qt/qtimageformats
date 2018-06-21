@@ -74,6 +74,7 @@ public:
     };
 private:
     void convert32BitOrder(void *buffer, int width);
+    void rgb48fixup(QImage *image);
     const QScopedPointer<QTiffHandlerPrivate> d;
     bool ensureHaveDirectoryCount() const;
 };
