@@ -495,6 +495,15 @@ static QVector<QRgb> effectiveColorTable(const QImage &image)
     return colors;
 }
 
+static quint32 defaultStripSize(TIFF *tiff)
+{
+    // Aim for 4MB strips
+    qint64 scanSize = qMax(tmsize_t(1), TIFFScanlineSize(tiff));
+    qint64 numRows = (4 * 1024 * 1024) / scanSize;
+    quint32 reqSize = static_cast<quint32>(qBound(qint64(1), numRows, qint64(UINT_MAX)));
+    return TIFFDefaultStripSize(tiff, reqSize);
+}
+
 bool QTiffHandler::write(const QImage &image)
 {
     if (!device()->isWritable())
@@ -559,7 +568,7 @@ bool QTiffHandler::write(const QImage &image)
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, photometric)
             || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 1)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tiff, 0))) {
+            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
             TIFFClose(tiff);
             return false;
         }
@@ -595,7 +604,7 @@ bool QTiffHandler::write(const QImage &image)
             if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, photometric)
                     || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
                     || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
-                    || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tiff, 0))) {
+                    || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
                 TIFFClose(tiff);
                 return false;
             }
@@ -603,7 +612,7 @@ bool QTiffHandler::write(const QImage &image)
             if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_PALETTE)
                     || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
                     || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
-                    || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tiff, 0))) {
+                    || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
                 TIFFClose(tiff);
                 return false;
             }
@@ -656,7 +665,7 @@ bool QTiffHandler::write(const QImage &image)
             || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 3)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tiff, 0))) {
+            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
             TIFFClose(tiff);
             return false;
         }
@@ -688,7 +697,7 @@ bool QTiffHandler::write(const QImage &image)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
             || !TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tiff, 0))) {
+            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
             TIFFClose(tiff);
             return false;
         }
