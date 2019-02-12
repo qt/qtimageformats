@@ -28,6 +28,7 @@ SOURCES += \
     $$PWD/libwebp/src/dsp/cost.c \
     $$PWD/libwebp/src/dsp/cost_mips32.c \
     $$PWD/libwebp/src/dsp/cost_mips_dsp_r2.c \
+    $$PWD/libwebp/src/dsp/cost_neon.c \
     $$PWD/libwebp/src/dsp/cost_sse2.c \
     $$PWD/libwebp/src/dsp/cpu.c \
     $$PWD/libwebp/src/dsp/dec.c \
