@@ -531,7 +531,7 @@ static QVector<QRgb> effectiveColorTable(const QImage &image)
 static quint32 defaultStripSize(TIFF *tiff)
 {
     // Aim for 4MB strips
-    qint64 scanSize = qMax(tmsize_t(1), TIFFScanlineSize(tiff));
+    qint64 scanSize = qMax(qint64(1), qint64(TIFFScanlineSize(tiff)));
     qint64 numRows = (4 * 1024 * 1024) / scanSize;
     quint32 reqSize = static_cast<quint32>(qBound(qint64(1), numRows, qint64(UINT_MAX)));
     return TIFFDefaultStripSize(tiff, reqSize);
