@@ -3,6 +3,7 @@
     "depends": [
             "gui"
     ],
+    "condition": "module.gui",
 
     "commandline": {
         "options": {
