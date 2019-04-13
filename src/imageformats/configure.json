@@ -169,8 +169,7 @@
             "disable": "input.tiff == 'no'",
             "condition": "features.imageformatplugin",
             "output": [
-                "privateFeature",
-                { "type": "define", "negative": true, "name": "QT_NO_IMAGEFORMAT_TIFF" }
+                "privateFeature"
             ]
         },
         "system-tiff": {
@@ -185,8 +184,7 @@
             "disable": "input.webp == 'no'",
             "condition": "features.imageformatplugin",
             "output": [
-                "privateFeature",
-                { "type": "define", "negative": true, "name": "QT_NO_IMAGEFORMAT_WEBP" }
+                "privateFeature"
             ]
         },
         "system-webp": {
