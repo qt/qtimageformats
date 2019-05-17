@@ -1,0 +1,22 @@
+# Generated from icns.pro.
+
+#####################################################################
+## qicns Plugin:
+#####################################################################
+
+add_qt_plugin(qicns
+    TYPE imageformats
+    SOURCES
+        main.cpp
+        qicnshandler.cpp qicnshandler_p.h
+    DEFINES
+        QT_NO_CAST_FROM_ASCII
+        QT_NO_CAST_TO_ASCII
+    LIBRARIES # special case
+        Qt::Gui # special case
+)
+
+#### Keys ignored in scope 1:.:.:icns.pro:<TRUE>:
+# OTHER_FILES = "icns.json"
+# PLUGIN_CLASS_NAME = "QICNSPlugin"
+# _LOADED = "qt_plugin"
