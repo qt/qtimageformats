@@ -38,7 +38,7 @@ qt_feature("mng" PRIVATE
 )
 qt_feature("tiff" PRIVATE
     LABEL "TIFF"
-    CONDITION QT_FEATURE_imageformatplugin
+    CONDITION QT_FEATURE_imageformatplugin AND TIFF_FOUND
     DISABLE INPUT_tiff STREQUAL 'no'
 )
 qt_feature("system_tiff" PRIVATE
@@ -49,7 +49,7 @@ qt_feature("system_tiff" PRIVATE
 )
 qt_feature("webp" PRIVATE
     LABEL "WEBP"
-    CONDITION QT_FEATURE_imageformatplugin
+    CONDITION QT_FEATURE_imageformatplugin AND WrapWebP_FOUND
     DISABLE INPUT_webp STREQUAL 'no'
 )
 qt_feature("system_webp" PRIVATE

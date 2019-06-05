@@ -4,7 +4,16 @@
 ## qtiff Plugin:
 #####################################################################
 
-qt_find_package(ZLIB PROVIDED_TARGETS ZLIB::ZLIB) # special case
+# special case begin
+# Protect against case when ZLIB is found via QtGui in a static build,
+# which means that we can't do a qt_find_package() here due to CMake
+# complaining about not being able to make the ZLIB target global,
+# because ZLIB was found in the QtGui directory scope (root level) and
+# not in this directory scope.
+if(BUILD_SHARED_LIBS)
+    qt_find_package(ZLIB PROVIDED_TARGETS ZLIB::ZLIB)
+endif()
+# special case end
 
 add_qt_plugin(qtiff
     TYPE imageformats
