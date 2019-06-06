@@ -12,6 +12,7 @@ find_library(FWImageIO ImageIO)
 
 add_qt_plugin(qmacheif
     TYPE imageformats
+    CLASS_NAME QMacHeifPlugin
     SOURCES
         ../shared/qiiofhelpers.cpp ../shared/qiiofhelpers_p.h
         main.cpp
@@ -32,4 +33,5 @@ add_qt_plugin(qmacheif
 #### Keys ignored in scope 1:.:.:macheif.pro:<TRUE>:
 # OTHER_FILES = "macheif.json"
 # PLUGIN_CLASS_NAME = "QMacHeifPlugin"
+# PLUGIN_TYPE = "imageformats"
 # _LOADED = "qt_plugin"

@@ -6,6 +6,7 @@
 
 add_qt_plugin(qwebp
     TYPE imageformats
+    CLASS_NAME QWebpPlugin
     SOURCES
         main.cpp
         qwebphandler.cpp qwebphandler_p.h
@@ -17,5 +18,6 @@ add_qt_plugin(qwebp
 #### Keys ignored in scope 1:.:.:webp.pro:<TRUE>:
 # OTHER_FILES = "webp.json"
 # PLUGIN_CLASS_NAME = "QWebpPlugin"
+# PLUGIN_TYPE = "imageformats"
 # QT_FOR_CONFIG = "imageformats-private"
 # _LOADED = "qt_plugin"

@@ -6,6 +6,7 @@
 
 add_qt_plugin(qmacjp2
     TYPE imageformats
+    CLASS_NAME QMacJp2Plugin
     SOURCES
         ../shared/qiiofhelpers.cpp ../shared/qiiofhelpers_p.h
         main.cpp
@@ -26,4 +27,5 @@ add_qt_plugin(qmacjp2
 #### Keys ignored in scope 1:.:.:macjp2.pro:<TRUE>:
 # OTHER_FILES = "macjp2.json"
 # PLUGIN_CLASS_NAME = "QMacJp2Plugin"
+# PLUGIN_TYPE = "imageformats"
 # _LOADED = "qt_plugin"

@@ -6,6 +6,7 @@
 
 add_qt_plugin(qwbmp
     TYPE imageformats
+    CLASS_NAME QWbmpPlugin
     SOURCES
         main.cpp
         qwbmphandler.cpp qwbmphandler_p.h
@@ -16,4 +17,5 @@ add_qt_plugin(qwbmp
 #### Keys ignored in scope 1:.:.:wbmp.pro:<TRUE>:
 # OTHER_FILES = "wbmp.json"
 # PLUGIN_CLASS_NAME = "QWbmpPlugin"
+# PLUGIN_TYPE = "imageformats"
 # _LOADED = "qt_plugin"

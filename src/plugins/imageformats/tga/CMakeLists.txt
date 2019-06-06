@@ -6,6 +6,7 @@
 
 add_qt_plugin(qtga
     TYPE imageformats
+    CLASS_NAME QTgaPlugin
     SOURCES
         main.cpp
         qtgafile.cpp qtgafile.h
@@ -18,4 +19,5 @@ add_qt_plugin(qtga
 #### Keys ignored in scope 1:.:.:tga.pro:<TRUE>:
 # OTHER_FILES = "tga.json"
 # PLUGIN_CLASS_NAME = "QTgaPlugin"
+# PLUGIN_TYPE = "imageformats"
 # _LOADED = "qt_plugin"

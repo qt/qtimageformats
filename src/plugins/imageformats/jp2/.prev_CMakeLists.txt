@@ -12,7 +12,6 @@ add_qt_plugin(qjp2
         qjp2handler.cpp qjp2handler_p.h
     LIBRARIES
         WrapJasper::WrapJasper
-        Qt::Gui # special case
 )
 
 #### Keys ignored in scope 1:.:.:jp2.pro:<TRUE>:

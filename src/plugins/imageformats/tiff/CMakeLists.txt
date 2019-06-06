@@ -17,6 +17,7 @@ endif()
 
 add_qt_plugin(qtiff
     TYPE imageformats
+    CLASS_NAME QTiffPlugin
     SOURCES
         main.cpp
         qtiffhandler.cpp qtiffhandler_p.h
@@ -30,6 +31,7 @@ add_qt_plugin(qtiff
 #### Keys ignored in scope 1:.:.:tiff.pro:<TRUE>:
 # OTHER_FILES = "tiff.json"
 # PLUGIN_CLASS_NAME = "QTiffPlugin"
+# PLUGIN_TYPE = "imageformats"
 # _LOADED = "qt_plugin"
 
 ## Scopes:
