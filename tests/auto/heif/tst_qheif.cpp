@@ -65,6 +65,7 @@ void tst_qheif::readImage()
 
     QString path = QStringLiteral(":/heif/") + fileName;
     QImageReader reader(path);
+    reader.setAutoTransform(true);
     QVERIFY(reader.canRead());
     QImage image = reader.read();
     QVERIFY(!image.isNull());
@@ -86,6 +87,7 @@ void tst_qheif::readProperties()
 
     QString path = QStringLiteral(":/heif/") + fileName;
     QImageReader reader(path);
+    reader.setAutoTransform(true);
     QCOMPARE(reader.size(), rawSize);
     QCOMPARE(int(reader.transformation()), transform);
 
@@ -138,6 +140,7 @@ void tst_qheif::writeImage()
         QImage rimg2;
         buf2.open(QIODevice::ReadOnly);
         QImageReader reader(&buf2);
+        reader.setAutoTransform(true);
         QVERIFY(reader.read(&rimg2));
         buf2.close();
         QVERIFY(rimg2.size() == img.size().transposed());
