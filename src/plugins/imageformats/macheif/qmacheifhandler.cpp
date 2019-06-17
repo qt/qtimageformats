@@ -98,8 +98,7 @@ bool QMacHeifHandler::supportsOption(ImageOption option) const
 {
     return option == Quality
         || option == Size
-        || option == ImageTransformation
-        || option == TransformedByDefault;
+        || option == ImageTransformation;
 }
 
 QT_END_NAMESPACE
