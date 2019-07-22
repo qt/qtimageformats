@@ -805,10 +805,12 @@ bool QTiffHandler::write(const QImage &image)
     return true;
 }
 
+#if QT_DEPRECATED_SINCE(5, 13)
 QByteArray QTiffHandler::name() const
 {
     return "tiff";
 }
+#endif
 
 QVariant QTiffHandler::option(ImageOption option) const
 {
