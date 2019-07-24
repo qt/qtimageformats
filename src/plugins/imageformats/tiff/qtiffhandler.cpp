@@ -39,6 +39,7 @@
 
 #include "qtiffhandler_p.h"
 #include <qvariant.h>
+#include <qcolorspace.h>
 #include <qdebug.h>
 #include <qimage.h>
 #include <qglobal.h>
@@ -487,6 +488,15 @@ bool QTiffHandler::read(QImage *image)
         }
     }
 
+    uint32 count;
+    void *profile;
+    if (TIFFGetField(tiff, TIFFTAG_ICCPROFILE, &count, &profile)) {
+        QByteArray iccProfile(reinterpret_cast<const char *>(profile), count);
+        image->setColorSpace(QColorSpace::fromIccProfile(iccProfile));
+    }
+    // We do not handle colorimetric metadat not on ICC profile form, it seems to be a lot
+    // less common, and would need additional API in QColorSpace.
+
     return true;
 }
 
@@ -591,7 +601,14 @@ bool QTiffHandler::write(const QImage &image)
         TIFFClose(tiff);
         return false;
     }
-
+    // set color space
+    if (image.colorSpace().isValid()) {
+        QByteArray iccProfile = image.colorSpace().iccProfile();
+        if (!TIFFSetField(tiff, TIFFTAG_ICCPROFILE, iccProfile.size(), reinterpret_cast<const void *>(iccProfile.constData()))) {
+            TIFFClose(tiff);
+            return false;
+        }
+    }
     // configure image depth
     const QImage::Format format = image.format();
     if (format == QImage::Format_Mono || format == QImage::Format_MonoLSB) {
