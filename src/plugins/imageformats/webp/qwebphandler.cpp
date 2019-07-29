@@ -51,6 +51,7 @@ QWebpHandler::QWebpHandler() :
     m_quality(75),
     m_scanState(ScanNotScanned),
     m_features(),
+    m_formatFlags(0),
     m_loop(0),
     m_frameCount(0),
     m_demuxer(NULL),
@@ -151,6 +152,7 @@ bool QWebpHandler::ensureDemuxer()
     if (m_demuxer == NULL)
         return false;
 
+    m_formatFlags = WebPDemuxGetI(m_demuxer, WEBP_FF_FORMAT_FLAGS);
     return true;
 }
 
@@ -160,6 +162,18 @@ bool QWebpHandler::read(QImage *image)
         return false;
 
     if (m_iter.frame_num == 0) {
+        // Read global meta-data chunks first
+        WebPChunkIterator metaDataIter;
+        if ((m_formatFlags & ICCP_FLAG) && WebPDemuxGetChunk(m_demuxer, "ICCP", 1, &metaDataIter)) {
+            const QByteArray iccProfile = QByteArray::fromRawData(reinterpret_cast<const char *>(metaDataIter.chunk.bytes),
+                                                                  metaDataIter.chunk.size);
+            m_colorSpace = QColorSpace::fromIccProfile(iccProfile);
+            // ### consider parsing EXIF and/or XMP metadata too.
+            WebPDemuxReleaseChunkIterator(&metaDataIter);
+        } else {
+            m_colorSpace = QColorSpace::Undefined;
+        }
+
         // Go to first frame
         if (!WebPDemuxGetFrame(m_demuxer, 1, &m_iter))
             return false;
@@ -201,6 +215,7 @@ bool QWebpHandler::read(QImage *image)
 
         *image = *m_composited;
     }
+    image->setColorSpace(m_colorSpace);
 
     return true;
 }
