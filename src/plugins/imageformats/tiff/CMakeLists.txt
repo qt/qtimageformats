@@ -21,10 +21,12 @@ add_qt_plugin(qtiff
     SOURCES
         main.cpp
         qtiffhandler.cpp qtiffhandler_p.h
-    LIBRARIES # special case
+    LIBRARIES
+        TIFF::TIFF
         ZLIB::ZLIB # special case
-    PUBLIC_LIBRARIES # special case
-        Qt::Gui # special case
+    PUBLIC_LIBRARIES
+        Qt::Core
+        Qt::Gui
         TIFF::TIFF # special case
 )
 
@@ -32,9 +34,5 @@ add_qt_plugin(qtiff
 # OTHER_FILES = "tiff.json"
 # PLUGIN_CLASS_NAME = "QTiffPlugin"
 # PLUGIN_TYPE = "imageformats"
+# QT_FOR_CONFIG = "imageformats-private"
 # _LOADED = "qt_plugin"
-
-## Scopes:
-#####################################################################
-
-# special case: remove 3rdparty code

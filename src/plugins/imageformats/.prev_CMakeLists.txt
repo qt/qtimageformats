@@ -1,41 +1,27 @@
 # Generated from imageformats.pro.
 
-add_subdirectory(tga)
+if(NOT WINRT)
+    add_subdirectory(tga)
+endif()
 add_subdirectory(wbmp)
-
-if(QT_FEATURE_tiff)
+if(QT_FEATURE_tiff AND NOT WINRT)
     add_subdirectory(tiff)
 endif()
-
-if(QT_FEATURE_webp)
+if(QT_FEATURE_webp AND NOT WINRT)
     add_subdirectory(webp)
 endif()
-
 if(APPLE)
     add_subdirectory(macheif)
 endif()
-
 if(QT_FEATURE_regularexpression)
     add_subdirectory(icns)
 endif()
-
 if(QT_FEATURE_mng)
     add_subdirectory(mng)
 endif()
-
 if(QT_FEATURE_jasper)
     add_subdirectory(jp2)
 endif()
-
-else()
-
-    if(APPLE)
-        add_subdirectory(macjp2)
-    endif()
-endif()
-
-if(WINRT)
-    ### remove_subdirectory("tiff")
-    ### remove_subdirectory("tga")
-    ### remove_subdirectory("webp")
+if(((APPLE AND else)))
+    add_subdirectory(macjp2)
 endif()

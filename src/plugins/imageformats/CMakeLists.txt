@@ -10,41 +10,29 @@ include(../../imageformats/configure.cmake)
 qt_feature_module_end(NO_MODULE)
 # special case end
 
-add_subdirectory(tga)
+if(NOT WINRT)
+    add_subdirectory(tga)
+endif()
 add_subdirectory(wbmp)
-
-if(QT_FEATURE_tiff)
+if(QT_FEATURE_tiff AND NOT WINRT)
     add_subdirectory(tiff)
 endif()
-
-if(QT_FEATURE_webp)
+if(QT_FEATURE_webp AND NOT WINRT)
     add_subdirectory(webp)
 endif()
-
 if(APPLE)
     add_subdirectory(macheif)
 endif()
-
 if(QT_FEATURE_regularexpression)
     add_subdirectory(icns)
 endif()
-
 if(QT_FEATURE_mng AND OFF) # special case TODO: FiXME
     add_subdirectory(mng)
 endif()
-
 if(QT_FEATURE_jasper)
     add_subdirectory(jp2)
-# endif() special case: remove
-else()
-
-    if(APPLE)
-        add_subdirectory(macjp2)
-    endif()
 endif()
+if(APPLE) # special case
+    add_subdirectory(macjp2) # special case
+endif() # special case
 
-if(WINRT)
-    ### remove_subdirectory("tiff")
-    ### remove_subdirectory("tga")
-    ### remove_subdirectory("webp")
-endif()
