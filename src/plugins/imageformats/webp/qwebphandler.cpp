@@ -218,6 +218,10 @@ bool QWebpHandler::write(const QImage &image)
         qWarning() << "source image is null.";
         return false;
     }
+    if (std::max(image.width(), image.height()) > WEBP_MAX_DIMENSION) {
+        qWarning() << "QWebpHandler::write() source image too large for WebP: " << image.size();
+        return false;
+    }
 
     QImage srcImage = image;
     bool alpha = srcImage.hasAlphaChannel();
