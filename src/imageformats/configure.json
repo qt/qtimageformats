@@ -117,10 +117,11 @@
                     "include": [
                         "webp/decode.h",
                         "webp/encode.h",
-                        "webp/demux.h"
+                        "webp/demux.h",
+                        "webp/mux.h"
                     ],
                     "qmake": [
-                        "LIBS += -lwebp -lwebpdemux"
+                        "LIBS += -lwebp -lwebpdemux -lwebpmux"
                     ],
                     "main": [
                         "#if WEBP_ABI_IS_INCOMPATIBLE(WEBP_DECODER_ABI_VERSION, 0x0203) || WEBP_ABI_IS_INCOMPATIBLE(WEBP_ENCODER_ABI_VERSION, 0x0202)",
@@ -144,7 +145,7 @@
                 }
             },
             "sources": [
-                "-lwebp -lwebpdemux"
+                "-lwebp -lwebpdemux -lwebpmux"
             ]
         }
     },
