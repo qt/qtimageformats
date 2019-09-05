@@ -171,8 +171,6 @@ bool QWebpHandler::read(QImage *image)
             m_colorSpace = QColorSpace::fromIccProfile(iccProfile);
             // ### consider parsing EXIF and/or XMP metadata too.
             WebPDemuxReleaseChunkIterator(&metaDataIter);
-        } else {
-            m_colorSpace = QColorSpace::Undefined;
         }
 
         // Go to first frame
