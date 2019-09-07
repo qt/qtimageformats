@@ -632,9 +632,8 @@ void tst_qtiff::readGray16()
 
 void tst_qtiff::colorSpace_data()
 {
-    QTest::addColumn<QColorSpace::ColorSpaceId>("colorspaceId");
+    QTest::addColumn<decltype(QColorSpace::SRgb)>("namedColorSpace");
 
-    QTest::newRow("Undefined")    << QColorSpace::Undefined;
     QTest::newRow("sRGB")         << QColorSpace::SRgb;
     QTest::newRow("sRGB(linear)") << QColorSpace::SRgbLinear;
     QTest::newRow("AdobeRGB")     << QColorSpace::AdobeRgb;
@@ -644,12 +643,12 @@ void tst_qtiff::colorSpace_data()
 
 void tst_qtiff::colorSpace()
 {
-    QFETCH(QColorSpace::ColorSpaceId, colorspaceId);
+    QFETCH(decltype(QColorSpace::SRgb), namedColorSpace);
 
     QImage image(prefix + "colorful.bmp");
     QVERIFY(!image.isNull());
 
-    image.setColorSpace(colorspaceId);
+    image.setColorSpace(namedColorSpace);
 
     QByteArray output;
     QBuffer buf(&output);
@@ -662,7 +661,7 @@ void tst_qtiff::colorSpace()
     QImageReader reader(&buf);
     QImage image2 = reader.read();
 
-    QCOMPARE(image2.colorSpace(), QColorSpace(colorspaceId));
+    QCOMPARE(image2.colorSpace(), namedColorSpace);
     QCOMPARE(image2, image);
 }
 
