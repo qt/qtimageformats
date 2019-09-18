@@ -423,8 +423,7 @@ void tst_qtiff::readWriteNonDestructive()
     QImageReader reader(&buf);
     QCOMPARE(reader.imageFormat(), expectedFormat);
     QCOMPARE(reader.size(), image.size());
-    QCOMPARE(reader.autoTransform(), true);
-    reader.setAutoTransform(false);
+    QCOMPARE(reader.autoTransform(), false);
     QCOMPARE(reader.transformation(), transformation);
     QImage image2 = reader.read();
     QVERIFY2(!image.isNull(), qPrintable(reader.errorString()));
@@ -469,8 +468,7 @@ void tst_qtiff::supportsOption_data()
     QTest::newRow("tiff") << (QIntList()
                               << QImageIOHandler::Size
                               << QImageIOHandler::CompressionRatio
-                              << QImageIOHandler::ImageTransformation
-                              << QImageIOHandler::TransformedByDefault);
+                              << QImageIOHandler::ImageTransformation);
 }
 
 void tst_qtiff::supportsOption()
@@ -492,8 +490,7 @@ void tst_qtiff::supportsOption()
                << QImageIOHandler::Endianness
                << QImageIOHandler::Animation
                << QImageIOHandler::BackgroundColor
-               << QImageIOHandler::ImageTransformation
-               << QImageIOHandler::TransformedByDefault;
+               << QImageIOHandler::ImageTransformation;
 
     QImageWriter writer;
     writer.setFormat("tiff");

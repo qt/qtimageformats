@@ -862,8 +862,7 @@ bool QTiffHandler::supportsOption(ImageOption option) const
     return option == CompressionRatio
             || option == Size
             || option == ImageFormat
-            || option == ImageTransformation
-            || option == TransformedByDefault;
+            || option == ImageTransformation;
 }
 
 bool QTiffHandler::jumpToNextImage()
