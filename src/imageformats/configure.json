@@ -22,10 +22,15 @@
                     "string.h",
                     "jasper/jasper.h"
                 ],
+                "head": [
+                    "constexpr bool streq(const char *a, const char *b)",
+                    "{",
+                    "    return a[0] == b[0] && (!a[0] || streq(a + 1, b + 1));",
+                    "}"
+                ],
                 "main": [
-                    "// This version of Jasper is broken, according to the old Qt Solutions docs",
-                    "if (strcmp(JAS_VERSION, \"1.900.0\") == 0)",
-                    "    return 1;"
+                    "static_assert(!streq(JAS_VERSION, \"1.900.0\"),",
+                    "              \"JasPer version 1.900.0 is considered broken.\");"
                 ]
             },
             "sources": [
