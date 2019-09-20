@@ -607,8 +607,8 @@ bool QTiffHandler::write(const QImage &image)
         }
 
         // try to do the conversion in chunks no greater than 16 MB
-        int chunks = (width * height / (1024 * 1024 * 16)) + 1;
-        int chunkHeight = qMax(height / chunks, 1);
+        const int chunks = int(image.sizeInBytes() / (1024 * 1024 * 16)) + 1;
+        const int chunkHeight = qMax(height / chunks, 1);
 
         int y = 0;
         while (y < height) {
@@ -675,22 +675,10 @@ bool QTiffHandler::write(const QImage &image)
         }
 
         //// write the data
-        // try to do the conversion in chunks no greater than 16 MB
-        int chunks = (width * height/ (1024 * 1024 * 16)) + 1;
-        int chunkHeight = qMax(height / chunks, 1);
-
-        int y = 0;
-        while (y < height) {
-            QImage chunk = image.copy(0, y, width, qMin(chunkHeight, height - y));
-
-            int chunkStart = y;
-            int chunkEnd = y + chunk.height();
-            while (y < chunkEnd) {
-                if (TIFFWriteScanline(tiff, reinterpret_cast<uint32 *>(chunk.scanLine(y - chunkStart)), y) != 1) {
-                    TIFFClose(tiff);
-                    return false;
-                }
-                ++y;
+        for (int y = 0; y < height; ++y) {
+            if (TIFFWriteScanline(tiff, const_cast<uchar *>(image.scanLine(y)), y) != 1) {
+                TIFFClose(tiff);
+                return false;
             }
         }
         TIFFClose(tiff);
@@ -748,7 +736,7 @@ bool QTiffHandler::write(const QImage &image)
             return false;
         }
         // try to do the RGB888 conversion in chunks no greater than 16 MB
-        const int chunks = (width * height * 3 / (1024 * 1024 * 16)) + 1;
+        const int chunks = int(image.sizeInBytes() / (1024 * 1024 * 16)) + 1;
         const int chunkHeight = qMax(height / chunks, 1);
 
         int y = 0;
@@ -780,7 +768,7 @@ bool QTiffHandler::write(const QImage &image)
             return false;
         }
         // try to do the RGBA8888 conversion in chunks no greater than 16 MB
-        const int chunks = (width * height * 4 / (1024 * 1024 * 16)) + 1;
+        const int chunks = int(image.sizeInBytes() / (1024 * 1024 * 16)) + 1;
         const int chunkHeight = qMax(height / chunks, 1);
 
         const QImage::Format format = premultiplied ? QImage::Format_RGBA8888_Premultiplied
