@@ -12,13 +12,18 @@ add_qt_test(tst_qwebp
 )
 
 # Resources:
-add_qt_resource(tst_qwebp "webp" PREFIX "/" FILES
-    images/kollada.png
-    images/kollada.webp
-    images/kollada_animation.webp
-    images/kollada_lossless.webp
-    images/kollada_noalpha.webp)
+set(webp_resource_files
+    "images/kollada.png"
+    "images/kollada.webp"
+    "images/kollada_animation.webp"
+    "images/kollada_lossless.webp"
+    "images/kollada_noalpha.webp"
+)
 
+add_qt_resource(tst_qwebp "webp"
+    PREFIX
+        "/"
+    FILES
+        ${webp_resource_files}
+)
 
-#### Keys ignored in scope 1:.:.:webp.pro:<TRUE>:
-# CONFIG = "-app_bundle" "testcase"

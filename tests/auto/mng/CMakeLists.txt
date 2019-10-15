@@ -12,13 +12,35 @@ add_qt_test(tst_qmng
 )
 
 # Resources:
-add_qt_resource(tst_qmng "mng" PREFIX "/" BASE "../../shared/images" FILES
-    mng/animation.mng
-    mng/ball.mng
-    mng/corrupt.mng
-    mng/dutch.mng
-    mng/fire.mng)
+set_source_files_properties("../../shared/images/mng/animation.mng"
+    PROPERTIES QT_RESOURCE_ALIAS "mng/animation.mng"
+)
+set_source_files_properties("../../shared/images/mng/ball.mng"
+    PROPERTIES QT_RESOURCE_ALIAS "mng/ball.mng"
+)
+set_source_files_properties("../../shared/images/mng/corrupt.mng"
+    PROPERTIES QT_RESOURCE_ALIAS "mng/corrupt.mng"
+)
+set_source_files_properties("../../shared/images/mng/dutch.mng"
+    PROPERTIES QT_RESOURCE_ALIAS "mng/dutch.mng"
+)
+set_source_files_properties("../../shared/images/mng/fire.mng"
+    PROPERTIES QT_RESOURCE_ALIAS "mng/fire.mng"
+)
+set(mng_resource_files
+    "mng/animation.mng"
+    "mng/ball.mng"
+    "mng/corrupt.mng"
+    "mng/dutch.mng"
+    "mng/fire.mng"
+)
 
+add_qt_resource(tst_qmng "mng"
+    PREFIX
+        "/"
+    BASE
+        "../../shared/images"
+    FILES
+        ${mng_resource_files}
+)
 
-#### Keys ignored in scope 1:.:.:mng.pro:<TRUE>:
-# CONFIG = "-app_bundle" "testcase"

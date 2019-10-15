@@ -19,7 +19,5 @@ add_qt_plugin(qtiff
 
 #### Keys ignored in scope 1:.:.:tiff.pro:<TRUE>:
 # OTHER_FILES = "tiff.json"
-# PLUGIN_CLASS_NAME = "QTiffPlugin"
-# PLUGIN_TYPE = "imageformats"
 # QT_FOR_CONFIG = "imageformats-private"
 # _LOADED = "qt_plugin"

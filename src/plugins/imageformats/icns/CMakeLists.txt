@@ -13,12 +13,11 @@ add_qt_plugin(qicns
     DEFINES
         QT_NO_CAST_FROM_ASCII
         QT_NO_CAST_TO_ASCII
-    LIBRARIES # special case
-        Qt::Gui # special case
+    PUBLIC_LIBRARIES
+        Qt::Core
+        Qt::Gui
 )
 
 #### Keys ignored in scope 1:.:.:icns.pro:<TRUE>:
 # OTHER_FILES = "icns.json"
-# PLUGIN_CLASS_NAME = "QICNSPlugin"
-# PLUGIN_TYPE = "imageformats"
 # _LOADED = "qt_plugin"

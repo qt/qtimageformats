@@ -12,9 +12,19 @@ add_qt_test(tst_qtga
 )
 
 # Resources:
-add_qt_resource(tst_qtga "tga" PREFIX "/" BASE "../../shared/images" FILES
-    tga/test-flag.tga)
+set_source_files_properties("../../shared/images/tga/test-flag.tga"
+    PROPERTIES QT_RESOURCE_ALIAS "tga/test-flag.tga"
+)
+set(tga_resource_files
+    "tga/test-flag.tga"
+)
 
+add_qt_resource(tst_qtga "tga"
+    PREFIX
+        "/"
+    BASE
+        "../../shared/images"
+    FILES
+        ${tga_resource_files}
+)
 
-#### Keys ignored in scope 1:.:.:tga.pro:<TRUE>:
-# CONFIG = "-app_bundle" "testcase"

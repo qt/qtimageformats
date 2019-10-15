@@ -32,7 +32,7 @@ endif()
 if(QT_FEATURE_jasper)
     add_subdirectory(jp2)
 endif()
-if(APPLE) # special case
-    add_subdirectory(macjp2) # special case
-endif() # special case
+if(APPLE AND NOT QT_FEATURE_jasper)
+    add_subdirectory(macjp2)
+endif()
 

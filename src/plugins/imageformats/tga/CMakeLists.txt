@@ -11,13 +11,11 @@ add_qt_plugin(qtga
         main.cpp
         qtgafile.cpp qtgafile.h
         qtgahandler.cpp qtgahandler.h
-    LIBRARIES # special case
-        Qt::Gui # special case
-
+    PUBLIC_LIBRARIES
+        Qt::Core
+        Qt::Gui
 )
 
 #### Keys ignored in scope 1:.:.:tga.pro:<TRUE>:
 # OTHER_FILES = "tga.json"
-# PLUGIN_CLASS_NAME = "QTgaPlugin"
-# PLUGIN_TYPE = "imageformats"
 # _LOADED = "qt_plugin"

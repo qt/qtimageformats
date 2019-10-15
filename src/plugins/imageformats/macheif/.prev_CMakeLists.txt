@@ -26,6 +26,4 @@ add_qt_plugin(qmacheif
 
 #### Keys ignored in scope 1:.:.:macheif.pro:<TRUE>:
 # OTHER_FILES = "macheif.json"
-# PLUGIN_CLASS_NAME = "QMacHeifPlugin"
-# PLUGIN_TYPE = "imageformats"
 # _LOADED = "qt_plugin"
