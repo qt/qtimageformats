@@ -394,9 +394,10 @@ bool QTiffHandler::read(QImage *image)
                 }
 
                 for (int i = 0; i<tableSize ;++i) {
-                    const int red = redTable[i] / 257;
-                    const int green = greenTable[i] / 257;
-                    const int blue = blueTable[i] / 257;
+                    // emulate libtiff behavior for 16->8 bit color map conversion: just ignore the lower 8 bits
+                    const int red = redTable[i] >> 8;
+                    const int green = greenTable[i] >> 8;
+                    const int blue = blueTable[i] >> 8;
                     qtColorTable[i] = qRgb(red, green, blue);
                 }
             }
