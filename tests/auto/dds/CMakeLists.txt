@@ -4,7 +4,7 @@
 ## tst_qdds Test:
 #####################################################################
 
-add_qt_test(tst_qdds
+qt_add_test(tst_qdds
     SOURCES
         tst_qdds.cpp
     PUBLIC_LIBRARIES
@@ -215,7 +215,7 @@ set(dds_resource_files
     "dds/mipmaps.dds"
 )
 
-add_qt_resource(tst_qdds "dds"
+qt_add_resource(tst_qdds "dds"
     PREFIX
         "/"
     BASE

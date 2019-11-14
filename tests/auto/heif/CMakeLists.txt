@@ -4,7 +4,7 @@
 ## tst_qheif Test:
 #####################################################################
 
-add_qt_test(tst_qheif
+qt_add_test(tst_qheif
     SOURCES
         tst_qheif.cpp
     PUBLIC_LIBRARIES
@@ -23,7 +23,7 @@ set(heif_resource_files
     "heif/newlogoCCW.heic"
 )
 
-add_qt_resource(tst_qheif "heif"
+qt_add_resource(tst_qheif "heif"
     PREFIX
         "/"
     BASE

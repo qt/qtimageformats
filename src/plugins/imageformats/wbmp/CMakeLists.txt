@@ -4,7 +4,7 @@
 ## qwbmp Plugin:
 #####################################################################
 
-add_qt_plugin(qwbmp
+qt_add_plugin(qwbmp
     TYPE imageformats
     CLASS_NAME QWbmpPlugin
     SOURCES
@@ -17,4 +17,3 @@ add_qt_plugin(qwbmp
 
 #### Keys ignored in scope 1:.:.:wbmp.pro:<TRUE>:
 # OTHER_FILES = "wbmp.json"
-# _LOADED = "qt_plugin"

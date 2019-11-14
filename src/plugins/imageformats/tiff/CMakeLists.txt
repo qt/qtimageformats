@@ -15,7 +15,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 # special case end
 
-add_qt_plugin(qtiff
+qt_add_plugin(qtiff
     TYPE imageformats
     CLASS_NAME QTiffPlugin
     SOURCES
@@ -33,4 +33,3 @@ add_qt_plugin(qtiff
 #### Keys ignored in scope 1:.:.:tiff.pro:<TRUE>:
 # OTHER_FILES = "tiff.json"
 # QT_FOR_CONFIG = "imageformats-private"
-# _LOADED = "qt_plugin"

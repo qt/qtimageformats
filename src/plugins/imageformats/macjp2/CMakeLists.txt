@@ -4,7 +4,7 @@
 ## qmacjp2 Plugin:
 #####################################################################
 
-add_qt_plugin(qmacjp2
+qt_add_plugin(qmacjp2
     TYPE imageformats
     CLASS_NAME QMacJp2Plugin
     SOURCES
@@ -26,4 +26,3 @@ add_qt_plugin(qmacjp2
 
 #### Keys ignored in scope 1:.:.:macjp2.pro:<TRUE>:
 # OTHER_FILES = "macjp2.json"
-# _LOADED = "qt_plugin"

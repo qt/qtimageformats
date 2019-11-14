@@ -4,7 +4,7 @@
 ## qwebp Plugin:
 #####################################################################
 
-add_qt_plugin(qwebp
+qt_add_plugin(qwebp
     TYPE imageformats
     CLASS_NAME QWebpPlugin
     SOURCES
@@ -20,4 +20,3 @@ add_qt_plugin(qwebp
 #### Keys ignored in scope 1:.:.:webp.pro:<TRUE>:
 # OTHER_FILES = "webp.json"
 # QT_FOR_CONFIG = "imageformats-private"
-# _LOADED = "qt_plugin"

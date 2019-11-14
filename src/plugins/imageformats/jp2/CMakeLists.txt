@@ -4,7 +4,7 @@
 ## qjp2 Plugin:
 #####################################################################
 
-add_qt_plugin(qjp2
+qt_add_plugin(qjp2
     TYPE imageformats
     CLASS_NAME QJp2Plugin
     SOURCES
@@ -20,4 +20,3 @@ add_qt_plugin(qjp2
 #### Keys ignored in scope 1:.:.:jp2.pro:<TRUE>:
 # OTHER_FILES = "jp2.json"
 # QT_FOR_CONFIG = "imageformats-private"
-# _LOADED = "qt_plugin"

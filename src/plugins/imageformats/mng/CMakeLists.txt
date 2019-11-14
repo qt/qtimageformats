@@ -4,7 +4,7 @@
 ## qmng Plugin:
 #####################################################################
 
-add_qt_plugin(qmng
+qt_add_plugin(qmng
     TYPE imageformats
     CLASS_NAME QMngPlugin
     SOURCES
@@ -20,4 +20,3 @@ add_qt_plugin(qmng
 #### Keys ignored in scope 1:.:.:mng.pro:<TRUE>:
 # OTHER_FILES = "mng.json"
 # QT_FOR_CONFIG = "imageformats-private"
-# _LOADED = "qt_plugin"

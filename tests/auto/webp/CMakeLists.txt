@@ -4,7 +4,7 @@
 ## tst_qwebp Test:
 #####################################################################
 
-add_qt_test(tst_qwebp
+qt_add_test(tst_qwebp
     SOURCES
         tst_qwebp.cpp
     PUBLIC_LIBRARIES
@@ -20,7 +20,7 @@ set(webp_resource_files
     "images/kollada_noalpha.webp"
 )
 
-add_qt_resource(tst_qwebp "webp"
+qt_add_resource(tst_qwebp "webp"
     PREFIX
         "/"
     FILES

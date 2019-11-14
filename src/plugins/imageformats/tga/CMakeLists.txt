@@ -4,7 +4,7 @@
 ## qtga Plugin:
 #####################################################################
 
-add_qt_plugin(qtga
+qt_add_plugin(qtga
     TYPE imageformats
     CLASS_NAME QTgaPlugin
     SOURCES
@@ -18,4 +18,3 @@ add_qt_plugin(qtga
 
 #### Keys ignored in scope 1:.:.:tga.pro:<TRUE>:
 # OTHER_FILES = "tga.json"
-# _LOADED = "qt_plugin"

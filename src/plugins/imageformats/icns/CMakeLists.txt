@@ -4,7 +4,7 @@
 ## qicns Plugin:
 #####################################################################
 
-add_qt_plugin(qicns
+qt_add_plugin(qicns
     TYPE imageformats
     CLASS_NAME QICNSPlugin
     SOURCES
@@ -20,4 +20,3 @@ add_qt_plugin(qicns
 
 #### Keys ignored in scope 1:.:.:icns.pro:<TRUE>:
 # OTHER_FILES = "icns.json"
-# _LOADED = "qt_plugin"

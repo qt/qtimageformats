@@ -4,7 +4,7 @@
 ## tst_qtiff Test:
 #####################################################################
 
-add_qt_test(tst_qtiff
+qt_add_test(tst_qtiff
     SOURCES
         tst_qtiff.cpp
     PUBLIC_LIBRARIES
@@ -223,7 +223,7 @@ set(tiff_resource_files
     "tiff/tiled_rgb.tiff"
 )
 
-add_qt_resource(tst_qtiff "tiff"
+qt_add_resource(tst_qtiff "tiff"
     PREFIX
         "/"
     BASE

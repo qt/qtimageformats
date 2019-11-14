@@ -10,7 +10,7 @@ find_library(FWCoreGraphics CoreGraphics)
 find_library(FWImageIO ImageIO)
 # special case end
 
-add_qt_plugin(qmacheif
+qt_add_plugin(qmacheif
     TYPE imageformats
     CLASS_NAME QMacHeifPlugin
     SOURCES
@@ -32,4 +32,3 @@ add_qt_plugin(qmacheif
 
 #### Keys ignored in scope 1:.:.:macheif.pro:<TRUE>:
 # OTHER_FILES = "macheif.json"
-# _LOADED = "qt_plugin"
