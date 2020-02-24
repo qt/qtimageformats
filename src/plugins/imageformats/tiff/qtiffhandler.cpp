@@ -278,7 +278,7 @@ bool QTiffHandlerPrivate::readHeaders(QIODevice *device)
     else if ((grayscale || photometric == PHOTOMETRIC_PALETTE) && bitPerSample == 8 && samplesPerPixel == 1)
         format = QImage::Format_Indexed8;
     else if (samplesPerPixel < 4)
-        if (bitPerSample > 8 && photometric == PHOTOMETRIC_RGB)
+        if (bitPerSample == 16 && photometric == PHOTOMETRIC_RGB)
             format = QImage::Format_RGBX64;
         else
             format = QImage::Format_RGB32;
@@ -294,7 +294,7 @@ bool QTiffHandlerPrivate::readHeaders(QIODevice *device)
         if (!gotField || !count || extrasamples[0] == EXTRASAMPLE_UNSPECIFIED)
             premultiplied = false;
 
-        if (bitPerSample > 8 && photometric == PHOTOMETRIC_RGB) {
+        if (bitPerSample == 16 && photometric == PHOTOMETRIC_RGB) {
             // We read 64-bit raw, so unassoc remains unpremultiplied.
             if (gotField && count && extrasamples[0] == EXTRASAMPLE_UNASSALPHA)
                 premultiplied = false;
