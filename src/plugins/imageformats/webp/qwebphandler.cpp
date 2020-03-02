@@ -379,13 +379,6 @@ bool QWebpHandler::supportsOption(ImageOption option) const
         || option == BackgroundColor;
 }
 
-#if QT_DEPRECATED_SINCE(5, 13)
-QByteArray QWebpHandler::name() const
-{
-    return QByteArrayLiteral("webp");
-}
-#endif
-
 int QWebpHandler::imageCount() const
 {
     if (!ensureScanned())
