@@ -162,6 +162,7 @@ bool QWebpHandler::read(QImage *image)
     if (!ensureScanned() || device()->isSequential() || !ensureDemuxer())
         return false;
 
+    QRect prevFrameRect;
     if (m_iter.frame_num == 0) {
         // Read global meta-data chunks first
         WebPChunkIterator metaDataIter;
@@ -177,6 +178,9 @@ bool QWebpHandler::read(QImage *image)
         if (!WebPDemuxGetFrame(m_demuxer, 1, &m_iter))
             return false;
     } else {
+        if (m_iter.has_alpha && m_iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND)
+            prevFrameRect = currentImageRect();
+
         // Go to next frame
         if (!WebPDemuxNextFrame(&m_iter))
             return false;
@@ -208,8 +212,16 @@ bool QWebpHandler::read(QImage *image)
     } else {
         // Animation
         QPainter painter(m_composited);
-        if (m_features.has_alpha && m_iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND)
-            m_composited->fill(Qt::transparent);
+        if (!prevFrameRect.isEmpty()) {
+            painter.setCompositionMode(QPainter::CompositionMode_Clear);
+            painter.fillRect(prevFrameRect, Qt::black);
+        }
+        if (m_features.has_alpha) {
+            if (m_iter.blend_method == WEBP_MUX_NO_BLEND)
+                painter.setCompositionMode(QPainter::CompositionMode_Source);
+            else
+                painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        }
         painter.drawImage(currentImageRect(), frame);
 
         *image = *m_composited;
@@ -366,13 +378,6 @@ bool QWebpHandler::supportsOption(ImageOption option) const
         || option == Animation
         || option == BackgroundColor;
 }
-
-#if QT_DEPRECATED_SINCE(5, 13)
-QByteArray QWebpHandler::name() const
-{
-    return QByteArrayLiteral("webp");
-}
-#endif
 
 int QWebpHandler::imageCount() const
 {
