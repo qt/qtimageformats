@@ -1,12 +1,12 @@
 # Generated from jp2.pro.
 
 #####################################################################
-## qjp2 Plugin:
+## QJp2Plugin Plugin:
 #####################################################################
 
-qt_add_plugin(qjp2
+qt_add_plugin(QJp2Plugin
+    OUTPUT_NAME qjp2
     TYPE imageformats
-    CLASS_NAME QJp2Plugin
     SOURCES
         main.cpp
         qjp2handler.cpp qjp2handler_p.h

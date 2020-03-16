@@ -15,6 +15,18 @@ qt_add_test(tst_qtiff
 set_source_files_properties("../../shared/images/tiff/16bpc.tiff"
     PROPERTIES QT_RESOURCE_ALIAS "tiff/16bpc.tiff"
 )
+set_source_files_properties("../../shared/images/tiff/big_16bpc.tiff"
+    PROPERTIES QT_RESOURCE_ALIAS "tiff/big_16bpc.tiff"
+)
+set_source_files_properties("../../shared/images/tiff/big_grayscale.tiff"
+    PROPERTIES QT_RESOURCE_ALIAS "tiff/big_grayscale.tiff"
+)
+set_source_files_properties("../../shared/images/tiff/big_rgb.tiff"
+    PROPERTIES QT_RESOURCE_ALIAS "tiff/big_rgb.tiff"
+)
+set_source_files_properties("../../shared/images/tiff/big_rgb_bigendian.tiff"
+    PROPERTIES QT_RESOURCE_ALIAS "tiff/big_rgb_bigendian.tiff"
+)
 set_source_files_properties("../../shared/images/tiff/colorful.bmp"
     PROPERTIES QT_RESOURCE_ALIAS "tiff/colorful.bmp"
 )
@@ -170,6 +182,10 @@ set_source_files_properties("../../shared/images/tiff/tiled_rgb.tiff"
 )
 set(tiff_resource_files
     "tiff/16bpc.tiff"
+    "tiff/big_16bpc.tiff"
+    "tiff/big_grayscale.tiff"
+    "tiff/big_rgb.tiff"
+    "tiff/big_rgb_bigendian.tiff"
     "tiff/colorful.bmp"
     "tiff/corrupt-data.tif"
     "tiff/gray16.tiff"

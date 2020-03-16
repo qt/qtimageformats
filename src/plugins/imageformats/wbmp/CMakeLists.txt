@@ -1,12 +1,12 @@
 # Generated from wbmp.pro.
 
 #####################################################################
-## qwbmp Plugin:
+## QWbmpPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qwbmp
+qt_add_plugin(QWbmpPlugin
+    OUTPUT_NAME qwbmp
     TYPE imageformats
-    CLASS_NAME QWbmpPlugin
     SOURCES
         main.cpp
         qwbmphandler.cpp qwbmphandler_p.h

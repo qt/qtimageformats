@@ -1,12 +1,12 @@
 # Generated from tga.pro.
 
 #####################################################################
-## qtga Plugin:
+## QTgaPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qtga
+qt_add_plugin(QTgaPlugin
+    OUTPUT_NAME qtga
     TYPE imageformats
-    CLASS_NAME QTgaPlugin
     SOURCES
         main.cpp
         qtgafile.cpp qtgafile.h

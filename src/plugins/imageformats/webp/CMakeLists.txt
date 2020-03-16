@@ -1,12 +1,12 @@
 # Generated from webp.pro.
 
 #####################################################################
-## qwebp Plugin:
+## QWebpPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qwebp
+qt_add_plugin(QWebpPlugin
+    OUTPUT_NAME qwebp
     TYPE imageformats
-    CLASS_NAME QWebpPlugin
     SOURCES
         main.cpp
         qwebphandler.cpp qwebphandler_p.h
@@ -14,9 +14,11 @@ qt_add_plugin(qwebp
         Qt::Core
         Qt::Gui
         WrapWebP::WrapWebP
-        Qt::Gui # special case
 )
 
 #### Keys ignored in scope 1:.:.:webp.pro:<TRUE>:
 # OTHER_FILES = "webp.json"
 # QT_FOR_CONFIG = "imageformats-private"
+
+## Scopes:
+#####################################################################

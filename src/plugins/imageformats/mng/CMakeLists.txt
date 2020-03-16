@@ -1,12 +1,12 @@
 # Generated from mng.pro.
 
 #####################################################################
-## qmng Plugin:
+## QMngPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qmng
+qt_add_plugin(QMngPlugin
+    OUTPUT_NAME qmng
     TYPE imageformats
-    CLASS_NAME QMngPlugin
     SOURCES
         main.cpp
         qmnghandler.cpp qmnghandler_p.h

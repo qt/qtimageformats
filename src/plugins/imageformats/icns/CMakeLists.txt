@@ -1,12 +1,12 @@
 # Generated from icns.pro.
 
 #####################################################################
-## qicns Plugin:
+## QICNSPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qicns
+qt_add_plugin(QICNSPlugin
+    OUTPUT_NAME qicns
     TYPE imageformats
-    CLASS_NAME QICNSPlugin
     SOURCES
         main.cpp
         qicnshandler.cpp qicnshandler_p.h

@@ -1,7 +1,7 @@
 # Generated from macheif.pro.
 
 #####################################################################
-## qmacheif Plugin:
+## QMacHeifPlugin Plugin:
 #####################################################################
 
 # special case begin
@@ -10,24 +10,23 @@ find_library(FWCoreGraphics CoreGraphics)
 find_library(FWImageIO ImageIO)
 # special case end
 
-qt_add_plugin(qmacheif
+qt_add_plugin(QMacHeifPlugin
+    OUTPUT_NAME qmacheif
     TYPE imageformats
-    CLASS_NAME QMacHeifPlugin
     SOURCES
         ../shared/qiiofhelpers.cpp ../shared/qiiofhelpers_p.h
         main.cpp
         qmacheifhandler.cpp qmacheifhandler.h
     INCLUDE_DIRECTORIES
         ../shared
-    LIBRARIES
-        Qt::CorePrivate
-        Qt::GuiPrivate
     PUBLIC_LIBRARIES
         ${FWCoreFoundation}
         ${FWCoreGraphics}
         ${FWImageIO}
         Qt::Core
+        Qt::CorePrivate
         Qt::Gui
+        Qt::GuiPrivate
 )
 
 #### Keys ignored in scope 1:.:.:macheif.pro:<TRUE>:

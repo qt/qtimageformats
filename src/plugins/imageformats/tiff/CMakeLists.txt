@@ -1,35 +1,102 @@
 # Generated from tiff.pro.
 
 #####################################################################
-## qtiff Plugin:
+## QTiffPlugin Plugin:
 #####################################################################
 
 # special case begin
-# Protect against case when ZLIB is found via QtGui in a static build,
-# which means that we can't do a qt_find_package() here due to CMake
-# complaining about not being able to make the ZLIB target global,
-# because ZLIB was found in the QtGui directory scope (root level) and
-# not in this directory scope.
-if(BUILD_SHARED_LIBS)
+# Handle the conditional finding of either system zlib or qt zlib.
+if(NOT QT_FEATURE_system_zlib)
+    find_package(Qt6 COMPONENTS Zlib)
+elseif(NOT TARGET ZLIB::ZLIB)
     qt_find_package(ZLIB PROVIDED_TARGETS ZLIB::ZLIB)
 endif()
 # special case end
 
-qt_add_plugin(qtiff
+qt_add_plugin(QTiffPlugin
+    OUTPUT_NAME qtiff
     TYPE imageformats
-    CLASS_NAME QTiffPlugin
     SOURCES
         main.cpp
         qtiffhandler.cpp qtiffhandler_p.h
-    LIBRARIES
-        TIFF::TIFF
-        ZLIB::ZLIB # special case
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
-        TIFF::TIFF # special case
 )
 
 #### Keys ignored in scope 1:.:.:tiff.pro:<TRUE>:
 # OTHER_FILES = "tiff.json"
 # QT_FOR_CONFIG = "imageformats-private"
+
+## Scopes:
+#####################################################################
+
+qt_extend_target(QTiffPlugin CONDITION QT_FEATURE_system_tiff
+    LIBRARIES
+        TIFF::TIFF
+)
+
+qt_extend_target(QTiffPlugin CONDITION NOT QT_FEATURE_system_tiff
+    SOURCES
+        ../../../3rdparty/libtiff/libtiff/tif_aux.c
+        ../../../3rdparty/libtiff/libtiff/tif_close.c
+        ../../../3rdparty/libtiff/libtiff/tif_codec.c
+        ../../../3rdparty/libtiff/libtiff/tif_color.c
+        ../../../3rdparty/libtiff/libtiff/tif_compress.c
+        ../../../3rdparty/libtiff/libtiff/tif_dir.c
+        ../../../3rdparty/libtiff/libtiff/tif_dirinfo.c
+        ../../../3rdparty/libtiff/libtiff/tif_dirread.c
+        ../../../3rdparty/libtiff/libtiff/tif_dirwrite.c
+        ../../../3rdparty/libtiff/libtiff/tif_dumpmode.c
+        ../../../3rdparty/libtiff/libtiff/tif_error.c
+        ../../../3rdparty/libtiff/libtiff/tif_extension.c
+        ../../../3rdparty/libtiff/libtiff/tif_fax3.c
+        ../../../3rdparty/libtiff/libtiff/tif_fax3sm.c
+        ../../../3rdparty/libtiff/libtiff/tif_flush.c
+        ../../../3rdparty/libtiff/libtiff/tif_getimage.c
+        ../../../3rdparty/libtiff/libtiff/tif_luv.c
+        ../../../3rdparty/libtiff/libtiff/tif_lzw.c
+        ../../../3rdparty/libtiff/libtiff/tif_next.c
+        ../../../3rdparty/libtiff/libtiff/tif_open.c
+        ../../../3rdparty/libtiff/libtiff/tif_packbits.c
+        ../../../3rdparty/libtiff/libtiff/tif_pixarlog.c
+        ../../../3rdparty/libtiff/libtiff/tif_predict.c
+        ../../../3rdparty/libtiff/libtiff/tif_print.c
+        ../../../3rdparty/libtiff/libtiff/tif_read.c
+        ../../../3rdparty/libtiff/libtiff/tif_strip.c
+        ../../../3rdparty/libtiff/libtiff/tif_swab.c
+        ../../../3rdparty/libtiff/libtiff/tif_thunder.c
+        ../../../3rdparty/libtiff/libtiff/tif_tile.c
+        ../../../3rdparty/libtiff/libtiff/tif_version.c
+        ../../../3rdparty/libtiff/libtiff/tif_warning.c
+        ../../../3rdparty/libtiff/libtiff/tif_write.c
+        ../../../3rdparty/libtiff/libtiff/tif_zip.c
+        ../../../3rdparty/libtiff/port/snprintf.c
+    INCLUDE_DIRECTORIES
+        ../../../3rdparty/libtiff/libtiff
+)
+
+qt_extend_target(QTiffPlugin CONDITION WIN32 AND NOT QT_FEATURE_system_tiff
+    SOURCES
+        ../../../3rdparty/libtiff/libtiff/tif_win32.c
+)
+
+qt_extend_target(QTiffPlugin CONDITION UNIX AND NOT QT_FEATURE_system_tiff
+    SOURCES
+        ../../../3rdparty/libtiff/libtiff/tif_unix.c
+)
+
+qt_extend_target(QTiffPlugin CONDITION ANDROID AND NOT QT_FEATURE_system_tiff
+    SOURCES
+        ../../../3rdparty/libtiff/port/lfind.c
+)
+
+qt_extend_target(QTiffPlugin CONDITION QT_FEATURE_system_zlib AND NOT QT_FEATURE_system_tiff
+    LIBRARIES
+        ZLIB::ZLIB
+)
+
+qt_extend_target(QTiffPlugin CONDITION NOT QT_FEATURE_system_tiff AND NOT QT_FEATURE_system_zlib
+    LIBRARIES
+        Qt::ZlibPrivate
+)
