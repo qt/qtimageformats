@@ -552,9 +552,9 @@ void tst_qtiff::multipage_data()
 {
     QTest::addColumn<QString>("filename");
     QTest::addColumn<int>("expectedNumPages");
-    QTest::addColumn<QVector<QSize>>("expectedSizes");
+    QTest::addColumn<QList<QSize>>("expectedSizes");
 
-    QVector<QSize> sizes = QVector<QSize>() << QSize(640, 480) << QSize(800, 600) << QSize(320, 240);
+    QList<QSize> sizes = QList<QSize>() << QSize(640, 480) << QSize(800, 600) << QSize(320, 240);
     QTest::newRow("3 page TIFF") << ("multipage.tiff") << 3 << sizes;
 }
 
@@ -562,7 +562,7 @@ void tst_qtiff::multipage()
 {
     QFETCH(QString, filename);
     QFETCH(int, expectedNumPages);
-    QFETCH(QVector<QSize>, expectedSizes);
+    QFETCH(QList<QSize>, expectedSizes);
 
     QImageReader reader(prefix + filename);
     QCOMPARE(reader.imageCount(), expectedNumPages);

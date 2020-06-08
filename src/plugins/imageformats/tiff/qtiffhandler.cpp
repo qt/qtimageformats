@@ -367,7 +367,7 @@ bool QTiffHandler::read(QImage *image)
     // Setup color tables
     if (format == QImage::Format_Mono || format == QImage::Format_Indexed8) {
         if (format == QImage::Format_Mono) {
-            QVector<QRgb> colortable(2);
+            QList<QRgb> colortable(2);
             if (d->photometric == PHOTOMETRIC_MINISBLACK) {
                 colortable[0] = 0xff000000;
                 colortable[1] = 0xffffffff;
@@ -378,7 +378,7 @@ bool QTiffHandler::read(QImage *image)
             image->setColorTable(colortable);
         } else if (format == QImage::Format_Indexed8) {
             const uint16 tableSize = 256;
-            QVector<QRgb> qtColorTable(tableSize);
+            QList<QRgb> qtColorTable(tableSize);
             if (d->grayscale) {
                 for (int i = 0; i<tableSize; ++i) {
                     const int c = (d->photometric == PHOTOMETRIC_MINISBLACK) ? i : (255 - i);
@@ -506,7 +506,7 @@ bool QTiffHandler::read(QImage *image)
     return true;
 }
 
-static bool checkGrayscale(const QVector<QRgb> &colorTable)
+static bool checkGrayscale(const QList<QRgb> &colorTable)
 {
     if (colorTable.size() != 256)
         return false;
@@ -520,9 +520,9 @@ static bool checkGrayscale(const QVector<QRgb> &colorTable)
     return true;
 }
 
-static QVector<QRgb> effectiveColorTable(const QImage &image)
+static QList<QRgb> effectiveColorTable(const QImage &image)
 {
-    QVector<QRgb> colors;
+    QList<QRgb> colors;
     switch (image.format()) {
     case QImage::Format_Indexed8:
         colors = image.colorTable();
@@ -652,7 +652,7 @@ bool QTiffHandler::write(const QImage &image)
                || format == QImage::Format_Grayscale8
                || format == QImage::Format_Grayscale16
                || format == QImage::Format_Alpha8) {
-        QVector<QRgb> colorTable = effectiveColorTable(image);
+        QList<QRgb> colorTable = effectiveColorTable(image);
         bool isGrayscale = checkGrayscale(colorTable);
         if (isGrayscale) {
             uint16 photometric = PHOTOMETRIC_MINISBLACK;

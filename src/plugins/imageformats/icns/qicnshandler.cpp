@@ -396,9 +396,9 @@ static inline QByteArray nameForCompressedIcon(quint8 iconNumber)
     return base + QByteArray::number(iconNumber);
 }
 
-static inline QVector<QRgb> getColorTable(ICNSEntry::Depth depth)
+static inline QList<QRgb> getColorTable(ICNSEntry::Depth depth)
 {
-    QVector<QRgb> table;
+    QList<QRgb> table;
     uint n = 1 << depth;
     const QRgb *data;
     switch (depth) {
@@ -561,7 +561,7 @@ static QImage readLowDepthIcon(const ICNSEntry &icon, QDataStream &stream)
 
     const bool isMono = depth == ICNSEntry::DepthMono;
     const QImage::Format format = isMono ? QImage::Format_Mono : QImage::Format_Indexed8;
-    const QVector<QRgb> colortable = getColorTable(depth);
+    const QList<QRgb> colortable = getColorTable(depth);
     if (colortable.isEmpty())
         return QImage();
     QImage img(icon.width, icon.height, format);

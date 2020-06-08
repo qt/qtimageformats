@@ -54,7 +54,7 @@
 #include <QImageIOPlugin>
 #include <private/qcore_mac_p.h>
 #include <ImageIO/ImageIO.h>
-#include <QVector>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 
@@ -85,7 +85,7 @@ protected:
     bool getIntProperty(CFStringRef property, int *value);
 
     QImageIOHandler *q_ptr = nullptr;
-    QVector<QVariant> writeOptions;
+    QList<QVariant> writeOptions;
     QCFType<CGDataProviderRef> cgDataProvider = nullptr;
     QCFType<CGImageSourceRef> cgImageSource = nullptr;
     QCFType<CFDictionaryRef> cfImageDict = nullptr;

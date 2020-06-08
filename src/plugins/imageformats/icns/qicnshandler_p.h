@@ -42,7 +42,7 @@
 #define QICNSHANDLER_P_H
 
 #include <QtGui/qimageiohandler.h>
-#include <QtCore/qvector.h>
+#include <QtCore/qlist.h>
 
 #ifndef QT_NO_DATASTREAM
 
@@ -155,8 +155,8 @@ private:
     };
 
     int m_currentIconIndex;
-    QVector<ICNSEntry> m_icons;
-    QVector<ICNSEntry> m_masks;
+    QList<ICNSEntry> m_icons;
+    QList<ICNSEntry> m_masks;
     ScanState m_state;
 };
 
