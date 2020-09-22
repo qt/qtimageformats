@@ -13,7 +13,7 @@ elseif(NOT TARGET ZLIB::ZLIB)
 endif()
 # special case end
 
-qt_add_plugin(QTiffPlugin
+qt_internal_add_plugin(QTiffPlugin
     OUTPUT_NAME qtiff
     TYPE imageformats
     SOURCES
