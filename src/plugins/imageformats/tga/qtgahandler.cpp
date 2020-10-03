@@ -66,6 +66,7 @@ bool QTgaHandler::canRead() const
         setFormat("tga");
         return true;
     }
+    qWarning("QTgaHandler::canRead(): %s", qPrintable(tga->errorMessage()));
     return false;
 }
 
@@ -85,6 +86,8 @@ bool QTgaHandler::canRead(QIODevice *device)
     {
         QTgaFile tga(device);
         isValid = tga.isValid();
+        if (!isValid)
+            qWarning("QTgaHandler::canRead(): %s", qPrintable(tga.errorMessage()));
     }
     device->seek(pos);
     return isValid;
