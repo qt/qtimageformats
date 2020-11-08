@@ -78,7 +78,7 @@ plugins. They may be deployed to the target system in the same way as
 other plugins, see the \l{Deploying Plugins} documentation.
 
 \section1 Module Evolution
-\l{Porting to Qt 6 - Qt Image Formats} lists important changes in the module
+\l{Changes to Qt Image Formats} lists important changes in the module
 API and functionality that were done for the Qt 6 series of Qt.
 
 \section1 Licenses and Attributions
