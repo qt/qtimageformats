@@ -11,7 +11,7 @@ qt_internal_add_plugin(QMngPlugin
         main.cpp
         qmnghandler.cpp qmnghandler_p.h
     LIBRARIES
-        mng
+        Libmng::Libmng
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
