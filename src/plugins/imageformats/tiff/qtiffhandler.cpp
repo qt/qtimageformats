@@ -423,14 +423,19 @@ bool QTiffHandler::read(QImage *image)
             quint32 tileWidth, tileLength;
             TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &tileWidth);
             TIFFGetField(tiff, TIFFTAG_TILELENGTH, &tileLength);
-            uchar *buf = (uchar *)_TIFFmalloc(TIFFTileSize(tiff));
-            if (!tileWidth || !tileLength || !buf) {
-                _TIFFfree(buf);
+            if (!tileWidth || !tileLength || tileWidth % 16 || tileLength % 16) {
                 d->close();
                 return false;
             }
             quint32 byteWidth = (format == QImage::Format_Mono) ? (width + 7)/8 : (width * bytesPerPixel);
             quint32 byteTileWidth = (format == QImage::Format_Mono) ? tileWidth/8 : (tileWidth * bytesPerPixel);
+            tmsize_t byteTileSize = TIFFTileSize(tiff);
+            uchar *buf = (uchar *)_TIFFmalloc(byteTileSize);
+            if (!buf || byteTileSize / tileLength < byteTileWidth) {
+                _TIFFfree(buf);
+                d->close();
+                return false;
+            }
             for (quint32 y = 0; y < height; y += tileLength) {
                 for (quint32 x = 0; x < width; x += tileWidth) {
                     if (TIFFReadTile(tiff, buf, x, y, 0, 0) < 0) {
