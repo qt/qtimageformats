@@ -197,7 +197,9 @@ QImage WBMPReader::readImage()
     if (!readWBMPHeader(iodev, &hdr))
         return QImage();
 
-    QImage image(hdr.width, hdr.height, QImage::Format_Mono);
+    QImage image;
+    if (!QImageIOHandler::allocateImage(QSize(hdr.width, hdr.height), QImage::Format_Mono, &image))
+        return QImage();
     if (!readWBMPData(iodev, image))
         return QImage();
 

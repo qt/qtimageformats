@@ -122,7 +122,10 @@ bool QWebpHandler::ensureScanned() const
                 that->m_frameCount = WebPDemuxGetI(m_demuxer, WEBP_FF_FRAME_COUNT);
                 that->m_bgColor = QColor::fromRgba(QRgb(WebPDemuxGetI(m_demuxer, WEBP_FF_BACKGROUND_COLOR)));
 
-                that->m_composited = new QImage(that->m_features.width, that->m_features.height, QImage::Format_ARGB32);
+                QSize sz(that->m_features.width, that->m_features.height);
+                that->m_composited = new QImage;
+                if (!QImageIOHandler::allocateImage(sz, QImage::Format_ARGB32, that->m_composited))
+                    return false;
                 if (that->m_features.has_alpha)
                     that->m_composited->fill(Qt::transparent);
 
@@ -195,7 +198,9 @@ bool QWebpHandler::read(QImage *image)
         return false;
 
     QImage::Format format = m_features.has_alpha ? QImage::Format_ARGB32 : QImage::Format_RGB32;
-    QImage frame(m_iter.width, m_iter.height, format);
+    QImage frame;
+    if (!QImageIOHandler::allocateImage(QSize(m_iter.width, m_iter.height), format, &frame))
+        return false;
     uint8_t *output = frame.bits();
     size_t output_size = frame.sizeInBytes();
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
