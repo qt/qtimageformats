@@ -247,7 +247,8 @@ mng_bool QMngHandlerPrivate::processHeader(mng_uint32 iWidth, mng_uint32 iHeight
 {
     if (mng_set_canvasstyle(hMNG, iStyle) != MNG_NOERROR)
         return MNG_FALSE;
-    image = QImage(iWidth, iHeight, QImage::Format_ARGB32);
+    if (!QImageIOHandler::allocateImage(QSize(iWidth, iHeight), QImage::Format_ARGB32, &image))
+        return MNG_FALSE;
     image.fill(0);
     return MNG_TRUE;
 }

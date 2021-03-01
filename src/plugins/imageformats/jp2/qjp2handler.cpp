@@ -573,17 +573,13 @@ bool Jpeg2000JasperReader::read(QImage *pImage)
     }
 
     // Create a QImage of the correct type
-    if (jasperColorspaceFamily == JAS_CLRSPC_FAM_RGB) {
-        qtImage = QImage(qtWidth, qtHeight, hasAlpha
-                                                ? QImage::Format_ARGB32
-                                                : QImage::Format_RGB32);
-    } else if (jasperColorspaceFamily == JAS_CLRSPC_FAM_GRAY) {
-        if (hasAlpha) {
-            qtImage = QImage(qtWidth, qtHeight, QImage::Format_ARGB32);
-        } else {
-            qtImage = QImage(qtWidth, qtHeight, QImage::Format_Grayscale8);
-        }
-    }
+    QImage::Format qtFormat = QImage::Format_Invalid;
+    if (jasperColorspaceFamily == JAS_CLRSPC_FAM_RGB)
+        qtFormat = hasAlpha ? QImage::Format_ARGB32 : QImage::Format_RGB32;
+    else if (jasperColorspaceFamily == JAS_CLRSPC_FAM_GRAY)
+        qtFormat = hasAlpha ? QImage::Format_ARGB32 : QImage::Format_Grayscale8;
+    if (!QImageIOHandler::allocateImage(QSize(qtWidth, qtHeight), qtFormat, &qtImage))
+        return false;
 
     // Copy data
     if (oddComponentSubsampling) {
