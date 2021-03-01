@@ -349,13 +349,7 @@ bool QTiffHandler::read(QImage *image)
 
     QImage::Format format = d->format;
 
-    if (image->size() == d->size && image->format() != format)
-        image->reinterpretAsFormat(format);
-
-    if (image->size() != d->size || image->format() != format)
-        *image = QImage(d->size, format);
-
-    if (image->isNull()) {
+    if (!QImageIOHandler::allocateImage(d->size, format, image)) {
         d->close();
         return false;
     }
@@ -430,9 +424,12 @@ bool QTiffHandler::read(QImage *image)
             quint32 byteWidth = (format == QImage::Format_Mono) ? (width + 7)/8 : (width * bytesPerPixel);
             quint32 byteTileWidth = (format == QImage::Format_Mono) ? tileWidth/8 : (tileWidth * bytesPerPixel);
             tmsize_t byteTileSize = TIFFTileSize(tiff);
+            if (byteTileSize > image->sizeInBytes() || byteTileSize / tileLength < byteTileWidth) {
+                d->close();
+                return false;
+            }
             uchar *buf = (uchar *)_TIFFmalloc(byteTileSize);
-            if (!buf || byteTileSize / tileLength < byteTileWidth) {
-                _TIFFfree(buf);
+            if (!buf) {
                 d->close();
                 return false;
             }
