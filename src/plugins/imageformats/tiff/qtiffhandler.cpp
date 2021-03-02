@@ -442,6 +442,10 @@ bool QTiffHandler::read(QImage *image)
             }
             _TIFFfree(buf);
         } else {
+            if (image->bytesPerLine() < TIFFScanlineSize(tiff)) {
+                d->close();
+                return false;
+            }
             for (uint32 y=0; y<height; ++y) {
                 if (TIFFReadScanline(tiff, image->scanLine(y), y, 0) < 0) {
                     d->close();
