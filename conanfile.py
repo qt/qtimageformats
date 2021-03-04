@@ -48,6 +48,7 @@ class QtImageFormats(ConanFile):
     default_options = {"shared": False,
                        "qt6": None}
     exports_sources = "*", "!conan*.*"
+    revision_mode = "scm"  # use commit ID as the RREV (recipe revision)
 
     def source(self):
         # sources are installed next to recipe, no need to clone etc. sources here
