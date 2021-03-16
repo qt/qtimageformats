@@ -5,6 +5,13 @@
 # So try config files first, and then use the regular find_library / find_path dance with pkg-config
 # paths as hints.
 
+# We can't create the same interface imported target multiple times, CMake will complain if we do
+# that. This can happen if the find_package call is done in multiple different subdirectories.
+if(TARGET WrapWebP::WrapWebP)
+    set(WrapWebP_FOUND TRUE)
+    return()
+endif()
+
 find_package(WebP QUIET)
 if(TARGET WebP::webp AND TARGET WebP::webpdemux AND TARGET WebP::libwebpmux)
     set(WrapWebP_FOUND ON)
