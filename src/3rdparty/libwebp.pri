@@ -138,7 +138,7 @@ SOURCES_FOR_NEON += \
 
 android {
     arm64-v8a | armeabi-v7a: SOURCES += $$SOURCES_FOR_NEON
-} else: equals(QT_ARCH, arm)|equals(QT_ARCH, arm64) {
+} else:!macos: equals(QT_ARCH, arm)|equals(QT_ARCH, arm64) {
     contains(QT_CPU_FEATURES.$$QT_ARCH, neon) {
         # Default compiler settings include this feature, so just add to SOURCES
         SOURCES += $$SOURCES_FOR_NEON
@@ -156,4 +156,7 @@ android {
         silent: neon_comp.commands = @echo compiling[neon] ${QMAKE_FILE_IN} && $$neon_comp.commands
         QMAKE_EXTRA_COMPILERS += neon_comp
     }
+} else:macos {
+    CONFIG += simd
+    NEON_SOURCES += $$SOURCES_FOR_NEON
 }
