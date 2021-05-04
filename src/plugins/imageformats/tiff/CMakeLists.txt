@@ -71,7 +71,6 @@ qt_internal_extend_target(QTiffPlugin CONDITION NOT QT_FEATURE_system_tiff
         ../../../3rdparty/libtiff/libtiff/tif_warning.c
         ../../../3rdparty/libtiff/libtiff/tif_write.c
         ../../../3rdparty/libtiff/libtiff/tif_zip.c
-        ../../../3rdparty/libtiff/port/snprintf.c
     INCLUDE_DIRECTORIES
         ../../../3rdparty/libtiff/libtiff
 )
@@ -84,11 +83,6 @@ qt_internal_extend_target(QTiffPlugin CONDITION WIN32 AND NOT QT_FEATURE_system_
 qt_internal_extend_target(QTiffPlugin CONDITION UNIX AND NOT QT_FEATURE_system_tiff
     SOURCES
         ../../../3rdparty/libtiff/libtiff/tif_unix.c
-)
-
-qt_internal_extend_target(QTiffPlugin CONDITION ANDROID AND NOT QT_FEATURE_system_tiff
-    SOURCES
-        ../../../3rdparty/libtiff/port/lfind.c
 )
 
 qt_internal_extend_target(QTiffPlugin CONDITION QT_FEATURE_system_zlib AND NOT QT_FEATURE_system_tiff
