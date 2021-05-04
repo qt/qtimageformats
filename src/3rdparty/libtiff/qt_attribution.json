@@ -6,10 +6,11 @@
 
     "Description": "",
     "Homepage": "http://www.simplesystems.org/libtiff/",
-    "Version": "4.2.0",
+    "Version": "4.3.0",
     "License": "libtiff License",
     "LicenseId": "libtiff",
     "LicenseFile": "COPYRIGHT",
     "Copyright": "Copyright (c) 1988-1997 Sam Leffler
 Copyright (c) 1991-1997 Silicon Graphics, Inc."
 }
+
