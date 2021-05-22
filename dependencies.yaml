@@ -1,4 +1,4 @@
 dependencies:
   ../qtbase:
-    ref: 640eb55c130c6c2c982dc212a8a5bd2b8fb7a225
+    ref: 8789ace197bfcc209002f9f8ec30f00e9cf25e8a
     required: true
