@@ -37,7 +37,7 @@ class QtConanError(Exception):
 
 class QtImageFormats(ConanFile):
     name = "qtimageformats"
-    version = "6.1.1"
+    version = "6.1.2"
     license = "LGPL-3.0+, GPL-2.0+, Commercial Qt License Agreement"
     author = "The Qt Company <https://www.qt.io/contact-us>"
     url = "https://code.qt.io/cgit/qt/qtimageformats.git"
