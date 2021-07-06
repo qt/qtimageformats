@@ -19,7 +19,7 @@ qt_internal_add_plugin(QTiffPlugin
     SOURCES
         main.cpp
         qtiffhandler.cpp qtiffhandler_p.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
 )

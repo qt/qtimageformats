@@ -10,7 +10,7 @@ qt_internal_add_plugin(QWbmpPlugin
     SOURCES
         main.cpp
         qwbmphandler.cpp qwbmphandler_p.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
 )
