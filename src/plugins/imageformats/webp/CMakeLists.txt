@@ -10,7 +10,7 @@ qt_internal_add_plugin(QWebpPlugin
     SOURCES
         main.cpp
         qwebphandler.cpp qwebphandler_p.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
 )
@@ -23,7 +23,7 @@ qt_internal_add_plugin(QWebpPlugin
 #####################################################################
 
 qt_internal_extend_target(QWebpPlugin CONDITION QT_FEATURE_system_webp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         WrapWebP::WrapWebP
 )
 
