@@ -19,7 +19,7 @@ qt_internal_add_plugin(QMacHeifPlugin
         qmacheifhandler.cpp qmacheifhandler.h
     INCLUDE_DIRECTORIES
         ../shared
-    PUBLIC_LIBRARIES
+    LIBRARIES
         ${FWCoreFoundation}
         ${FWCoreGraphics}
         ${FWImageIO}

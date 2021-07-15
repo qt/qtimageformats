@@ -12,7 +12,7 @@ qt_internal_add_plugin(QJp2Plugin
         qjp2handler.cpp qjp2handler_p.h
     LIBRARIES
         WrapJasper::WrapJasper
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
 )
