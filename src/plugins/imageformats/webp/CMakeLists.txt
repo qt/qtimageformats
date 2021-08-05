@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(QWebpPlugin
     OUTPUT_NAME qwebp
-    TYPE imageformats
+    PLUGIN_TYPE imageformats
     SOURCES
         main.cpp
         qwebphandler.cpp qwebphandler_p.h

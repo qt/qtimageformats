@@ -15,7 +15,7 @@ endif()
 
 qt_internal_add_plugin(QTiffPlugin
     OUTPUT_NAME qtiff
-    TYPE imageformats
+    PLUGIN_TYPE imageformats
     SOURCES
         main.cpp
         qtiffhandler.cpp qtiffhandler_p.h
