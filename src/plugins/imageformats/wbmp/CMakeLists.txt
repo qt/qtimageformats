@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(QWbmpPlugin
     OUTPUT_NAME qwbmp
-    TYPE imageformats
+    PLUGIN_TYPE imageformats
     SOURCES
         main.cpp
         qwbmphandler.cpp qwbmphandler_p.h
