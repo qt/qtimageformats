@@ -77,6 +77,7 @@ qt_internal_extend_target(QWebpPlugin CONDITION NOT QT_FEATURE_system_webp
         ../../../3rdparty/libwebp/src/dsp/lossless_enc_sse41.c
         ../../../3rdparty/libwebp/src/dsp/lossless_mips_dsp_r2.c
         ../../../3rdparty/libwebp/src/dsp/lossless_sse2.c
+        ../../../3rdparty/libwebp/src/dsp/lossless_sse41.c
         ../../../3rdparty/libwebp/src/dsp/rescaler.c
         ../../../3rdparty/libwebp/src/dsp/rescaler_mips32.c
         ../../../3rdparty/libwebp/src/dsp/rescaler_mips_dsp_r2.c
