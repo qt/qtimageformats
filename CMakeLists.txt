@@ -1,6 +1,6 @@
 # Generated from qtimageformats.pro.
 
-cmake_minimum_required(VERSION 3.15.0)
+cmake_minimum_required(VERSION 3.16)
 
 include(.cmake.conf)
 project(QtImageFormats # special case
