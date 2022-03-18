@@ -44,6 +44,7 @@
 #include <qfloat16.h>
 #include <qimage.h>
 #include <qvariant.h>
+#include <qvarlengtharray.h>
 
 extern "C" {
 #include "tiffio.h"
