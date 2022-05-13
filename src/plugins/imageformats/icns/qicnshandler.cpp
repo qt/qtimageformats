@@ -515,6 +515,9 @@ static bool parseIconEntryInfo(ICNSEntry &icon)
         }
         icon.height = icon.width;
     }
+    // Sanity check
+    if (icon.width == 0 || icon.width > 4096 || icon.depth > 32)
+        return false;
     return true;
 }
 
@@ -685,7 +688,7 @@ bool QICNSHandler::canRead() const
 bool QICNSHandler::read(QImage *outImage)
 {
     QImage img;
-    if (!ensureScanned()) {
+    if (!ensureScanned() || m_currentIconIndex >= m_icons.size()) {
         qWarning("QICNSHandler::read(): The device wasn't parsed properly!");
         return false;
     }
@@ -892,7 +895,7 @@ bool QICNSHandler::scanDevice()
             return false;
 
         const qint64 blockDataOffset = device()->pos();
-        if (!isBlockHeaderValid(blockHeader)) {
+        if (!isBlockHeaderValid(blockHeader, ICNSBlockHeaderSize + filelength - blockDataOffset)) {
             qWarning("QICNSHandler::scanDevice(): Failed, bad header at pos %s. OSType \"%s\", length %u",
                      QByteArray::number(blockDataOffset).constData(),
                      nameFromOSType(blockHeader.ostype).constData(), blockHeader.length);
@@ -927,11 +930,14 @@ bool QICNSHandler::scanDevice()
         case ICNSBlockHeader::TypeOdrp:
             // Icns container seems to have an embedded icon variant container
             // Let's start a scan for entries
-            while (device()->pos() < nextBlockOffset) {
+            while (!stream.atEnd() && device()->pos() < nextBlockOffset) {
                 ICNSBlockHeader icon;
                 stream >> icon;
+                if (stream.status() != QDataStream::Ok)
+                    return false;
                 // Check for incorrect variant entry header and stop scan
-                if (!isBlockHeaderValid(icon, blockDataLength))
+                quint64 remaining = blockDataLength - (device()->pos() - blockDataOffset);
+                if (!isBlockHeaderValid(icon, ICNSBlockHeaderSize + remaining))
                     break;
                 if (!addEntry(icon, device()->pos(), blockHeader.ostype))
                     return false;
@@ -1003,7 +1009,7 @@ bool QICNSHandler::scanDevice()
             break;
         }
     }
-    return true;
+    return (m_icons.size() > 0);
 }
 
 const ICNSEntry &QICNSHandler::getIconMask(const ICNSEntry &icon) const
