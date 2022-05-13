@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Copyright (C) 2016 Alex Char.
 ** Contact: https://www.qt.io/licensing/
 **
@@ -40,6 +40,8 @@ private slots:
     void readIcons();
     void writeIcons_data();
     void writeIcons();
+    void ossFuzz_data();
+    void ossFuzz();
 };
 
 void tst_qicns::initTestCase()
@@ -121,6 +123,26 @@ void tst_qicns::writeIcons()
     QVERIFY2(writer.write(image), qPrintable(writer.errorString()));
 
     QVERIFY(image == QImage(distPath));
+}
+
+void tst_qicns::ossFuzz_data()
+{
+    QTest::addColumn<QByteArray>("data");
+    QTest::addColumn<QByteArrayList>("ignoredMessages");
+    QTest::newRow("47415") << QByteArray::fromRawData("icns\0\0\0\0", 8)
+                           << QByteArrayList({"QICNSHandler::scanDevice(): Failed, bad header at "
+                                              "pos 8. OSType \"icns\", length 0",
+                                              "QICNSHandler::read(): The device wasn't parsed "
+                                              "properly!"});
+}
+
+void tst_qicns::ossFuzz()
+{
+    QFETCH(QByteArray, data);
+    QFETCH(QByteArrayList, ignoredMessages);
+    for (auto msg: ignoredMessages)
+        QTest::ignoreMessage(QtWarningMsg, msg.data());
+    QImage().loadFromData(data);
 }
 
 QTEST_MAIN(tst_qicns)
