@@ -121,7 +121,7 @@ struct ICNSEntry
     {
     }
 };
-Q_DECLARE_TYPEINFO(ICNSEntry, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(ICNSEntry, Q_RELOCATABLE_TYPE);
 
 class QICNSHandler : public QImageIOHandler
 {
