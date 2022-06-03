@@ -462,8 +462,12 @@ static bool parseIconEntryInfo(ICNSEntry &icon)
     if (isIconCompressed(icon))
         return true;
     // Icon depth:
-    if (!depth.isEmpty())
-        icon.depth = ICNSEntry::Depth(depth.toUInt());
+    if (!depth.isEmpty()) {
+        const uint depthUInt = depth.toUInt();
+        if (depthUInt > 32)
+            return false;
+        icon.depth = ICNSEntry::Depth(depthUInt);
+    }
     // Try mono if depth not found
     if (icon.depth == ICNSEntry::DepthUnknown)
         icon.depth = ICNSEntry::DepthMono;
@@ -516,7 +520,7 @@ static bool parseIconEntryInfo(ICNSEntry &icon)
         icon.height = icon.width;
     }
     // Sanity check
-    if (icon.width == 0 || icon.width > 4096 || icon.depth > 32)
+    if (icon.width == 0 || icon.width > 4096)
         return false;
     return true;
 }
