@@ -857,7 +857,7 @@ bool Jpeg2000JasperReader::write(const QImage &image, int quality)
     }
 
     // Open an empty jasper stream that grows automatically
-    jas_stream_t * memory_stream = jas_stream_memopen(0, -1);
+    jas_stream_t * memory_stream = jas_stream_memopen(0, 0);
 
     // Jasper wants a non-const string.
     char *str = qstrdup(jasperFormatString.toLatin1().constData());
