@@ -7,6 +7,7 @@
 #include "qimage.h"
 #include "qvariant.h"
 #include "qcolor.h"
+#include "qimagereader.h"
 
 #include <jasper/jasper.h>
 #include <math.h> // for pow
@@ -297,16 +298,46 @@ private:
 Jpeg2000JasperReader::Jpeg2000JasperReader(QIODevice *iod, SubFormat format)
     : jasperOk(true), ioDevice(iod), format(format), hasAlpha(false)
 {
+#if JAS_VERSION_MAJOR < 3
     if (jas_init()) {
         jasperOk = false;
         qDebug("Jasper Library initialization failed");
     }
+#else
+    jas_conf_clear();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    jas_conf_set_max_mem_usage(QImageReader::allocationLimit() * 1024 * 1024);
+#else
+    // 128MB seems to be enough.
+    jas_conf_set_max_mem_usage(128 * 1024 * 1024);
+#endif
+    if (jas_init_library()) {
+        jasperOk = false;
+        qDebug("Jasper library initialization failed");
+    }
+    if (jas_init_thread()) {
+        jas_cleanup_library();
+        jasperOk = false;
+        qDebug("Jasper thread initialization failed");
+    }
+#endif
 }
 
 Jpeg2000JasperReader::~Jpeg2000JasperReader()
 {
+#if JAS_VERSION_MAJOR < 3
     if (jasperOk)
         jas_cleanup();
+#else
+    if (jasperOk) {
+        if (jas_cleanup_thread()) {
+            qDebug("Jasper thread cleanup failed");
+        }
+        if (jas_cleanup_library()) {
+            qDebug("Jasper library cleanup failed");
+        }
+    }
+#endif
 }
 
 /*! \internal
