@@ -77,10 +77,6 @@ plugins/imageformats), together with the default image format
 plugins. They may be deployed to the target system in the same way as
 other plugins, see the \l{Deploying Plugins} documentation.
 
-\section1 Module Evolution
-\l{Changes to Qt Image Formats} lists important changes in the module
-API and functionality that were done for the Qt 6 series of Qt.
-
 \section1 Licenses and Attributions
 
 Qt Image Formats is available under commercial licenses from \l{The Qt Company}.
