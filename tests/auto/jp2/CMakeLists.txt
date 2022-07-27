@@ -10,7 +10,7 @@
 qt_internal_add_test(tst_qjp2
     SOURCES
         tst_qjp2.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
 )
 

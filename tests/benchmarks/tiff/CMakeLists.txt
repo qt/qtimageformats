@@ -10,7 +10,7 @@
 qt_internal_add_benchmark(tst_bench_qtiff
     SOURCES
         tst_qtiff.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
         Qt::Test
 )

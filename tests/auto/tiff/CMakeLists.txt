@@ -10,7 +10,7 @@
 qt_internal_add_test(tst_qtiff
     SOURCES
         tst_qtiff.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
 )
 

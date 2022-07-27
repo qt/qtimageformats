@@ -10,7 +10,7 @@
 qt_internal_add_test(tst_qmng
     SOURCES
         tst_qmng.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
 )
 

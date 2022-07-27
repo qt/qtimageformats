@@ -10,7 +10,7 @@
 qt_internal_add_benchmark(tst_bench_qmng
     SOURCES
         tst_qmng.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
         Qt::Test
 )

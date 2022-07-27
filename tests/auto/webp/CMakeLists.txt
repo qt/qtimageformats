@@ -10,7 +10,7 @@
 qt_internal_add_test(tst_qwebp
     SOURCES
         tst_qwebp.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
 )
 

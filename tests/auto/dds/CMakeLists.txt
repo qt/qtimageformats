@@ -10,7 +10,7 @@
 qt_internal_add_test(tst_qdds
     SOURCES
         tst_qdds.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
 )
 

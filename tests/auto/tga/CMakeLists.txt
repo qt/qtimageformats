@@ -10,7 +10,7 @@
 qt_internal_add_test(tst_qtga
     SOURCES
         tst_qtga.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
 )
 
