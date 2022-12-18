@@ -54,6 +54,7 @@ qt_internal_extend_target(QTiffPlugin CONDITION NOT QT_FEATURE_system_tiff
         ../../../3rdparty/libtiff/libtiff/tif_fax3sm.c
         ../../../3rdparty/libtiff/libtiff/tif_flush.c
         ../../../3rdparty/libtiff/libtiff/tif_getimage.c
+        ../../../3rdparty/libtiff/libtiff/tif_hash_set.c
         ../../../3rdparty/libtiff/libtiff/tif_luv.c
         ../../../3rdparty/libtiff/libtiff/tif_lzw.c
         ../../../3rdparty/libtiff/libtiff/tif_next.c
