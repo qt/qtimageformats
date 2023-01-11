@@ -960,7 +960,7 @@ void QTiffHandler::rgb48fixup(QImage *image, bool floatingPoint)
     uchar *scanline = image->bits();
     const qsizetype bpl = image->bytesPerLine();
     quint16 mask = 0xffff;
-    const qfloat16 fp_mask = 1.0f;
+    const qfloat16 fp_mask = qfloat16(1.0f);
     if (floatingPoint)
         memcpy(&mask, &fp_mask, 2);
     for (int y = 0; y < h; ++y) {
