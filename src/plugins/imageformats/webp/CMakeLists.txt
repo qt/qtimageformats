@@ -30,6 +30,7 @@ qt_internal_extend_target(QWebpPlugin CONDITION QT_FEATURE_system_webp
 qt_internal_extend_target(QWebpPlugin CONDITION NOT QT_FEATURE_system_webp
     SOURCES
         ../../../3rdparty/libwebp/sharpyuv/sharpyuv.c
+        ../../../3rdparty/libwebp/sharpyuv/sharpyuv_cpu.c
         ../../../3rdparty/libwebp/sharpyuv/sharpyuv_csp.c
         ../../../3rdparty/libwebp/sharpyuv/sharpyuv_dsp.c
         ../../../3rdparty/libwebp/sharpyuv/sharpyuv_gamma.c
