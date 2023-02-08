@@ -23,6 +23,8 @@ qt_internal_add_plugin(QTiffPlugin
         Qt::Gui
 )
 
+set_target_properties(QTiffPlugin PROPERTIES UNITY_BUILD OFF)
+
 ## Scopes:
 #####################################################################
 
