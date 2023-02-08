@@ -16,6 +16,8 @@ qt_internal_add_plugin(QWebpPlugin
         Qt::Gui
 )
 
+set_target_properties(QWebpPlugin PROPERTIES UNITY_BUILD OFF)
+
 ## Scopes:
 #####################################################################
 
