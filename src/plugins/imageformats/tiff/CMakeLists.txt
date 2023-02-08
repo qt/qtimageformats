@@ -1,20 +1,16 @@
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: BSD-3-Clause
 
-# Generated from tiff.pro.
-
 #####################################################################
 ## QTiffPlugin Plugin:
 #####################################################################
 
-# special case begin
 # Handle the conditional finding of either system zlib or qt zlib.
 if(NOT QT_FEATURE_system_zlib)
     find_package(Qt6 COMPONENTS ZlibPrivate)
 elseif(NOT TARGET WrapZLIB::WrapZLIB)
     qt_find_package(WrapZLIB PROVIDED_TARGETS WrapZLIB::WrapZLIB)
 endif()
-# special case end
 
 qt_internal_add_plugin(QTiffPlugin
     OUTPUT_NAME qtiff
@@ -26,10 +22,6 @@ qt_internal_add_plugin(QTiffPlugin
         Qt::Core
         Qt::Gui
 )
-
-#### Keys ignored in scope 1:.:.:tiff.pro:<TRUE>:
-# OTHER_FILES = "tiff.json"
-# QT_FOR_CONFIG = "imageformats-private"
 
 ## Scopes:
 #####################################################################
