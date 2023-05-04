@@ -38,6 +38,7 @@ private:
     void convert32BitOrder(void *buffer, int width);
     void rgb48fixup(QImage *image, bool floatingPoint);
     void rgb96fixup(QImage *image);
+    void rgbFixup(QImage *image);
     const QScopedPointer<QTiffHandlerPrivate> d;
     bool ensureHaveDirectoryCount() const;
 };
