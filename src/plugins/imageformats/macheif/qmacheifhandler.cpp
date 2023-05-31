@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial
 
 #include "qmacheifhandler.h"
-#include "qiiofhelpers_p.h"
 #include <QVariant>
 
 QT_BEGIN_NAMESPACE
