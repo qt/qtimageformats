@@ -43,6 +43,9 @@
 #include <qdebug.h>
 #include <qimage.h>
 #include <qglobal.h>
+#include <qbuffer.h>
+#include <qfiledevice.h>
+
 extern "C" {
 #include "tiffio.h"
 }
@@ -90,13 +93,33 @@ toff_t qtiffSizeProc(thandle_t fd)
     return static_cast<QIODevice *>(fd)->size();
 }
 
-int qtiffMapProc(thandle_t /*fd*/, tdata_t* /*pbase*/, toff_t* /*psize*/)
+int qtiffMapProc(thandle_t fd, void **base, toff_t *size)
 {
+    QIODevice *device = static_cast<QIODevice *>(fd);
+
+    QFileDevice *file = qobject_cast<QFileDevice *>(device);
+    if (file) {
+        *base = file->map(0, file->size());
+        if (*base != nullptr) {
+            *size = file->size();
+            return 1;
+        }
+    } else {
+        QBuffer *buf = qobject_cast<QBuffer *>(device);
+        if (buf) {
+            *base = const_cast<char *>(buf->data().constData());
+            *size = buf->size();
+            return 1;
+        }
+    }
     return 0;
 }
 
-void qtiffUnmapProc(thandle_t /*fd*/, tdata_t /*base*/, toff_t /*size*/)
+void qtiffUnmapProc(thandle_t fd, void *base, toff_t /*size*/)
 {
+    QFileDevice *file = qobject_cast<QFileDevice *>(static_cast<QIODevice *>(fd));
+    if (file && base)
+        file->unmap(static_cast<uchar *>(base));
 }
 
 

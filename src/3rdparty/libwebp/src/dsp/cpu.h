@@ -14,6 +14,8 @@
 #ifndef WEBP_DSP_CPU_H_
 #define WEBP_DSP_CPU_H_
 
+#include <stddef.h>
+
 #include <qglobal.h>
 
 #ifdef HAVE_CONFIG_H
