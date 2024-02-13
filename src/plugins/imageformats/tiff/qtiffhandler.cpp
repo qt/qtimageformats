@@ -632,8 +632,8 @@ bool QTiffHandler::write(const QImage &image)
         return false;
     }
     // set color space
-    if (image.colorSpace().isValid()) {
-        QByteArray iccProfile = image.colorSpace().iccProfile();
+    const QByteArray iccProfile = image.colorSpace().iccProfile();
+    if (!iccProfile.isEmpty()) {
         if (!TIFFSetField(tiff, TIFFTAG_ICCPROFILE, iccProfile.size(), reinterpret_cast<const void *>(iccProfile.constData()))) {
             TIFFClose(tiff);
             return false;
