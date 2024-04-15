@@ -117,6 +117,7 @@ SOURCES += \
     $$PWD/libwebp/src/utils/filters_utils.c \
     $$PWD/libwebp/src/utils/huffman_utils.c \
     $$PWD/libwebp/src/utils/huffman_encode_utils.c \
+    $$PWD/libwebp/src/utils/palette.c \
     $$PWD/libwebp/src/utils/quant_levels_utils.c \
     $$PWD/libwebp/src/utils/quant_levels_dec_utils.c \
     $$PWD/libwebp/src/utils/random_utils.c \
