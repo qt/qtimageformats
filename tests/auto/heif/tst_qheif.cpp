@@ -115,6 +115,7 @@ void tst_qheif::writeImage()
         QImage rimg2;
         buf2.open(QIODevice::ReadOnly);
         QImageReader reader(&buf2);
+        QCOMPARE(reader.format(), "heic");
         reader.setAutoTransform(true);
         QVERIFY(reader.read(&rimg2));
         buf2.close();
