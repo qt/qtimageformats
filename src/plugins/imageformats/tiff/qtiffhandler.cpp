@@ -21,7 +21,7 @@ extern "C" {
 
 QT_BEGIN_NAMESPACE
 
-static Q_LOGGING_CATEGORY(lcTiff, "qt.imageformats.tiff")
+Q_STATIC_LOGGING_CATEGORY(lcTiff, "qt.imageformats.tiff")
 
 tsize_t qtiffReadProc(thandle_t fd, tdata_t buf, tsize_t size)
 {
