@@ -12,6 +12,7 @@
 #include <qvarlengtharray.h>
 #include <qbuffer.h>
 #include <qfiledevice.h>
+#include <qimagereader.h>
 
 extern "C" {
 #include "tiffio.h"
@@ -203,6 +204,15 @@ TIFF *QTiffHandlerPrivate::openInternal(const char *mode, QIODevice *device)
     TIFFOpenOptions *opts = TIFFOpenOptionsAlloc();
     TIFFOpenOptionsSetErrorHandlerExtR(opts, &tiffErrorHandler, this);
     TIFFOpenOptionsSetWarningHandlerExtR(opts, &tiffWarningHandler, this);
+
+#if TIFFLIB_AT_LEAST(4, 7, 0)
+    quint64 maxAlloc = quint64(QImageReader::allocationLimit()) << 20;
+    if (maxAlloc) {
+        maxAlloc = qMin(maxAlloc, quint64(std::numeric_limits<tmsize_t>::max()));
+        TIFFOpenOptionsSetMaxCumulatedMemAlloc(opts, tmsize_t(maxAlloc));
+    }
+#endif
+
     auto handle = TIFFClientOpenExt("foo",
                                     mode,
                                     device,
