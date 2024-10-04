@@ -320,6 +320,7 @@ int TIFFRewriteDirectory(TIFF *tif)
      * Find and zero the pointer to this directory, so that TIFFLinkDirectory
      * will cause it to be added after this directories current pre-link.
      */
+    uint64_t torewritediroff = tif->tif_diroff;
 
     if (!(tif->tif_flags & TIFF_BIGTIFF))
     {
@@ -387,6 +388,8 @@ int TIFFRewriteDirectory(TIFF *tif)
                 nextdir = nextnextdir;
             }
         }
+        /* Remove skipped offset from IFD loop directory list. */
+        _TIFFRemoveEntryFromDirectoryListByOffset(tif, torewritediroff);
     }
     else
     {
@@ -456,6 +459,8 @@ int TIFFRewriteDirectory(TIFF *tif)
                 nextdir = nextnextdir;
             }
         }
+        /* Remove skipped offset from IFD loop directory list. */
+        _TIFFRemoveEntryFromDirectoryListByOffset(tif, torewritediroff);
     }
 
     /*
@@ -1114,7 +1119,12 @@ static int TIFFWriteDirectorySec(TIFF *tif, int isimage, int imagedone,
         if (tif->tif_dataoff & 1)
             tif->tif_dataoff++;
         if (isimage)
-            tif->tif_curdir++;
+        {
+            if (tif->tif_curdir == TIFF_NON_EXISTENT_DIR_NUMBER)
+                tif->tif_curdir = 0;
+            else
+                tif->tif_curdir++;
+        }
     }
     if (isimage)
     {
@@ -2063,34 +2073,41 @@ static int TIFFWriteDirectoryTagTransferfunction(TIFF *tif, uint32_t *ndir,
         (*ndir)++;
         return (1);
     }
+    /* TIFFTAG_TRANSFERFUNCTION expects (1 or 3) pointer to arrays with
+     *  (1 << BitsPerSample) * uint16_t values.
+     */
     m = (1 << tif->tif_dir.td_bitspersample);
-    n = tif->tif_dir.td_samplesperpixel - tif->tif_dir.td_extrasamples;
+    /* clang-format off */
+    n = (tif->tif_dir.td_samplesperpixel - tif->tif_dir.td_extrasamples) > 1 ? 3 : 1;
+    /* clang-format on */
+
+    /* Check for proper number of transferfunctions */
+    for (int i = 0; i < n; i++)
+    {
+        if (tif->tif_dir.td_transferfunction[i] == NULL)
+        {
+            TIFFWarningExtR(
+                tif, module,
+                "Too few TransferFunctions provided. Tag not written to file");
+            return (1); /* Not an error; only tag is not written. */
+        }
+    }
     /*
      * Check if the table can be written as a single column,
      * or if it must be written as 3 columns.  Note that we
      * write a 3-column tag if there are 2 samples/pixel and
      * a single column of data won't suffice--hmm.
      */
-    if (n > 3)
-        n = 3;
     if (n == 3)
     {
-        if (tif->tif_dir.td_transferfunction[2] == NULL ||
-            !_TIFFmemcmp(tif->tif_dir.td_transferfunction[0],
+        if (!_TIFFmemcmp(tif->tif_dir.td_transferfunction[0],
                          tif->tif_dir.td_transferfunction[2],
-                         m * sizeof(uint16_t)))
-            n = 2;
-    }
-    if (n == 2)
-    {
-        if (tif->tif_dir.td_transferfunction[1] == NULL ||
+                         m * sizeof(uint16_t)) &&
             !_TIFFmemcmp(tif->tif_dir.td_transferfunction[0],
                          tif->tif_dir.td_transferfunction[1],
                          m * sizeof(uint16_t)))
             n = 1;
     }
-    if (n == 0)
-        n = 1;
     o = _TIFFmallocExt(tif, n * m * sizeof(uint16_t));
     if (o == NULL)
     {
