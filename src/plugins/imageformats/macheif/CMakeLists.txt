@@ -4,11 +4,10 @@
 ## QMacHeifPlugin Plugin:
 #####################################################################
 
-# special case begin
-find_library(FWCoreFoundation CoreFoundation)
-find_library(FWCoreGraphics CoreGraphics)
-find_library(FWImageIO ImageIO)
-# special case end
+qt_internal_find_apple_system_framework(FWCoreFoundation
+    CoreFoundation)
+qt_internal_find_apple_system_framework(FWCoreGraphics CoreGraphics)
+qt_internal_find_apple_system_framework(FWImageIO ImageIO)
 
 qt_internal_add_plugin(QMacHeifPlugin
     OUTPUT_NAME qmacheif
