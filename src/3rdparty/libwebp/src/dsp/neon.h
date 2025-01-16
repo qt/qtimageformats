@@ -83,13 +83,20 @@ static WEBP_INLINE int32x4x4_t Transpose4x4_NEON(const int32x4x4_t rows) {
 }
 
 #if defined(__GNUC__) && __GNUC__ <= 9 && !defined(__clang__)
-WEBP_INLINE uint8x16x4_t vld1q_u8_x4(const uint8_t *p) {
+static WEBP_INLINE uint8x16x4_t vld1q_u8_x4(const uint8_t *p) {
   uint8x16x4_t ret;
   ret.val[0] = vld1q_u8(p + 0);
   ret.val[1] = vld1q_u8(p + 16);
   ret.val[2] = vld1q_u8(p + 32);
   ret.val[3] = vld1q_u8(p + 48);
   return ret;
+}
+
+static WEBP_INLINE uint8x8x2_t vld1_u8_x2(const uint8_t *p) {
+    uint8x8x2_t ret;
+    ret.val[0] = vld1_u8(p + 0);
+    ret.val[1] = vld1_u8(p + 8);
+    return ret;
 }
 #endif
 
