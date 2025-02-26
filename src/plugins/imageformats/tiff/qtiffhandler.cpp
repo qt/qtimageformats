@@ -343,14 +343,15 @@ bool QTiffHandlerPrivate::readHeaders(QIODevice *device)
         format = QImage::Format_Grayscale16;
     else if ((grayscale || photometric == PHOTOMETRIC_PALETTE) && bitPerSample == 8 && samplesPerPixel == 1)
         format = QImage::Format_Indexed8;
-    else if (samplesPerPixel < 4)
-        if (bitPerSample == 16 && (photometric == PHOTOMETRIC_RGB || photometric == PHOTOMETRIC_MINISBLACK))
+    else if (samplesPerPixel < 4) {
+        bool regular = (samplesPerPixel != 2) && (photometric == PHOTOMETRIC_RGB || photometric == PHOTOMETRIC_MINISBLACK);
+        if (bitPerSample == 16 && regular)
             format = floatingPoint ? QImage::Format_RGBX16FPx4 : QImage::Format_RGBX64;
-        else if (bitPerSample == 32 && floatingPoint && (photometric == PHOTOMETRIC_RGB || photometric == PHOTOMETRIC_MINISBLACK))
+        else if (bitPerSample == 32 && floatingPoint && regular)
             format = QImage::Format_RGBX32FPx4;
         else
             format = QImage::Format_RGB32;
-    else {
+    } else {
         uint16_t count;
         uint16_t *extrasamples;
         // If there is any definition of the alpha-channel, libtiff will return premultiplied
