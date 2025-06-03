@@ -7,6 +7,8 @@
 
 QT_BEGIN_NAMESPACE
 
+using namespace NS_IIOF_HELPERS;
+
 class QMacJp2HandlerPrivate
 {
     Q_DECLARE_PUBLIC(QMacJp2Handler)
