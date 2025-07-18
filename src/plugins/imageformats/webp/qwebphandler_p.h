@@ -14,6 +14,8 @@
 #include "webp/decode.h"
 #include "webp/demux.h"
 
+QT_BEGIN_NAMESPACE
+
 class QWebpHandler : public QImageIOHandler
 {
 public:
@@ -62,5 +64,7 @@ private:
     QColorSpace m_colorSpace;
     QImage *m_composited;   // For animation frames composition
 };
+
+QT_END_NAMESPACE
 
 #endif // WEBPHANDLER_H
