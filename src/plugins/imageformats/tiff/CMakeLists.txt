@@ -86,6 +86,8 @@ qt_internal_extend_target(QTiffPlugin CONDITION NOT QT_FEATURE_system_tiff
         ../../../3rdparty/libtiff/libtiff
     ATTRIBUTION_FILE_DIR_PATHS
         ../../../3rdparty/libtiff
+    DEFINES
+        LOGLUV_PUBLIC=0
 )
 
 qt_internal_extend_target(QTiffPlugin CONDITION WIN32 AND NOT QT_FEATURE_system_tiff
