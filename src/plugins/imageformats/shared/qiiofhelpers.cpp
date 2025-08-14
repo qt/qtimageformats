@@ -7,14 +7,12 @@
 #include <QImageIOHandler>
 #include <QImage>
 
+#include <QtGui/private/qcoregraphics_p.h>
+
 #include "qiiofhelpers_p.h"
 
 
 QT_BEGIN_NAMESPACE
-
-// QImage <-> CGImage conversion functions from QtGui on darwin
-CGImageRef qt_mac_toCGImage(const QImage &qImage);
-QImage qt_mac_toQImage(CGImageRef image);
 
 namespace NS_IIOF_HELPERS {
 
