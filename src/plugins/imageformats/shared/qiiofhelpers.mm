@@ -71,6 +71,10 @@ static size_t cbPutBytes(void *info, const void *buffer, size_t count)
     return size_t(qMax(qint64(0), res));
 }
 
+static void cbRelease(void *info)
+{
+    qCDebug(lcImageIO) << "Releasing" << info;
+}
 
 QImageIOPlugin::Capabilities QIIOFHelpers::systemCapabilities(const QString &uti)
 {
@@ -109,8 +113,6 @@ QIIOFHelper::QIIOFHelper(QImageIOHandler *q)
 
 bool QIIOFHelper::initRead()
 {
-    static const CGDataProviderSequentialCallbacks cgCallbacks = { 0, &cbGetBytes, &cbSkipForward, &cbRewind, nullptr };
-
     if (cgImageSource)
         return true;
     if (!q_ptr || !q_ptr->device())
@@ -121,6 +123,10 @@ bool QIIOFHelper::initRead()
         const void *rawData = b->data().constData() + b->pos();
         cgDataProvider = CGDataProviderCreateWithData(nullptr, rawData, size_t(b->data().size() - b->pos()), nullptr);
     } else {
+        static const CGDataProviderSequentialCallbacks cgCallbacks = {
+            0, // Version, always 0
+            &cbGetBytes, &cbSkipForward, &cbRewind, &cbRelease
+        };
         cgDataProvider = CGDataProviderCreateSequential(q_ptr->device(), &cgCallbacks);
     }
 
