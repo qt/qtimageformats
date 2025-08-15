@@ -114,8 +114,10 @@ bool QIIOFHelper::initRead()
 
     cgImageSource = CGImageSourceCreateWithDataProvider(cgDataProvider, nullptr);
 
-    if (cgImageSource)
-        cfImageDict = CGImageSourceCopyPropertiesAtIndex(cgImageSource, 0, nullptr);
+    if (cgImageSource) {
+        auto primaryIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource);
+        cfImageDict = CGImageSourceCopyPropertiesAtIndex(cgImageSource, primaryIndex, nullptr);
+    }
 
     return (cgImageSource);
 }
@@ -125,7 +127,8 @@ bool QIIOFHelper::readImage(QImage *out)
     if (!out || !initRead())
         return false;
 
-    QCFType<CGImageRef> cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, 0, nullptr);
+    auto primaryIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource);
+    QCFType<CGImageRef> cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, primaryIndex, nullptr);
     if (!cgImage)
         return false;
 
