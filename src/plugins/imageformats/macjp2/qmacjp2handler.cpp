@@ -37,7 +37,7 @@ bool QMacJp2Handler::canRead(QIODevice *iod)
     bool bCanRead = false;
     char buf[12];
     if (iod && iod->peek(buf, 12) == 12)
-        bCanRead = !qstrncmp(buf, "\000\000\000\fjP  \r\n\207\n", 12);
+        bCanRead = !memcmp(buf, "\000\000\000\fjP  \r\n\207\n", 12);
     return bCanRead;
 }
 
