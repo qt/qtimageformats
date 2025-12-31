@@ -32,9 +32,13 @@ public:
     int imageCount() const override;
     int currentImageNumber() const override;
 
-    enum Compression {
-        NoCompression = 0,
-        LzwCompression = 1
+    enum class Compression {
+        None = 0,
+        Lzw = 1,
+        HuffmanRLE = 2,
+        Group3 = 3,
+        Group4 = 4,
+        Jpeg = 5
     };
 private:
     void convert32BitOrder(void *buffer, int width);
@@ -43,6 +47,7 @@ private:
     void rgbFixup(QImage *image);
     const QScopedPointer<QTiffHandlerPrivate> d;
     bool ensureHaveDirectoryCount() const;
+    int toLibTiffCompression(Compression compression) const;
 };
 
 QT_END_NAMESPACE
