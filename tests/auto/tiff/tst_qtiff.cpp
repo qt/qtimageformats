@@ -181,20 +181,20 @@ void tst_qtiff::readImage()
 void tst_qtiff::readCorruptImage_data()
 {
     QTest::addColumn<QString>("fileName");
-    QTest::addColumn<QString>("message");
+    QTest::addColumn<QByteArray>("message");
 
-    QTest::newRow("corrupt tiff") << QString("corrupt-data.tif") << QString();
+    QTest::newRow("corrupt tiff") << QString("corrupt-data.tif") << QByteArray();
 }
 
 void tst_qtiff::readCorruptImage()
 {
     QFETCH(QString, fileName);
-    QFETCH(QString, message);
+    QFETCH(const QByteArray, message);
 
     QString path = prefix + fileName;
     QImageReader reader(path);
     if (!message.isEmpty())
-        QTest::ignoreMessage(QtWarningMsg, message.toLatin1());
+        QTest::ignoreMessage(QtWarningMsg, message.data());
     QVERIFY(reader.canRead());
     QImage image = reader.read();
     QVERIFY(image.isNull());
