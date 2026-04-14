@@ -4,6 +4,8 @@
 #include <QtTest/QtTest>
 #include <QtGui/QtGui>
 
+using namespace Qt::StringLiterals;
+
 class tst_qmng: public QObject
 {
     Q_OBJECT
@@ -49,22 +51,22 @@ void tst_qmng::readImage()
 void tst_qmng::readCorruptImage_data()
 {
     QTest::addColumn<QString>("fileName");
-    QTest::addColumn<QString>("message");
+    QTest::addColumn<QByteArray>("message");
 
     QTest::newRow("corrupt")
             << QString("corrupt.mng")
-            << QString("MNG error 901: Application signalled I/O error; chunk IHDR; subcode 0:0");
+            << "MNG error 901: Application signalled I/O error; chunk IHDR; subcode 0:0"_ba;
 }
 
 void tst_qmng::readCorruptImage()
 {
     QFETCH(QString, fileName);
-    QFETCH(QString, message);
+    QFETCH(const QByteArray, message);
 
     QString path = QString(":/mng/") + fileName;
     QImageReader reader(path);
     if (!message.isEmpty())
-        QTest::ignoreMessage(QtWarningMsg, message.toLatin1());
+        QTest::ignoreMessage(QtWarningMsg, message.data());
     QVERIFY(reader.canRead());
     QImage image = reader.read();
     QVERIFY(image.isNull());
