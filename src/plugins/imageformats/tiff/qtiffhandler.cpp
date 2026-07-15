@@ -20,6 +20,7 @@ extern "C" {
 }
 
 #include <memory>
+#include <QtCore/q20utility.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -699,7 +700,10 @@ bool QTiffHandler::write(const QImage &image)
     // set color space
     const QByteArray iccProfile = image.colorSpace().iccProfile();
     if (!iccProfile.isEmpty()) {
-        if (!TIFFSetField(tiff, TIFFTAG_ICCPROFILE, iccProfile.size(), reinterpret_cast<const void *>(iccProfile.constData()))) {
+        const auto size = static_cast<uint32_t>(iccProfile.size());
+        if (!q20::cmp_equal(size, iccProfile.size()) // narrowed
+            || !TIFFSetField(tiff, TIFFTAG_ICCPROFILE, size, iccProfile.data()))
+        {
             TIFFClose(tiff);
             return false;
         }
