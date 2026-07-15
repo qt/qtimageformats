@@ -113,17 +113,17 @@ public:
                                   const char *fmt, va_list ap);
 #endif
 
-    TIFF *tiff;
-    int compression;
-    QImageIOHandler::Transformations transformation;
-    QImage::Format format;
+    TIFF *tiff = nullptr;
+    int compression = QTiffHandler::NoCompression;
+    QImageIOHandler::Transformations transformation = QImageIOHandler::TransformationNone;
+    QImage::Format format = QImage::Format_Invalid;
     QSize size;
-    uint16_t photometric;
-    bool grayscale;
+    uint16_t photometric = {}; // no good default, so just value-init
+    bool grayscale = false;
     bool floatingPoint = false;
-    bool headersRead;
-    int currentDirectory;
-    int directoryCount;
+    bool headersRead = false;
+    int currentDirectory = 0;
+    int directoryCount = 0;
 };
 
 static QImageIOHandler::Transformations exif2Qt(int exifOrientation)
@@ -175,17 +175,7 @@ static int qt2Exif(QImageIOHandler::Transformations transformation)
 }
 
 QTiffHandlerPrivate::QTiffHandlerPrivate()
-    : tiff(0)
-    , compression(QTiffHandler::NoCompression)
-    , transformation(QImageIOHandler::TransformationNone)
-    , format(QImage::Format_Invalid)
-    , photometric(false)
-    , grayscale(false)
-    , headersRead(false)
-    , currentDirectory(0)
-    , directoryCount(0)
-{
-}
+    = default;
 
 QTiffHandlerPrivate::~QTiffHandlerPrivate()
 {
