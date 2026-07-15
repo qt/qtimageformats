@@ -655,6 +655,11 @@ bool QTiffHandler::write(const QImage &image)
     if (!tiff)
         return false;
 
+    // image.scanLine() returns const uchar*, but TIFFWriteScanline wants non-const void*, adapt:
+    const auto writeScanline = [&](const void *line, int y) {
+        return TIFFWriteScanline(tiff, const_cast<void*>(line), y);
+    };
+
     const int width = image.width();
     const int height = image.height();
     const int compression = toLibTiffCompression(d->compression);
@@ -724,7 +729,7 @@ bool QTiffHandler::write(const QImage &image)
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
             while (y < chunkEnd) {
-                if (TIFFWriteScanline(tiff, reinterpret_cast<uint32_t *>(chunk.scanLine(y - chunkStart)), y) != 1) {
+                if (writeScanline(chunk.scanLine(y - chunkStart), y) != 1) {
                     TIFFClose(tiff);
                     return false;
                 }
@@ -784,7 +789,7 @@ bool QTiffHandler::write(const QImage &image)
 
         //// write the data
         for (int y = 0; y < height; ++y) {
-            if (TIFFWriteScanline(tiff, const_cast<uchar *>(image.scanLine(y)), y) != 1) {
+            if (writeScanline(image.scanLine(y), y) != 1) {
                 TIFFClose(tiff);
                 return false;
             }
@@ -812,7 +817,7 @@ bool QTiffHandler::write(const QImage &image)
                 rgb48line[x * 3 + 2] = srcLine[x * 4 + 2];
             }
 
-            if (TIFFWriteScanline(tiff, (void*)rgb48line.get(), y) != 1) {
+            if (writeScanline(rgb48line.get(), y) != 1) {
                 TIFFClose(tiff);
                 return false;
             }
@@ -833,7 +838,7 @@ bool QTiffHandler::write(const QImage &image)
             return false;
         }
         for (int y = 0; y < height; ++y) {
-            if (TIFFWriteScanline(tiff, (void*)image.scanLine(y), y) != 1) {
+            if (writeScanline(image.scanLine(y), y) != 1) {
                 TIFFClose(tiff);
                 return false;
             }
@@ -858,7 +863,7 @@ bool QTiffHandler::write(const QImage &image)
                 line[x * 3 + 2] = srcLine[x * 4 + 2];
             }
 
-            if (TIFFWriteScanline(tiff, (void*)line.get(), y) != 1) {
+            if (writeScanline(line.get(), y) != 1) {
                 TIFFClose(tiff);
                 return false;
             }
@@ -880,7 +885,7 @@ bool QTiffHandler::write(const QImage &image)
             return false;
         }
         for (int y = 0; y < height; ++y) {
-            if (TIFFWriteScanline(tiff, (void*)image.scanLine(y), y) != 1) {
+            if (writeScanline(image.scanLine(y), y) != 1) {
                 TIFFClose(tiff);
                 return false;
             }
@@ -898,7 +903,7 @@ bool QTiffHandler::write(const QImage &image)
         }
 
         for (int y = 0; y < image.height(); ++y) {
-            if (TIFFWriteScanline(tiff, (void*)image.scanLine(y), y) != 1) {
+            if (writeScanline(image.scanLine(y), y) != 1) {
                 TIFFClose(tiff);
                 return false;
             }
@@ -925,7 +930,7 @@ bool QTiffHandler::write(const QImage &image)
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
             while (y < chunkEnd) {
-                if (TIFFWriteScanline(tiff, (void*)chunk.scanLine(y - chunkStart), y) != 1) {
+                if (writeScanline(chunk.scanLine(y - chunkStart), y) != 1) {
                     TIFFClose(tiff);
                     return false;
                 }
@@ -959,7 +964,7 @@ bool QTiffHandler::write(const QImage &image)
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
             while (y < chunkEnd) {
-                if (TIFFWriteScanline(tiff, (void*)chunk.scanLine(y - chunkStart), y) != 1) {
+                if (writeScanline(chunk.scanLine(y - chunkStart), y) != 1) {
                     TIFFClose(tiff);
                     return false;
                 }
