@@ -115,10 +115,14 @@ bool QWebpHandler::ensureDemuxer()
         return true;
 
     m_rawData = device()->readAll();
-    m_webpData.bytes = reinterpret_cast<const uint8_t *>(m_rawData.constData());
-    m_webpData.size = m_rawData.size();
 
-    m_demuxer = WebPDemux(&m_webpData);
+    m_demuxer = [&] {
+        WebPData data = {};
+        data.bytes = reinterpret_cast<const uint8_t *>(m_rawData.constData());
+        data.size = m_rawData.size();
+        return WebPDemux(&data); // reads `*data`, doesn't store `data`
+    }();
+
     if (m_demuxer == NULL)
         return false;
 
