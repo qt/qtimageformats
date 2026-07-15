@@ -119,7 +119,7 @@ public:
     QSize size;
     uint16_t photometric;
     bool grayscale;
-    bool floatingPoint;
+    bool floatingPoint = false;
     bool headersRead;
     int currentDirectory;
     int directoryCount;
