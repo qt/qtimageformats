@@ -5,9 +5,13 @@
 #include <QGuiApplication>
 #include <QBuffer>
 #include <QImageIOHandler>
+#include <QImageReader>
 #include <QImage>
 
 #include <QtCore/qloggingcategory.h>
+#include <QtCore/qnumeric.h>
+
+#include <limits>
 
 #include <QtGui/private/qcoregraphics_p.h>
 
@@ -42,13 +46,21 @@ static off_t cbSkipForward(void *info, off_t count)
         return 0;
     qint64 res = 0;
     if (!dev->isSequential()) {
-        qint64 prevPos = dev->pos();
-        dev->seek(prevPos + count);
+        const qint64 prevPos = dev->pos();
+        qint64 newPos;
+        if (!qAddOverflow(prevPos, qint64(count), &newPos))
+            dev->seek(newPos);
         res = dev->pos() - prevPos;
     } else {
-        char *buf = new char[quint64(count)];
-        res = dev->read(buf, count);
-        delete[] buf;
+        char buf[4096];
+        qint64 remaining = count;
+        while (remaining > 0) {
+            const qint64 chunk = dev->read(buf, qMin(remaining, qint64(sizeof(buf))));
+            if (chunk <= 0)
+                break;
+            res += chunk;
+            remaining -= chunk;
+        }
     }
     return qMax(qint64(0), res);
 }
@@ -149,6 +161,21 @@ bool QIIOFHelper::readImage(QImage *out)
     if (!out || !initRead())
         return false;
 
+    // Native reader cannot use QImageIOHandler::allocateImage() so do manual alloc check here
+    if (const int mbLimit = QImageReader::allocationLimit()) {
+        const QSize size = imageProperty(QImageIOHandler::Size).toSize();
+        if (!size.isEmpty()) {
+            qsizetype bpl, total;
+            if (qMulOverflow<qsizetype>(size.width(), 4, &bpl)
+                || qMulOverflow<qsizetype>(bpl, size.height(), &total)
+                || (total >> 20) > qsizetype(mbLimit)) {
+                qCWarning(lcImageIO, "QIIOFHelper: rejecting image (%dx%d) as it exceeds the "
+                          "allocation limit of %d MB", size.width(), size.height(), mbLimit);
+                return false;
+            }
+        }
+    }
+
     auto primaryIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource);
     QCFType<CGImageRef> cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, primaryIndex, nullptr);
 
@@ -163,10 +190,11 @@ bool QIIOFHelper::readImage(QImage *out)
         return false;
 
     int dpi = 0;
-    if (getIntProperty(kCGImagePropertyDPIWidth, &dpi))
-        out->setDotsPerMeterX(qRound(dpi / 0.0254f));
-    if (getIntProperty(kCGImagePropertyDPIHeight, &dpi))
-        out->setDotsPerMeterY(qRound(dpi / 0.0254f));
+    constexpr int maxDpi = int(double(std::numeric_limits<int>::max()) * 0.0254);
+    if (getIntProperty(kCGImagePropertyDPIWidth, &dpi) && dpi > 0 && dpi <= maxDpi)
+        out->setDotsPerMeterX(qRound(dpi / 0.0254));
+    if (getIntProperty(kCGImagePropertyDPIHeight, &dpi) && dpi > 0 && dpi <= maxDpi)
+        out->setDotsPerMeterY(qRound(dpi / 0.0254));
 
     return true;
 }
