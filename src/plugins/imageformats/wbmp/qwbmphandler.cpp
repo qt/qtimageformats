@@ -263,15 +263,11 @@ bool QWbmpHandler::canRead() const
 */
 bool QWbmpHandler::read(QImage *image)
 {
-    bool bSuccess = false;
     QImage img = m_reader->readImage();
-
-    if (!img.isNull()) {
-        bSuccess = true;
-        *image = img;
-    }
-
-    return bSuccess;
+    if (img.isNull())
+        return false;
+    *image = std::move(img);
+    return true;
 }
 
 /*! \reimp
