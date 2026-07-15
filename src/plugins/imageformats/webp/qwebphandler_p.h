@@ -60,7 +60,7 @@ private:
     int m_frameCount;
     QColor m_bgColor;
     QByteArray m_rawData;
-    WebPData m_webpData;
+    WebPData m_webpData = {};
     WebPDemuxer *m_demuxer;
     WebPIterator m_iter;
     QColorSpace m_colorSpace;
