@@ -180,10 +180,7 @@ bool QWebpHandler::read(QImage *image)
 #endif
         return false;
 
-    if (!m_features.has_animation) {
-        // Single image
-        *image = frame;
-    } else {
+    if (m_features.has_animation) {
         // Animation
         QPainter painter(m_composited);
         if (!prevFrameRect.isEmpty()) {
@@ -199,6 +196,9 @@ bool QWebpHandler::read(QImage *image)
         painter.drawImage(currentImageRect(), frame);
 
         *image = *m_composited;
+    } else {
+        // Single image
+        *image = std::move(frame);
     }
     image->setColorSpace(m_colorSpace);
 
