@@ -427,8 +427,13 @@ bool QTiffHandler::read(QImage *image)
     }
 
     TIFF *const tiff = d->tiff;
-    if (TIFFIsTiled(tiff) && TIFFTileSize64(tiff) > uint64_t(image->sizeInBytes())) // Corrupt image
+
+    // Check for corrupt images early, before libtiff sinks time into parsing:
+    if (TIFFIsTiled(tiff) && TIFFTileSize64(tiff) > uint64_t(image->sizeInBytes())) {
+        d->close();
         return false;
+    }
+
     const quint32 width = d->size.width();
     const quint32 height = d->size.height();
 
