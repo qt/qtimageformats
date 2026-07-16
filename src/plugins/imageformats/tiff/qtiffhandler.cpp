@@ -26,6 +26,15 @@ QT_BEGIN_NAMESPACE
 
 Q_STATIC_LOGGING_CATEGORY(lcTiff, "qt.imageformats.tiff")
 
+namespace {
+struct TiffCloseDeleter {
+    void operator()(TIFF *p) const noexcept
+    { TIFFClose(p); } // unique_ptr only calls us for p != nullptr
+};
+}
+
+using TiffUniquePtr = std::unique_ptr<TIFF, TiffCloseDeleter>;
+
 tsize_t qtiffReadProc(thandle_t fd, tdata_t buf, tsize_t size)
 {
     QIODevice *device = static_cast<QIODevice *>(fd);
@@ -106,7 +115,7 @@ public:
     bool readHeaders(QIODevice *device);
     bool readNextImage(QImage *image); // implementation of one read()
     void close();
-    TIFF *openInternal(const char *mode, QIODevice *device);
+    TiffUniquePtr openInternal(const char *mode, QIODevice *device);
 #if TIFFLIB_VERSION >= 20221213
     static int tiffErrorHandler(TIFF *tif, void *user_data, const char *,
                                 const char *fmt, va_list ap);
@@ -195,7 +204,7 @@ void QTiffHandlerPrivate::close()
     headersRead = false;
 }
 
-TIFF *QTiffHandlerPrivate::openInternal(const char *mode, QIODevice *device)
+TiffUniquePtr QTiffHandlerPrivate::openInternal(const char *mode, QIODevice *device)
 {
 // TIFFLIB_VERSION 20221213 -> 4.5.0
 #if TIFFLIB_VERSION >= 20221213
@@ -235,7 +244,7 @@ TIFF *QTiffHandlerPrivate::openInternal(const char *mode, QIODevice *device)
                                  qtiffMapProc,
                                  qtiffUnmapProc);
 #endif
-    return handle;
+    return TiffUniquePtr{handle};
 }
 
 
@@ -288,7 +297,7 @@ bool QTiffHandlerPrivate::openForRead(QIODevice *device)
     if (!canRead(device))
         return false;
 
-    tiff = openInternal("rh", device);
+    tiff = openInternal("rh", device).release();
     return tiff != nullptr;
 }
 
@@ -639,8 +648,9 @@ static QList<QRgb> effectiveColorTable(const QImage &image)
     return colors;
 }
 
-static quint32 defaultStripSize(TIFF *tiff)
+static quint32 defaultStripSize(const TiffUniquePtr &p)
 {
+    auto tiff = p.get();
     // Aim for 4MB strips
     qint64 scanSize = qMax(qint64(1), qint64(TIFFScanlineSize(tiff)));
     qint64 numRows = (4 * 1024 * 1024) / scanSize;
@@ -653,17 +663,17 @@ bool QTiffHandler::write(const QImage &image)
     if (!device()->isWritable())
         return false;
 
-    TIFF *const tiff = d->openInternal("wB", device());
+    const auto tiff = d->openInternal("wB", device());
     if (!tiff)
         return false;
 
     // image.scanLine() returns const uchar*, but TIFFWriteScanline wants non-const void*, adapt:
     const auto writeScanline = [&](const void *line, int y) {
-        return TIFFWriteScanline(tiff, const_cast<void*>(line), y);
+        return TIFFWriteScanline(tiff.get(), const_cast<void*>(line), y);
     };
     // this one is just for DRYing:
     const auto setField = [&] (uint32_t tag, auto&&...args) {
-        return TIFFSetField(tiff, tag, std::forward<decltype(args)>(args)...);
+        return TIFFSetField(tiff.get(), tag, std::forward<decltype(args)>(args)...);
     };
 
     const int width = image.width();
@@ -674,7 +684,6 @@ bool QTiffHandler::write(const QImage &image)
         || !setField(TIFFTAG_COMPRESSION, d->compression == NoCompression ? COMPRESSION_NONE : COMPRESSION_LZW)
         || !setField(TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG))
     {
-        TIFFClose(tiff);
         return false;
     }
 
@@ -692,15 +701,13 @@ bool QTiffHandler::write(const QImage &image)
                      && setField(TIFFTAG_XRESOLUTION, static_cast<float>(image.logicalDpiX()))
                      && setField(TIFFTAG_YRESOLUTION, static_cast<float>(image.logicalDpiY()));
     }
-    if (!resolutionSet) {
-        TIFFClose(tiff);
+    if (!resolutionSet)
         return false;
-    }
+
     // set the orienataion
-    if (!setField(TIFFTAG_ORIENTATION, qt2Exif(d->transformation))) {
-        TIFFClose(tiff);
+    if (!setField(TIFFTAG_ORIENTATION, qt2Exif(d->transformation)))
         return false;
-    }
+
     // set color space
     const QByteArray iccProfile = image.colorSpace().iccProfile();
     if (!iccProfile.isEmpty()) {
@@ -708,7 +715,6 @@ bool QTiffHandler::write(const QImage &image)
         if (!q20::cmp_equal(size, iccProfile.size()) // narrowed
             || !setField(TIFFTAG_ICCPROFILE, size, iccProfile.data()))
         {
-            TIFFClose(tiff);
             return false;
         }
     }
@@ -723,7 +729,6 @@ bool QTiffHandler::write(const QImage &image)
             || !setField(TIFFTAG_BITSPERSAMPLE, 1)
             || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
         {
-            TIFFClose(tiff);
             return false;
         }
 
@@ -738,14 +743,11 @@ bool QTiffHandler::write(const QImage &image)
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
             while (y < chunkEnd) {
-                if (writeScanline(chunk.scanLine(y - chunkStart), y) != 1) {
-                    TIFFClose(tiff);
+                if (writeScanline(chunk.scanLine(y - chunkStart), y) != 1)
                     return false;
-                }
                 ++y;
             }
         }
-        TIFFClose(tiff);
     } else if (format == QImage::Format_Indexed8
                || format == QImage::Format_Grayscale8
                || format == QImage::Format_Grayscale16
@@ -761,7 +763,6 @@ bool QTiffHandler::write(const QImage &image)
                 || !setField(TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT)
                 || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
             {
-                TIFFClose(tiff);
                 return false;
             }
         } else {
@@ -769,7 +770,6 @@ bool QTiffHandler::write(const QImage &image)
                 || !setField(TIFFTAG_BITSPERSAMPLE, 8)
                 || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
             {
-                TIFFClose(tiff);
                 return false;
             }
             //// write the color table
@@ -788,20 +788,15 @@ bool QTiffHandler::write(const QImage &image)
                 blueTable[i] = qBlue(color) * 257;
             }
 
-            if (!setField(TIFFTAG_COLORMAP, redTable.data(), greenTable.data(), blueTable.data())) {
-                TIFFClose(tiff);
+            if (!setField(TIFFTAG_COLORMAP, redTable.data(), greenTable.data(), blueTable.data()))
                 return false;
-            }
         }
 
         //// write the data
         for (int y = 0; y < height; ++y) {
-            if (writeScanline(image.scanLine(y), y) != 1) {
-                TIFFClose(tiff);
+            if (writeScanline(image.scanLine(y), y) != 1)
                 return false;
-            }
         }
-        TIFFClose(tiff);
     } else if (format == QImage::Format_RGBX64 || format == QImage::Format_RGBX16FPx4) {
         if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
             || !setField(TIFFTAG_SAMPLESPERPIXEL, 3)
@@ -812,7 +807,6 @@ bool QTiffHandler::write(const QImage &image)
                                 : SAMPLEFORMAT_IEEEFP)
             || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
         {
-            TIFFClose(tiff);
             return false;
         }
         std::unique_ptr<quint16[]> rgb48line(new quint16[width * 3]);
@@ -824,12 +818,9 @@ bool QTiffHandler::write(const QImage &image)
                 rgb48line[x * 3 + 2] = srcLine[x * 4 + 2];
             }
 
-            if (writeScanline(rgb48line.get(), y) != 1) {
-                TIFFClose(tiff);
+            if (writeScanline(rgb48line.get(), y) != 1)
                 return false;
-            }
         }
-        TIFFClose(tiff);
     } else if (format == QImage::Format_RGBA64
                || format == QImage::Format_RGBA64_Premultiplied) {
         const bool premultiplied = image.format() != QImage::Format_RGBA64;
@@ -841,16 +832,12 @@ bool QTiffHandler::write(const QImage &image)
             || !setField(TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
             || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
         {
-            TIFFClose(tiff);
             return false;
         }
         for (int y = 0; y < height; ++y) {
-            if (writeScanline(image.scanLine(y), y) != 1) {
-                TIFFClose(tiff);
+            if (writeScanline(image.scanLine(y), y) != 1)
                 return false;
-            }
         }
-        TIFFClose(tiff);
     } else if (format == QImage::Format_RGBX32FPx4) {
         if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
             || !setField(TIFFTAG_SAMPLESPERPIXEL, 3)
@@ -858,7 +845,6 @@ bool QTiffHandler::write(const QImage &image)
             || !setField(TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP)
             || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
         {
-            TIFFClose(tiff);
             return false;
         }
         std::unique_ptr<float[]> line(new float[width * 3]);
@@ -870,12 +856,9 @@ bool QTiffHandler::write(const QImage &image)
                 line[x * 3 + 2] = srcLine[x * 4 + 2];
             }
 
-            if (writeScanline(line.get(), y) != 1) {
-                TIFFClose(tiff);
+            if (writeScanline(line.get(), y) != 1)
                 return false;
-            }
         }
-        TIFFClose(tiff);
     } else if (format == QImage::Format_RGBA16FPx4 || format == QImage::Format_RGBA32FPx4
                || format == QImage::Format_RGBA16FPx4_Premultiplied
                || format == QImage::Format_RGBA32FPx4_Premultiplied) {
@@ -888,16 +871,12 @@ bool QTiffHandler::write(const QImage &image)
             || !setField(TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
             || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
         {
-            TIFFClose(tiff);
             return false;
         }
         for (int y = 0; y < height; ++y) {
-            if (writeScanline(image.scanLine(y), y) != 1) {
-                TIFFClose(tiff);
+            if (writeScanline(image.scanLine(y), y) != 1)
                 return false;
-            }
         }
-        TIFFClose(tiff);
     } else if (format == QImage::Format_CMYK8888) {
         if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_SEPARATED)
             || !setField(TIFFTAG_SAMPLESPERPIXEL, 4)
@@ -905,25 +884,19 @@ bool QTiffHandler::write(const QImage &image)
             || !setField(TIFFTAG_INKSET, INKSET_CMYK)
             || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
         {
-            TIFFClose(tiff);
             return false;
         }
 
         for (int y = 0; y < image.height(); ++y) {
-            if (writeScanline(image.scanLine(y), y) != 1) {
-                TIFFClose(tiff);
+            if (writeScanline(image.scanLine(y), y) != 1)
                 return false;
-            }
         }
-
-        TIFFClose(tiff);
     } else if (!image.hasAlphaChannel()) {
         if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
             || !setField(TIFFTAG_SAMPLESPERPIXEL, 3)
             || !setField(TIFFTAG_BITSPERSAMPLE, 8)
             || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
         {
-            TIFFClose(tiff);
             return false;
         }
         // try to do the RGB888 conversion in chunks no greater than 16 MB
@@ -937,14 +910,11 @@ bool QTiffHandler::write(const QImage &image)
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
             while (y < chunkEnd) {
-                if (writeScanline(chunk.scanLine(y - chunkStart), y) != 1) {
-                    TIFFClose(tiff);
+                if (writeScanline(chunk.scanLine(y - chunkStart), y) != 1)
                     return false;
-                }
                 ++y;
             }
         }
-        TIFFClose(tiff);
     } else {
         const bool premultiplied = image.format() != QImage::Format_ARGB32
                                 && image.format() != QImage::Format_RGBA8888;
@@ -955,7 +925,6 @@ bool QTiffHandler::write(const QImage &image)
             || !setField(TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
             || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
         {
-            TIFFClose(tiff);
             return false;
         }
         // try to do the RGBA8888 conversion in chunks no greater than 16 MB
@@ -971,14 +940,11 @@ bool QTiffHandler::write(const QImage &image)
             int chunkStart = y;
             int chunkEnd = y + chunk.height();
             while (y < chunkEnd) {
-                if (writeScanline(chunk.scanLine(y - chunkStart), y) != 1) {
-                    TIFFClose(tiff);
+                if (writeScanline(chunk.scanLine(y - chunkStart), y) != 1)
                     return false;
-                }
                 ++y;
             }
         }
-        TIFFClose(tiff);
     }
 
     return true;
@@ -1155,16 +1121,15 @@ bool QTiffHandler::ensureHaveDirectoryCount() const
     if (d->directoryCount > 0)
         return true;
 
-    TIFF *tiff = d->openInternal("rh", device());
+    const auto tiff = d->openInternal("rh", device());
 
     if (!tiff) {
         device()->reset();
         return false;
     }
 
-    while (TIFFReadDirectory(tiff))
+    while (TIFFReadDirectory(tiff.get()))
       ++d->directoryCount;
-    TIFFClose(tiff);
     device()->reset();
     return true;
 }
