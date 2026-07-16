@@ -669,10 +669,10 @@ bool QTiffHandler::write(const QImage &image)
 
     const int width = image.width();
     const int height = image.height();
-    const int compression = toLibTiffCompression(d->compression);
 
     if (!TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, width)
         || !TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, height)
+        || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, toLibTiffCompression(d->compression))
         || !TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG)) {
         TIFFClose(tiff);
         return false;
@@ -714,6 +714,7 @@ bool QTiffHandler::write(const QImage &image)
             return false;
         }
     }
+
     // configure image depth
     const QImage::Format format = image.format();
     if (format == QImage::Format_Mono || format == QImage::Format_MonoLSB) {
@@ -721,7 +722,6 @@ bool QTiffHandler::write(const QImage &image)
         if (image.colorTable().at(0) == 0xffffffff)
             photometric = PHOTOMETRIC_MINISWHITE;
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, photometric)
-            || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 1)
             || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
             TIFFClose(tiff);
@@ -758,7 +758,6 @@ bool QTiffHandler::write(const QImage &image)
             if (colorTable.at(0) == 0xffffffff)
                 photometric = PHOTOMETRIC_MINISWHITE;
             if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, photometric)
-                    || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
                     || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, image.depth())
                     || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT)
                     || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
@@ -767,7 +766,6 @@ bool QTiffHandler::write(const QImage &image)
             }
         } else {
             if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_PALETTE)
-                    || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
                     || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
                     || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
                 TIFFClose(tiff);
@@ -807,7 +805,6 @@ bool QTiffHandler::write(const QImage &image)
         TIFFClose(tiff);
     } else if (format == QImage::Format_RGBX64 || format == QImage::Format_RGBX16FPx4) {
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 3)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 16)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT,
@@ -838,7 +835,6 @@ bool QTiffHandler::write(const QImage &image)
         const bool premultiplied = image.format() != QImage::Format_RGBA64;
         const uint16_t extrasamples = premultiplied ? EXTRASAMPLE_ASSOCALPHA : EXTRASAMPLE_UNASSALPHA;
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 16)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT)
@@ -856,7 +852,6 @@ bool QTiffHandler::write(const QImage &image)
         TIFFClose(tiff);
     } else if (format == QImage::Format_RGBX32FPx4) {
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 3)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 32)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP)
@@ -885,7 +880,6 @@ bool QTiffHandler::write(const QImage &image)
         const bool premultiplied = image.format() != QImage::Format_RGBA16FPx4 && image.format() != QImage::Format_RGBA32FPx4;
         const uint16_t extrasamples = premultiplied ? EXTRASAMPLE_ASSOCALPHA : EXTRASAMPLE_UNASSALPHA;
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, image.depth() == 64 ? 16 : 32)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP)
@@ -903,7 +897,6 @@ bool QTiffHandler::write(const QImage &image)
         TIFFClose(tiff);
     } else if (format == QImage::Format_CMYK8888) {
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_SEPARATED)
-            || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
             || !TIFFSetField(tiff, TIFFTAG_INKSET, INKSET_CMYK)
@@ -922,7 +915,6 @@ bool QTiffHandler::write(const QImage &image)
         TIFFClose(tiff);
     } else if (!image.hasAlphaChannel()) {
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 3)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
             || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
@@ -953,7 +945,6 @@ bool QTiffHandler::write(const QImage &image)
                                 && image.format() != QImage::Format_RGBA8888;
         const uint16_t extrasamples = premultiplied ? EXTRASAMPLE_ASSOCALPHA : EXTRASAMPLE_UNASSALPHA;
         if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, compression)
             || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
             || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
             || !TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
