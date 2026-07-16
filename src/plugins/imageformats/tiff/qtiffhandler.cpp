@@ -667,14 +667,19 @@ bool QTiffHandler::write(const QImage &image)
     const auto writeScanline = [&](const void *line, int y) {
         return TIFFWriteScanline(tiff, const_cast<void*>(line), y);
     };
+    // this one is just for DRYing:
+    const auto setField = [&] (uint32_t tag, auto&&...args) {
+        return TIFFSetField(tiff, tag, std::forward<decltype(args)>(args)...);
+    };
 
     const int width = image.width();
     const int height = image.height();
 
-    if (!TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, width)
-        || !TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, height)
-        || !TIFFSetField(tiff, TIFFTAG_COMPRESSION, toLibTiffCompression(d->compression))
-        || !TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG)) {
+    if (!setField(TIFFTAG_IMAGEWIDTH, width)
+        || !setField(TIFFTAG_IMAGELENGTH, height)
+        || !setField(TIFFTAG_COMPRESSION, toLibTiffCompression(d->compression))
+        || !setField(TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG))
+    {
         TIFFClose(tiff);
         return false;
     }
@@ -685,22 +690,20 @@ bool QTiffHandler::write(const QImage &image)
     const int dotPerMeterY = image.dotsPerMeterY();
     if ((dotPerMeterX % 100) == 0
         && (dotPerMeterY % 100) == 0) {
-        resolutionSet = TIFFSetField(tiff, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER)
-                        && TIFFSetField(tiff, TIFFTAG_XRESOLUTION, dotPerMeterX/100.0)
-                        && TIFFSetField(tiff, TIFFTAG_YRESOLUTION, dotPerMeterY/100.0);
+        resolutionSet = setField(TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER)
+                     && setField(TIFFTAG_XRESOLUTION, dotPerMeterX/100.0)
+                     && setField(TIFFTAG_YRESOLUTION, dotPerMeterY/100.0);
     } else {
-        resolutionSet = TIFFSetField(tiff, TIFFTAG_RESOLUTIONUNIT, RESUNIT_INCH)
-                        && TIFFSetField(tiff, TIFFTAG_XRESOLUTION, static_cast<float>(image.logicalDpiX()))
-                        && TIFFSetField(tiff, TIFFTAG_YRESOLUTION, static_cast<float>(image.logicalDpiY()));
+        resolutionSet = setField(TIFFTAG_RESOLUTIONUNIT, RESUNIT_INCH)
+                     && setField(TIFFTAG_XRESOLUTION, static_cast<float>(image.logicalDpiX()))
+                     && setField(TIFFTAG_YRESOLUTION, static_cast<float>(image.logicalDpiY()));
     }
     if (!resolutionSet) {
         TIFFClose(tiff);
         return false;
     }
     // set the orienataion
-    bool orientationSet = false;
-    orientationSet = TIFFSetField(tiff, TIFFTAG_ORIENTATION, qt2Exif(d->transformation));
-    if (!orientationSet) {
+    if (!setField(TIFFTAG_ORIENTATION, qt2Exif(d->transformation))) {
         TIFFClose(tiff);
         return false;
     }
@@ -709,7 +712,7 @@ bool QTiffHandler::write(const QImage &image)
     if (!iccProfile.isEmpty()) {
         const auto size = static_cast<uint32_t>(iccProfile.size());
         if (!q20::cmp_equal(size, iccProfile.size()) // narrowed
-            || !TIFFSetField(tiff, TIFFTAG_ICCPROFILE, size, iccProfile.data()))
+            || !setField(TIFFTAG_ICCPROFILE, size, iccProfile.data()))
         {
             TIFFClose(tiff);
             return false;
@@ -722,9 +725,10 @@ bool QTiffHandler::write(const QImage &image)
         uint16_t photometric = PHOTOMETRIC_MINISBLACK;
         if (image.colorTable().at(0) == 0xffffffff)
             photometric = PHOTOMETRIC_MINISWHITE;
-        if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, photometric)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 1)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+        if (!setField(TIFFTAG_PHOTOMETRIC, photometric)
+            || !setField(TIFFTAG_BITSPERSAMPLE, 1)
+            || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+        {
             TIFFClose(tiff);
             return false;
         }
@@ -758,17 +762,19 @@ bool QTiffHandler::write(const QImage &image)
             uint16_t photometric = PHOTOMETRIC_MINISBLACK;
             if (colorTable.at(0) == 0xffffffff)
                 photometric = PHOTOMETRIC_MINISWHITE;
-            if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, photometric)
-                    || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, image.depth())
-                    || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT)
-                    || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+            if (!setField(TIFFTAG_PHOTOMETRIC, photometric)
+                || !setField(TIFFTAG_BITSPERSAMPLE, image.depth())
+                || !setField(TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT)
+                || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+            {
                 TIFFClose(tiff);
                 return false;
             }
         } else {
-            if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_PALETTE)
-                    || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
-                    || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+            if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_PALETTE)
+                || !setField(TIFFTAG_BITSPERSAMPLE, 8)
+                || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+            {
                 TIFFClose(tiff);
                 return false;
             }
@@ -788,9 +794,7 @@ bool QTiffHandler::write(const QImage &image)
                 blueTable[i] = qBlue(color) * 257;
             }
 
-            const bool setColorTableSuccess = TIFFSetField(tiff, TIFFTAG_COLORMAP, redTable.data(), greenTable.data(), blueTable.data());
-
-            if (!setColorTableSuccess) {
+            if (!setField(TIFFTAG_COLORMAP, redTable.data(), greenTable.data(), blueTable.data())) {
                 TIFFClose(tiff);
                 return false;
             }
@@ -805,14 +809,15 @@ bool QTiffHandler::write(const QImage &image)
         }
         TIFFClose(tiff);
     } else if (format == QImage::Format_RGBX64 || format == QImage::Format_RGBX16FPx4) {
-        if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 3)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 16)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT,
+        if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
+            || !setField(TIFFTAG_SAMPLESPERPIXEL, 3)
+            || !setField(TIFFTAG_BITSPERSAMPLE, 16)
+            || !setField(TIFFTAG_SAMPLEFORMAT,
                              format == QImage::Format_RGBX64
                                 ? SAMPLEFORMAT_UINT
                                 : SAMPLEFORMAT_IEEEFP)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+            || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+        {
             TIFFClose(tiff);
             return false;
         }
@@ -835,12 +840,13 @@ bool QTiffHandler::write(const QImage &image)
                || format == QImage::Format_RGBA64_Premultiplied) {
         const bool premultiplied = image.format() != QImage::Format_RGBA64;
         const uint16_t extrasamples = premultiplied ? EXTRASAMPLE_ASSOCALPHA : EXTRASAMPLE_UNASSALPHA;
-        if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 16)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT)
-            || !TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+        if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
+            || !setField(TIFFTAG_SAMPLESPERPIXEL, 4)
+            || !setField(TIFFTAG_BITSPERSAMPLE, 16)
+            || !setField(TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT)
+            || !setField(TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
+            || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+        {
             TIFFClose(tiff);
             return false;
         }
@@ -852,11 +858,12 @@ bool QTiffHandler::write(const QImage &image)
         }
         TIFFClose(tiff);
     } else if (format == QImage::Format_RGBX32FPx4) {
-        if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 3)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 32)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+        if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
+            || !setField(TIFFTAG_SAMPLESPERPIXEL, 3)
+            || !setField(TIFFTAG_BITSPERSAMPLE, 32)
+            || !setField(TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP)
+            || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+        {
             TIFFClose(tiff);
             return false;
         }
@@ -880,12 +887,13 @@ bool QTiffHandler::write(const QImage &image)
                || format == QImage::Format_RGBA32FPx4_Premultiplied) {
         const bool premultiplied = image.format() != QImage::Format_RGBA16FPx4 && image.format() != QImage::Format_RGBA32FPx4;
         const uint16_t extrasamples = premultiplied ? EXTRASAMPLE_ASSOCALPHA : EXTRASAMPLE_UNASSALPHA;
-        if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, image.depth() == 64 ? 16 : 32)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP)
-            || !TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+        if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
+            || !setField(TIFFTAG_SAMPLESPERPIXEL, 4)
+            || !setField(TIFFTAG_BITSPERSAMPLE, image.depth() == 64 ? 16 : 32)
+            || !setField(TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP)
+            || !setField(TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
+            || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+        {
             TIFFClose(tiff);
             return false;
         }
@@ -897,11 +905,12 @@ bool QTiffHandler::write(const QImage &image)
         }
         TIFFClose(tiff);
     } else if (format == QImage::Format_CMYK8888) {
-        if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_SEPARATED)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
-            || !TIFFSetField(tiff, TIFFTAG_INKSET, INKSET_CMYK)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+        if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_SEPARATED)
+            || !setField(TIFFTAG_SAMPLESPERPIXEL, 4)
+            || !setField(TIFFTAG_BITSPERSAMPLE, 8)
+            || !setField(TIFFTAG_INKSET, INKSET_CMYK)
+            || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+        {
             TIFFClose(tiff);
             return false;
         }
@@ -915,10 +924,11 @@ bool QTiffHandler::write(const QImage &image)
 
         TIFFClose(tiff);
     } else if (!image.hasAlphaChannel()) {
-        if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 3)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+        if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
+            || !setField(TIFFTAG_SAMPLESPERPIXEL, 3)
+            || !setField(TIFFTAG_BITSPERSAMPLE, 8)
+            || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+        {
             TIFFClose(tiff);
             return false;
         }
@@ -945,11 +955,12 @@ bool QTiffHandler::write(const QImage &image)
         const bool premultiplied = image.format() != QImage::Format_ARGB32
                                 && image.format() != QImage::Format_RGBA8888;
         const uint16_t extrasamples = premultiplied ? EXTRASAMPLE_ASSOCALPHA : EXTRASAMPLE_UNASSALPHA;
-        if (!TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
-            || !TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4)
-            || !TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, 8)
-            || !TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
-            || !TIFFSetField(tiff, TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff))) {
+        if (!setField(TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
+            || !setField(TIFFTAG_SAMPLESPERPIXEL, 4)
+            || !setField(TIFFTAG_BITSPERSAMPLE, 8)
+            || !setField(TIFFTAG_EXTRASAMPLES, 1, &extrasamples)
+            || !setField(TIFFTAG_ROWSPERSTRIP, defaultStripSize(tiff)))
+        {
             TIFFClose(tiff);
             return false;
         }
