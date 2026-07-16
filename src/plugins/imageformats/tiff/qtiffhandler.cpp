@@ -500,9 +500,10 @@ bool QTiffHandler::read(QImage *image)
             bytesPerPixel = d->photometric == PHOTOMETRIC_RGB ? 12 : 4;
         if (TIFFIsTiled(tiff)) {
             quint32 tileWidth, tileLength;
-            TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &tileWidth);
-            TIFFGetField(tiff, TIFFTAG_TILELENGTH, &tileLength);
-            if (!tileWidth || !tileLength || tileWidth % 16 || tileLength % 16) {
+            if (!TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &tileWidth)
+                || !TIFFGetField(tiff, TIFFTAG_TILELENGTH, &tileLength)
+                || !tileWidth || !tileLength || tileWidth % 16 || tileLength % 16)
+            {
                 d->close();
                 return false;
             }
