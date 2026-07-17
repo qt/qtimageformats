@@ -112,6 +112,10 @@ public:
     static int tiffWarningHandler(TIFF *tif, void *user_data, const char *,
                                   const char *fmt, va_list ap);
 #endif
+    void convert32BitOrder(void *buffer, int width);
+    void rgb48fixup(QImage *image);
+    void rgb96fixup(QImage *image);
+    void rgbFixup(QImage *image);
 
     TIFF *tiff = nullptr;
     int compression = QTiffHandler::NoCompression;
@@ -549,20 +553,20 @@ bool QTiffHandler::read(QImage *image)
         }
         if (format == QImage::Format_RGBX64 || format == QImage::Format_RGBX16FPx4) {
             if (d->photometric == PHOTOMETRIC_RGB)
-                rgb48fixup(image, d->floatingPoint);
+                d->rgb48fixup(image);
             else
-                rgbFixup(image);
+                d->rgbFixup(image);
         } else if (format == QImage::Format_RGBX32FPx4) {
             if (d->photometric == PHOTOMETRIC_RGB)
-                rgb96fixup(image);
+                d->rgb96fixup(image);
             else
-                rgbFixup(image);
+                d->rgbFixup(image);
         }
     } else {
         const int stopOnError = 1;
         if (TIFFReadRGBAImageOriented(tiff, width, height, reinterpret_cast<uint32_t *>(image->bits()), qt2Exif(d->transformation), stopOnError)) {
             for (uint32_t y=0; y<height; ++y)
-                convert32BitOrder(image->scanLine(y), width);
+                d->convert32BitOrder(image->scanLine(y), width);
         } else {
             d->close();
             return false;
@@ -1054,7 +1058,7 @@ int QTiffHandler::currentImageNumber() const
     return d->currentDirectory;
 }
 
-void QTiffHandler::convert32BitOrder(void *buffer, int width)
+void QTiffHandlerPrivate::convert32BitOrder(void *buffer, int width)
 {
     uint32_t *target = reinterpret_cast<uint32_t *>(buffer);
     for (int32_t x=0; x<width; ++x) {
@@ -1067,7 +1071,7 @@ void QTiffHandler::convert32BitOrder(void *buffer, int width)
     }
 }
 
-void QTiffHandler::rgb48fixup(QImage *image, bool floatingPoint)
+void QTiffHandlerPrivate::rgb48fixup(QImage *image)
 {
     Q_ASSERT(image->depth() == 64);
     const int h = image->height();
@@ -1090,7 +1094,7 @@ void QTiffHandler::rgb48fixup(QImage *image, bool floatingPoint)
     }
 }
 
-void QTiffHandler::rgb96fixup(QImage *image)
+void QTiffHandlerPrivate::rgb96fixup(QImage *image)
 {
     Q_ASSERT(image->depth() == 128);
     const int h = image->height();
@@ -1109,9 +1113,9 @@ void QTiffHandler::rgb96fixup(QImage *image)
     }
 }
 
-void QTiffHandler::rgbFixup(QImage *image)
+void QTiffHandlerPrivate::rgbFixup(QImage *image)
 {
-    Q_ASSERT(d->floatingPoint);
+    Q_ASSERT(floatingPoint);
     if (image->depth() == 64) {
         const int h = image->height();
         const int w = image->width();
