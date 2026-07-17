@@ -24,6 +24,8 @@ private slots:
     void readCorruptImage_data();
     void readCorruptImage();
 
+    void readAfterFailedRead();
+
     void tiffCompression_data();
     void tiffCompression();
     void tiffEndianness();
@@ -195,6 +197,50 @@ void tst_qtiff::readCorruptImage()
     QVERIFY(reader.canRead());
     QImage image = reader.read();
     QVERIFY(image.isNull());
+}
+
+void tst_qtiff::readAfterFailedRead()
+{
+    // multipage_corrupt.tiff is a 3-page 1x1 RGB image (red, green, blue) whose
+    // first page has a StripOffsets tag pointing past the end of the file. Every
+    // page's IFD is well-formed, so directory parsing (and thus imageCount() and
+    // readHeaders()) succeeds; only decoding the first page's pixels fails.
+    const QString fileName = prefix + "multipage_corrupt.tiff";
+
+    // The green and blue pages are intact and readable on their own.
+    {
+        QImageReader reader(fileName);
+        QVERIFY(reader.jumpToImage(1));
+        const QImage green = reader.read();
+        QVERIFY2(!green.isNull(), qPrintable(reader.errorString()));
+        QCOMPARE(green.pixel(0, 0), qRgb(0, 255, 0));
+    }
+    {
+        QImageReader reader(fileName);
+        QVERIFY(reader.jumpToImage(2));
+        const QImage blue = reader.read();
+        QVERIFY2(!blue.isNull(), qPrintable(reader.errorString()));
+        QCOMPARE(blue.pixel(0, 0), qRgb(0, 0, 255));
+    }
+
+    QImageReader reader(fileName);
+
+    // Counting the directories only parses the IFDs, not the image bodies, so it
+    // succeeds - and caches the directory count, which makes the jumpToImage()
+    // below a genuine no-op instead of a (failing) reopen.
+    QCOMPARE(reader.imageCount(), 3);
+
+    // The first read() reads the headers, then fails decoding the body, which
+    // closes the underlying TIFF handle.
+    QVERIFY(reader.read().isNull());
+
+    // Re-selecting the current image is a documented no-op: it must return true
+    // without resetting the cached headers.
+    QCOMPARE(reader.currentImageNumber(), 0);
+    QVERIFY(reader.jumpToImage(0));
+
+    // Next read() should fail (same as first one), but not crash:
+    QVERIFY(reader.read().isNull());
 }
 
 void tst_qtiff::tiffCompression_data()

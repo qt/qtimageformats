@@ -187,6 +187,7 @@ void QTiffHandlerPrivate::close()
     if (tiff)
         TIFFClose(tiff);
     tiff = 0;
+    headersRead = false;
 }
 
 TIFF *QTiffHandlerPrivate::openInternal(const char *mode, QIODevice *device)
