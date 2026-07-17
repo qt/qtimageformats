@@ -113,9 +113,9 @@ public:
     static int tiffWarningHandler(TIFF *tif, void *user_data, const char *,
                                   const char *fmt, va_list ap);
 #endif
-    void convert32BitOrder(void *buffer, int width);
+    static void convert32BitOrder(void *buffer, int width);
     void rgb48fixup(QImage *image);
-    void rgb96fixup(QImage *image);
+    static void rgb96fixup(QImage *image);
     void rgbFixup(QImage *image);
 
     TIFF *tiff = nullptr;
