@@ -44,6 +44,7 @@ set(tiff_resource_files
     "../../shared/images/tiff/mono_orientation_7.tiff"
     "../../shared/images/tiff/mono_orientation_8.tiff"
     "../../shared/images/tiff/multipage.tiff"
+    "../../shared/images/tiff/multipage_corrupt.tiff"
     "../../shared/images/tiff/oddsize_grayscale.tiff"
     "../../shared/images/tiff/oddsize_mono.tiff"
     "../../shared/images/tiff/original_grayscale.tiff"
