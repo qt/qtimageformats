@@ -117,6 +117,8 @@ static mng_ptr MNG_DECL mygetcanvasline(mng_handle hMNG,
                                mng_uint32 iLinenr)
 {
     QMngHandlerPrivate *pMydata = reinterpret_cast<QMngHandlerPrivate *>(mng_get_userdata(hMNG));
+    if (pMydata->image.isNull() || iLinenr >= mng_uint32(pMydata->image.height()))
+        return nullptr;
     return (mng_ptr)pMydata->image.scanLine(iLinenr);
 }
 
@@ -152,7 +154,7 @@ static mng_bool MNG_DECL myprocessterm(mng_handle hMNG,
 {
     QMngHandlerPrivate *pMydata = reinterpret_cast<QMngHandlerPrivate *>(mng_get_userdata(hMNG));
     if (iTermaction == 3)
-        pMydata->iterCount = iItermax;
+        pMydata->iterCount = qMin<mng_uint32>(iItermax, 0x7FFFFFFF);
     return MNG_TRUE;
 }
 
@@ -198,14 +200,20 @@ QMngHandlerPrivate::~QMngHandlerPrivate()
 mng_bool QMngHandlerPrivate::readData(mng_ptr pBuf, mng_uint32 iSize, mng_uint32p pRead)
 {
     Q_Q(QMngHandler);
-    *pRead = q->device()->read((char *)pBuf, iSize);
-    return (*pRead > 0) ? MNG_TRUE : MNG_FALSE;
+    const qint64 nRead = q->device()->read((char *)pBuf, iSize);
+    *pRead = (nRead > 0) ? mng_uint32(nRead) : 0;
+    return (nRead > 0) ? MNG_TRUE : MNG_FALSE;
 }
 
 mng_bool QMngHandlerPrivate::writeData(mng_ptr pBuf, mng_uint32 iSize, mng_uint32p pWritten)
 {
     Q_Q(QMngHandler);
-    *pWritten = q->device()->write((char *)pBuf, iSize);
+    const qint64 nWritten = q->device()->write((char *)pBuf, iSize);
+    if (nWritten < 0) {
+        *pWritten = 0;
+        return MNG_FALSE;
+    }
+    *pWritten = mng_uint32(nWritten);
     return MNG_TRUE;
 }
 
