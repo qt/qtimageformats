@@ -9,9 +9,11 @@
 #include "qvariant.h"
 #include "qcolor.h"
 #include "qimagereader.h"
+#include "qnumeric.h"
 
 #include <jasper/jasper.h>
 #include <math.h> // for pow
+#include <limits>
 
 QT_BEGIN_NAMESPACE
 
@@ -351,6 +353,10 @@ bool Jpeg2000JasperReader::read(QImage *pImage)
     if (!jasperOk)
         return false;
 
+    const auto jasCoordInIntRange = [](jas_image_coord_t v) {
+        return v >= 1 && qint64(v) <= qint64(std::numeric_limits<int>::max());
+    };
+
     /*
         Reading proceeds approximately as follows:
         1. Open stream and decode using Jasper
@@ -383,6 +389,11 @@ bool Jpeg2000JasperReader::read(QImage *pImage)
     qtHeight = jas_image_height(jasper_image);
     jasNumComponents = jas_image_numcmpts(jasper_image);
     jasperColorspaceFamily = jas_clrspc_fam(jas_image_clrspc(jasper_image));
+
+    if (jasNumComponents < 1 || jasNumComponents > 4) {
+        qDebug("Unsupported number of components (%d) in JPEG 2000 image", jasNumComponents);
+        return false;
+    }
 
     bool needColorspaceChange = false;
     if (jasperColorspaceFamily != JAS_CLRSPC_FAM_RGB &&
@@ -426,10 +437,20 @@ bool Jpeg2000JasperReader::read(QImage *pImage)
     }
 
     // Image metadata may have changed, get from Jasper.
-    qtWidth = jas_image_width(jasper_image);
-    qtHeight = jas_image_height(jasper_image);
+    const jas_image_coord_t imageWidth = jas_image_width(jasper_image);
+    const jas_image_coord_t imageHeight = jas_image_height(jasper_image);
+    if (!jasCoordInIntRange(imageWidth) || !jasCoordInIntRange(imageHeight)) {
+        qDebug("The Qt JPEG 2000 reader does not support image dimensions this large");
+        return false;
+    }
+    qtWidth = imageWidth;
+    qtHeight = imageHeight;
     jasNumComponents = jas_image_numcmpts(jasper_image);
     jasperColorspaceFamily = jas_clrspc_fam(jas_image_clrspc(jasper_image));
+    if (jasNumComponents < 1 || jasNumComponents > 4) {
+        qDebug("Unsupported number of components (%d) in JPEG 2000 image", jasNumComponents);
+        return false;
+    }
     for (c = 0; c < jasNumComponents; ++c) {
         jasComponentPrecicion[c] = jas_image_cmptprec(jasper_image, c);
     }
@@ -453,10 +474,19 @@ bool Jpeg2000JasperReader::read(QImage *pImage)
     if (oddComponentSubsampling) {
         // Check if all components have the same vertical/horizontal dim and
         // subsampling
-        computedComponentWidth = jas_image_cmptwidth(jasper_image, 0);
-        computedComponentHeight = jas_image_cmptheight(jasper_image, 0);
-        computedComponentHorizontalSubsampling = jas_image_cmpthstep(jasper_image, 0);
-        computedComponentVerticalSubsampling = jas_image_cmptvstep(jasper_image, 0);
+        const jas_image_coord_t cmptWidth = jas_image_cmptwidth(jasper_image, 0);
+        const jas_image_coord_t cmptHeight = jas_image_cmptheight(jasper_image, 0);
+        const jas_image_coord_t hstep = jas_image_cmpthstep(jasper_image, 0);
+        const jas_image_coord_t vstep = jas_image_cmptvstep(jasper_image, 0);
+        if (!jasCoordInIntRange(cmptWidth) || !jasCoordInIntRange(cmptHeight) ||
+            !jasCoordInIntRange(hstep) || !jasCoordInIntRange(vstep)) {
+            qDebug("The Qt JPEG 2000 reader does not support image dimensions this large");
+            return false;
+        }
+        computedComponentWidth = cmptWidth;
+        computedComponentHeight = cmptHeight;
+        computedComponentHorizontalSubsampling = hstep;
+        computedComponentVerticalSubsampling = vstep;
 
         for (c = 1; c < jasNumComponents; ++c) {
             if (computedComponentWidth != jas_image_cmptwidth(jasper_image, c) ||
@@ -468,8 +498,11 @@ bool Jpeg2000JasperReader::read(QImage *pImage)
                 return false;
             }
         }
-        qtWidth = computedComponentWidth * computedComponentHorizontalSubsampling;
-        qtHeight = computedComponentHeight * computedComponentVerticalSubsampling;
+        if (qMulOverflow(computedComponentWidth, computedComponentHorizontalSubsampling, &qtWidth) ||
+            qMulOverflow(computedComponentHeight, computedComponentVerticalSubsampling, &qtHeight)) {
+            qDebug("The Qt JPEG 2000 reader does not support image dimensions this large");
+            return false;
+        }
     }
 
     // Sanity check each component
