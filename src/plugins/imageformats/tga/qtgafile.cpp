@@ -140,25 +140,6 @@ QTgaFile::QTgaFile(QIODevice *device)
         mErrorMessage = tr("Image size exceeds limit");
         return;
     }
-    int curPos = mDevice->pos();
-    int fileBytes = mDevice->size();
-    if (!mDevice->seek(fileBytes - FooterSize))
-    {
-        mErrorMessage = tr("Could not seek to image read footer");
-        return;
-    }
-    char footer[FooterSize];
-    if (mDevice->read(reinterpret_cast<char*>(footer), FooterSize) != FooterSize) {
-        mErrorMessage = tr("Could not read footer");
-    }
-    if (qstrncmp(&footer[SignatureOffset], "TRUEVISION-XFILE", 16) != 0)
-    {
-        mErrorMessage = tr("Image type (non-TrueVision 2.0) not supported");
-    }
-    if (!mDevice->seek(curPos))
-    {
-        mErrorMessage = tr("Could not reset to read data");
-    }
 }
 
 /*!
