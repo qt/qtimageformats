@@ -96,8 +96,8 @@ bool QWebpHandler::ensureScanned() const
                 that->m_composited = new QImage;
                 if (!QImageIOHandler::allocateImage(sz, QImage::Format_ARGB32, that->m_composited))
                     return false;
-                if (that->m_features.has_alpha)
-                    that->m_composited->fill(Qt::transparent);
+                // Ensure whole image is initialized; anim frames may cover only partially
+                that->m_composited->fill(m_features.has_alpha ? QColor(Qt::transparent) : m_bgColor);
 
                 m_scanState = ScanSuccess;
             }
