@@ -587,6 +587,7 @@ static QImage read32bitIcon(const ICNSEntry &icon, QDataStream &stream)
             }
         }
     } else {
+        img.fill(Qt::black); // rle data may not cover all, ensure initialized
         const quint32 estPxsNum = icon.width * icon.height;
         const QByteArray &bytes = stream.device()->peek(4);
         if (bytes.isEmpty())
@@ -712,7 +713,8 @@ bool QICNSHandler::read(QImage *outImage)
         else if (icon.dataFormat == ICNSEntry::JP2)
             format = "jp2";
         // Even if JP2 or PNG magic is not detected, try anyway for unknown formats
-        img = QImage::fromData(device()->read(icon.dataLength), format);
+        if (qint64(icon.dataLength) <= device()->bytesAvailable())
+            img = QImage::fromData(device()->read(icon.dataLength), format);
         if (img.isNull()) {
             if (format == 0)
                 format = "unknown";
@@ -789,7 +791,7 @@ QVariant QICNSHandler::option(ImageOption option) const
         return QVariant();
 
     if (option == SubType) {
-        if (imageCount() > 0 && m_currentIconIndex <= imageCount()) {
+        if (imageCount() > 0 && m_currentIconIndex < imageCount()) {
             const ICNSEntry &icon = m_icons.at(m_currentIconIndex);
             if (icon.variant != 0)
                 return QByteArray(nameFromOSType(icon.variant) + '-' + nameFromOSType(icon.ostype));
@@ -948,7 +950,8 @@ bool QICNSHandler::scanDevice()
             for (uint i = 0, count = blockDataLength / ICNSBlockHeaderSize; i < count; i++) {
                 ICNSBlockHeader tocEntry;
                 stream >> tocEntry;
-                if (!isBlockHeaderValid(tocEntry)) {
+                if (imgDataOffset > filelength
+                    || !isBlockHeaderValid(tocEntry, quint64(filelength - imgDataOffset))) {
                     // TOC contains incorrect header, we should skip TOC since we can't trust it
                     qWarning("QICNSHandler::scanDevice(): Warning! Table of contents contains a bad " \
                              "entry! Stop at device pos: %s bytes. This file may be corrupted.",
