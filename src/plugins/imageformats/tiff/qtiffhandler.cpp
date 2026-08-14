@@ -135,6 +135,7 @@ public:
     uint16_t photometric = {}; // no good default, so just value-init
     bool grayscale = false;
     bool floatingPoint = false;
+    bool separatePlanes = false;
     bool headersRead = false;
     int currentDirectory = 0;
     int directoryCount = 0;
@@ -340,6 +341,11 @@ bool QTiffHandlerPrivate::readHeaders(QIODevice *device)
         sampleFormat = SAMPLEFORMAT_VOID;
     floatingPoint = (sampleFormat == SAMPLEFORMAT_IEEEFP);
 
+    uint16_t planarConfig;
+    if (!TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &planarConfig))
+        planarConfig = PLANARCONFIG_CONTIG;
+    separatePlanes = planarConfig == PLANARCONFIG_SEPARATE && samplesPerPixel > 1;
+
     grayscale = photometric == PHOTOMETRIC_MINISBLACK || photometric == PHOTOMETRIC_MINISWHITE;
 
     if (grayscale && bitPerSample == 1 && samplesPerPixel == 1)
@@ -505,11 +511,16 @@ bool QTiffHandlerPrivate::readNextImage(QImage *image)
 
     // Formats we read directly, instead of over RGBA32:
     if (format8bit || format16bit || formatCmyk32bit || format64bit || format64fp || format128fp) {
+        if (separatePlanes)
+            return false; // the direct-read path assumes interleaved samples
+        image->fill(0); // scanlines or tiles may fill partially, so ensure initialized
+
         int bytesPerPixel = image->depth() / 8;
         if (format == QImage::Format_RGBX64 || format == QImage::Format_RGBX16FPx4)
             bytesPerPixel = photometric == PHOTOMETRIC_RGB ? 6 : 2;
         else if (format == QImage::Format_RGBX32FPx4)
             bytesPerPixel = photometric == PHOTOMETRIC_RGB ? 12 : 4;
+
         if (TIFFIsTiled(tiff)) {
             quint32 tileWidth, tileLength;
             if (!TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &tileWidth)
@@ -723,7 +734,7 @@ bool QTiffHandler::write(const QImage &image)
     const QImage::Format format = image.format();
     if (format == QImage::Format_Mono || format == QImage::Format_MonoLSB) {
         uint16_t photometric = PHOTOMETRIC_MINISBLACK;
-        if (image.colorTable().at(0) == 0xffffffff)
+        if (image.colorTable().value(0) == 0xffffffff)
             photometric = PHOTOMETRIC_MINISWHITE;
         if (!setField(TIFFTAG_PHOTOMETRIC, photometric)
             || !setField(TIFFTAG_BITSPERSAMPLE, 1)
@@ -772,13 +783,12 @@ bool QTiffHandler::write(const QImage &image)
             {
                 return false;
             }
-            //// write the color table
-            // allocate the color tables
-            const int tableSize = colorTable.size();
-            Q_ASSERT(tableSize <= 256);
-            QVarLengthArray<uint16_t> redTable(tableSize);
-            QVarLengthArray<uint16_t> greenTable(tableSize);
-            QVarLengthArray<uint16_t> blueTable(tableSize);
+            // write the color table; libtiff reads 256 entries
+            constexpr qsizetype colorMapSize = 256;
+            const int tableSize = int(qMin(colorTable.size(), colorMapSize));
+            QVarLengthArray<uint16_t> redTable(colorMapSize, 0);
+            QVarLengthArray<uint16_t> greenTable(colorMapSize, 0);
+            QVarLengthArray<uint16_t> blueTable(colorMapSize, 0);
 
             // set the color table
             for (int i = 0; i<tableSize; ++i) {
@@ -1082,16 +1092,19 @@ void QTiffHandlerPrivate::rgb96fixup(QImage *image)
 
 void QTiffHandlerPrivate::rgbFixup(QImage *image)
 {
-    Q_ASSERT(floatingPoint);
     if (image->depth() == 64) {
         const int h = image->height();
         const int w = image->width();
         uchar *scanline = image->bits();
         const qsizetype bpl = image->bytesPerLine();
+        quint16 mask = 0xffff;
+        const qfloat16 fp_mask = qfloat16(1.0f);
+        if (floatingPoint)
+            memcpy(&mask, &fp_mask, 2);
         for (int y = 0; y < h; ++y) {
-            qfloat16 *dst = reinterpret_cast<qfloat16 *>(scanline);
+            quint16 *dst = reinterpret_cast<quint16 *>(scanline);
             for (int x = w - 1; x >= 0; --x) {
-                dst[x * 4 + 3] = qfloat16(1.0f);
+                dst[x * 4 + 3] = mask;
                 dst[x * 4 + 2] = dst[x];
                 dst[x * 4 + 1] = dst[x];
                 dst[x * 4 + 0] = dst[x];
@@ -1099,6 +1112,7 @@ void QTiffHandlerPrivate::rgbFixup(QImage *image)
             scanline += bpl;
         }
     } else {
+        Q_ASSERT(floatingPoint); // depth 128 is only 32-bit float (RGBX32FPx4)
         const int h = image->height();
         const int w = image->width();
         uchar *scanline = image->bits();
