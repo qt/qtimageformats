@@ -49,13 +49,17 @@ qt_find_package(Libmng PROVIDED_TARGETS Libmng::Libmng MODULE_NAME imageformats 
 
 qt_feature("jasper" PRIVATE
     LABEL "JasPer"
+    AUTODETECT OFF
     CONDITION QT_FEATURE_imageformatplugin AND WrapJasper_FOUND
+    ENABLE INPUT_jasper STREQUAL 'yes'
     DISABLE INPUT_jasper STREQUAL 'no'
 )
 qt_feature_definition("jasper" "QT_NO_IMAGEFORMAT_JASPER" NEGATE)
 qt_feature("mng" PRIVATE
     LABEL "MNG"
+    AUTODETECT OFF
     CONDITION Libmng_FOUND
+    ENABLE INPUT_mng STREQUAL 'yes'
     DISABLE INPUT_mng STREQUAL 'no'
 )
 qt_feature("tiff" PRIVATE
