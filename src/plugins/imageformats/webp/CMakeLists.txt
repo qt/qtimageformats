@@ -187,7 +187,6 @@ qt_internal_extend_target(QWebpPlugin CONDITION NOT QT_FEATURE_system_webp
         ../../../3rdparty/libwebp/src/utils/rescaler_utils.h
         ../../../3rdparty/libwebp/src/utils/thread_utils.h
         ../../../3rdparty/libwebp/src/utils/utils.h
-        ../../../3rdparty/libwebp/src/webp/config.h
         ../../../3rdparty/libwebp/src/webp/decode.h
         ../../../3rdparty/libwebp/src/webp/demux.h
         ../../../3rdparty/libwebp/src/webp/encode.h
