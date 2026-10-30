@@ -71,9 +71,10 @@ bool QWebpHandler::ensureScanned() const
     m_scanState = ScanError;
 
     QWebpHandler *that = const_cast<QWebpHandler *>(this);
+    // A complete, small image may be shorter than this
     const int headerBytesNeeded = sizeof(WebPBitstreamFeatures);
     QByteArray header = device()->peek(headerBytesNeeded);
-    if (header.size() < headerBytesNeeded)
+    if (header.size() < riffHeaderSize)
         return false;
 
     // We do no random access during decoding, just a readAll() of the whole image file. So if
