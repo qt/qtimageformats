@@ -41,6 +41,7 @@ void tst_qwebp::readImage_data()
     QTest::newRow("kollada") << QString("kollada") << QSize(436, 160) << true;
     QTest::newRow("kollada_lossless") << QString("kollada_lossless") << QSize(436, 160) << true;
     QTest::newRow("kollada_noalpha") << QString("kollada_noalpha") << QSize(436, 160) << false;
+    QTest::newRow("tiny_lossless") << QString("tiny_lossless") << QSize(32, 32) << true;
 }
 
 void tst_qwebp::readImage()

@@ -19,6 +19,7 @@ set(webp_resource_files
     "images/kollada_animation.webp"
     "images/kollada_lossless.webp"
     "images/kollada_noalpha.webp"
+    "images/tiny_lossless.webp"
 )
 
 qt_internal_add_resource(tst_qwebp "webp"
